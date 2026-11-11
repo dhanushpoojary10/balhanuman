@@ -26,8 +26,11 @@ namespace BalHanuman
         public float fallLimitY = -9f;
         public Sprite sparkleSprite;
         public Sprite goldSprite;
+        [Tooltip("Show the 'Level 1' title card when the level opens")]
+        public bool showTitleCard = true;
 
         public int Mangoes { get; private set; }
+        public int TotalMangoes { get; private set; }
         public int Bonus { get; private set; }
         public bool MonkeyRescued { get; set; }
         public bool IsPaused { get; private set; }
@@ -35,7 +38,7 @@ namespace BalHanuman
 
         Vector2 checkpoint;
         float elapsed;
-        bool ending, respawning;
+        bool ending, respawning, failOpen;
 
         void Awake()
         {
@@ -53,8 +56,14 @@ namespace BalHanuman
             checkpoint = player.transform.position;
             quest.StateChanged += OnQuestChanged;
             interactor.TargetChanged += t => hud.SetPrompt(t != null ? t.GetInteractionPrompt() : null);
-            hud.SetObjective(quest.Objective);
-            hud.SetMangoCount(0);
+            hud.SetObjective(quest.Objective, quest.Hint);
+            TotalMangoes = 0;
+            foreach (var col in FindObjectsByType<Collectible>(FindObjectsSortMode.None)) if (col.kind == CollectibleKind.Mango) TotalMangoes += col.value;
+            foreach (var m in FindObjectsByType<BabyMonkey>(FindObjectsSortMode.None)) TotalMangoes += m.bonusMangoes;
+            hud.SetMangoCount(0, TotalMangoes);
+            player.RollDenied += hud.FlashEnergy;
+            player.RollDenied += Haptics.Tick;
+            if (showTitleCard) hud.ShowTitleCard("LEVEL 1", "The Missing Fruit Offering");
             if (carriedBasket != null) carriedBasket.SetActive(false);
         }
 
@@ -62,7 +71,7 @@ namespace BalHanuman
 
         void OnQuestChanged(QuestState s)
         {
-            hud.SetObjective(quest.Objective);
+            hud.SetObjective(quest.Objective, quest.Hint);
             if (carriedBasket != null) carriedBasket.SetActive(s == QuestState.BasketCollected || s == QuestState.ReturnToSage);
         }
 
@@ -94,14 +103,37 @@ namespace BalHanuman
             else Bonus += value;
         }
 
-        public void AddMangoes(int n) { Mangoes += n; hud.SetMangoCount(Mangoes); }
+        public void AddMangoes(int n) { Mangoes += n; hud.SetMangoCount(Mangoes, TotalMangoes); }
 
         public void SetCheckpoint(Vector2 pos) { checkpoint = pos; }
 
         // ---------------- respawn ----------------
+        /// <summary>The player fell into water or a pit: show the "Hanuman is down" dialog instead of respawning at once.</summary>
         public void Respawn()
         {
-            if (respawning || ending) return;
+            if (respawning || ending || failOpen) return;
+            Haptics.Heavy();
+            SideScrollCamera.Shake(0.12f, 0.3f);
+            StartCoroutine(FailRoutine());
+        }
+
+        IEnumerator FailRoutine()
+        {
+            failOpen = true;
+            player.InputLocked = true;
+            GameInput.Reset();
+            hud.SetControlsVisible(false);
+            yield return new WaitForSeconds(0.5f);          // let the splash play
+            player.spriteRenderer.enabled = false;           // the dialog shows Hanuman's fall sprites instead
+            player.Body.simulated = false;
+            Time.timeScale = 0f;
+            overlay.ShowFail(GoToCheckpoint, ReplayLevel);
+        }
+
+        public void GoToCheckpoint()
+        {
+            overlay.HideFail();
+            Time.timeScale = 1f;
             StartCoroutine(RespawnRoutine());
         }
 
@@ -110,12 +142,15 @@ namespace BalHanuman
             respawning = true;
             player.InputLocked = true;
             yield return hud.FadeTo(1f, 0.25f);
+            player.Body.simulated = true;
+            player.spriteRenderer.enabled = true;
             player.TeleportTo(checkpoint);
             if (cameraRig != null) cameraRig.Snap();
+            hud.SetControlsVisible(true);
             yield return new WaitForSecondsRealtime(0.1f);
             yield return hud.FadeTo(0f, 0.3f);
             player.InputLocked = false;
-            respawning = false;
+            respawning = false; failOpen = false;
         }
 
         // ---------------- return portal ----------------
@@ -142,7 +177,7 @@ namespace BalHanuman
         // ---------------- pause ----------------
         public void TogglePause()
         {
-            if (ending || overlay.DialogueOpen) return;
+            if (ending || failOpen || overlay.DialogueOpen) return;
             IsPaused = !IsPaused;
             Time.timeScale = IsPaused ? 0f : 1f;
             overlay.SetPause(IsPaused);
@@ -176,6 +211,7 @@ namespace BalHanuman
             hud.SetPrompt(null);
             hud.SetControlsVisible(false);
             yield return new WaitForSeconds(0.3f);
+            Music.Duck(0.25f, 9f);
             Sfx.Play(Sfx.Id.Bell);
             Toast("The temple bell rings across the forest...", 3.5f);
             Fx.Burst(sparkleSprite, player.transform.position + Vector3.up, 40, 4f, 2.2f, -0.2f, 0.45f, new Color(1f, 0.85f, 0.3f), 1.5f, 30);
@@ -186,7 +222,7 @@ namespace BalHanuman
             Sfx.Play(Sfx.Id.Complete);
             yield return new WaitForSeconds(2.2f);
             LevelCompleted?.Invoke();
-            overlay.ShowComplete(new CompletionStats { mangoes = Mangoes, bonus = Bonus, monkeyRescued = MonkeyRescued, seconds = elapsed });
+            overlay.ShowComplete(new CompletionStats { mangoes = Mangoes, totalMangoes = TotalMangoes, bonus = Bonus, monkeyRescued = MonkeyRescued, seconds = elapsed });
         }
     }
 }

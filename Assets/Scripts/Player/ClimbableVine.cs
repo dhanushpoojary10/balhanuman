@@ -13,7 +13,25 @@ namespace BalHanuman
 
         public float TopY { get { var c = GetComponent<BoxCollider2D>(); return c.bounds.max.y - topOffset; } }
 
+        [Tooltip("Optional: the hanging pieces of the vine, with the pivot at the top. It sways gently and swings when grabbed.")]
+        public Transform swayRoot;
+        float swayPhase, nudgeAmp, nudgeStart = -99f;
+
         void Reset() { GetComponent<BoxCollider2D>().isTrigger = true; }
+
+        void Awake() { swayPhase = Random.value * 6.28f; }
+
+        /// <summary>Give the vine a little swing (called when the player grabs it).</summary>
+        public void Nudge(float direction) { nudgeAmp = 5f * Mathf.Sign(direction); nudgeStart = Time.time; }
+
+        void Update()
+        {
+            if (swayRoot == null) return;
+            float t = Time.time - nudgeStart;
+            float swing = nudgeAmp * Mathf.Exp(-2.2f * t) * Mathf.Cos(t * 6.5f);
+            float idle = Mathf.Sin(Time.time * 1.1f + swayPhase) * 1.4f;
+            swayRoot.localRotation = Quaternion.Euler(0f, 0f, idle + swing);
+        }
 
         static bool hintShown;
 

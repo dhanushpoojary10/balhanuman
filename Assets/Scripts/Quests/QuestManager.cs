@@ -26,6 +26,21 @@ namespace BalHanuman
             }
         }
 
+        public string Hint
+        {
+            get
+            {
+                switch (State)
+                {
+                    case QuestState.NotStarted: return "The sage is waiting nearby";
+                    case QuestState.FindBasket: return "Follow the mango trail to the temple";
+                    case QuestState.BasketCollected: return "Step into the glowing portal";
+                    case QuestState.ReturnToSage: return "Hand the basket to the sage";
+                    default: return "";
+                }
+            }
+        }
+
         void Set(QuestState s) { State = s; StateChanged?.Invoke(s); }
 
         public bool StartQuest() { if (State != QuestState.NotStarted) return false; Set(QuestState.FindBasket); return true; }

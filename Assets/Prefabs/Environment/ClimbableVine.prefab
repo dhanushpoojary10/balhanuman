@@ -93,3 +93,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BalHanuman.ClimbableVine
   exitDirection: 1
   topOffset: 0.2
+  swayRoot: {fileID: 0}

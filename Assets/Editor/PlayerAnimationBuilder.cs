@@ -51,7 +51,7 @@ namespace BalHanuman.EditorTools
             if (!AssetDatabase.IsValidFolder("Assets/Animations")) AssetDatabase.CreateFolder("Assets", "Animations");
             if (!AssetDatabase.IsValidFolder(Dir)) AssetDatabase.CreateFolder("Assets/Animations", "BalHanuman");
 
-            var idle = Clip("Hanuman_Idle", Frames("Idle", "idle", 9), 8f, true);
+            var idle = Clip("Hanuman_Idle", Frames("Idle24", "idle24", 24), 12f, true);
             var run = Clip("Hanuman_Run", Frames("Run", "run", 8), 14f, true);
             var jump = Clip("Hanuman_Jump", Frames("Jump", "jump", 6).GetRange(2, 1), 1f, false);
             var fall = Clip("Hanuman_Fall", Frames("Jump", "jump", 6).GetRange(4, 1), 1f, false);

@@ -29,7 +29,7 @@ namespace BalHanuman
 
         IEnumerator Dialogue(int max)
         {
-            for (int i = 0; i < max; i++) { yield return W(0.25f); Click(); }
+            for (int i = 0; i < max * 2; i++) { yield return W(0.2f); Click(); }   // first tap completes the typed line, second advances
             yield return W(0.2f);
         }
 
@@ -118,6 +118,34 @@ namespace BalHanuman
             Log("SUMMARY keys pass=" + pass + " fail=" + fail);
         }
 
+
+        public void EnergyTest() { StartCoroutine(Energy()); }
+
+        IEnumerator Energy()
+        {
+            p = FindFirstObjectByType<PlayerController2D>();
+            bool denied = false; p.RollDenied += () => denied = true;
+            Tp(10f, 0.05f); yield return W(0.6f);
+            float e0 = p.Energy01;
+            GameInput.TouchRollDown(); yield return W(0.2f);
+            float e1 = p.Energy01;
+            Check("roll spends energy", e1 < e0 - 0.3f, "before=" + e0.ToString("0.00") + " after=" + e1.ToString("0.00"));
+            yield return W(0.5f);
+            // spam rolls: the energy runs out and further rolls are refused
+            for (int i = 0; i < 4; i++)
+            {
+                p.Face(i % 2 == 0);
+                float before = p.Energy01; Vector2 at = Pos;
+                GameInput.TouchRollDown(); yield return W(0.3f);
+                Log("roll attempt " + i + " energy " + before.ToString("0.00") + " -> " + p.Energy01.ToString("0.00") + " rolling=" + p.Rolling + " grounded=" + p.Grounded + " denied=" + denied + " pos=" + at.x.ToString("0.0"));
+                yield return W(0.65f);
+            }
+            Check("energy runs out and roll is refused", denied, "denied=" + denied + " energy=" + p.Energy01.ToString("0.00"));
+            float low = p.Energy01; yield return W(3f);
+            Check("energy recharges", p.Energy01 > low + 0.3f, low.ToString("0.00") + " -> " + p.Energy01.ToString("0.00"));
+            Log("SUMMARY energy pass=" + pass + " fail=" + fail);
+        }
+
         public void RunAll() { StartCoroutine(All()); }
 
         IEnumerator All()
@@ -177,7 +205,11 @@ namespace BalHanuman
 
             // ---------- checkpoint + water respawn
             Tp(44.5f, 0.05f); yield return W(0.6f);
-            Tp(58.5f, -0.1f); yield return W(1.8f);
+            Tp(58.5f, -0.1f); yield return W(1.6f);
+            var failBtn = GameObject.Find("FailCheckpoint");
+            Check("fall shows the Hanuman-is-down dialog", failBtn != null && Time.timeScale == 0f);
+            if (failBtn != null) failBtn.GetComponent<UnityEngine.UI.Button>().onClick.Invoke();
+            yield return W(1.6f);
             Check("water respawns to checkpoint", Mathf.Abs(Pos.x - 44.5f) < 1.5f && Pos.y > -1f, "pos=" + Pos);
             Check("respawn kept mangoes", gs.Mangoes >= m0 + 1);
 

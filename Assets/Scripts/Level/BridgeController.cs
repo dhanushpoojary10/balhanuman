@@ -15,6 +15,8 @@ namespace BalHanuman
         public Vector2 freeEndOffset = new Vector2(12f, 0f);
         public Transform ropeAnchor;
         public bool Lowered { get; private set; }
+        /// <summary>Middle of the lowered bridge (the deck collider is disabled until it lands, so its bounds can't be used).</summary>
+        public Vector2 FocusPoint { get { return pivot != null ? (Vector2)pivot.position + new Vector2(freeEndOffset.x * 0.5f, 0f) : (Vector2)transform.position; } }
         LineRenderer[] ropes;
         bool moving;
 
@@ -76,6 +78,8 @@ namespace BalHanuman
             if (deck != null) deck.enabled = true;
             Lowered = true; moving = false;
             Sfx.Play(Sfx.Id.Lever, 0.7f);
+            SideScrollCamera.Shake(0.13f, 0.4f);   // the bridge thuds into place
+            Haptics.Heavy();
             Fx.Burst(dust, pivot.position + pivot.right * freeEndOffset.x, 14, 3f, 1.1f, -0.4f, 0.8f, new Color(0.85f, 0.8f, 0.7f, 0.6f), 0.5f, 9);
             done?.Invoke();
         }

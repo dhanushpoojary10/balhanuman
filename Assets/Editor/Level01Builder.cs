@@ -132,7 +132,7 @@ namespace BalHanuman.EditorTools
             var rb = player.AddComponent<Rigidbody2D>();
             rb.freezeRotation = true;
             var vis = new GameObject("Visual"); vis.transform.SetParent(player.transform, false);
-            var idle0 = S("Character/Idle/idle_01");
+            var idle0 = S("Character/Idle24/idle24_01");
             vis.transform.localScale = Vector3.one * (1.9f / idle0.bounds.size.y);
             var psr = vis.AddComponent<SpriteRenderer>(); psr.sprite = idle0; psr.sortingOrder = 10;
             var anim = vis.AddComponent<Animator>();
@@ -140,6 +140,7 @@ namespace BalHanuman.EditorTools
             var gc = new GameObject("GroundCheck"); gc.transform.SetParent(player.transform, false); gc.transform.localPosition = new Vector3(0, -0.04f, 0);
             var pc = player.AddComponent<PlayerController2D>();
             pc.groundCheck = gc.transform; pc.groundMask = LayerMask.GetMask("Ground"); pc.animator = anim; pc.spriteRenderer = psr; pc.dustSprite = S("VFX/fx_13");
+            pc.acceleration = 42f; pc.deceleration = 34f;     // a little slide when he lets go of the stick, instead of stopping dead
             var pi = player.AddComponent<PlayerInteractor>(); pi.player = pc;
             AddShadow(player.transform, 1.0f, true);
             var carried = BasketVisual("CarriedBasket", 0.9f);
@@ -205,10 +206,11 @@ namespace BalHanuman.EditorTools
             // ---- moving log
             var lg = new GameObject("MovingLog");
             lg.layer = LayerMask.NameToLayer("Ground");
-            var lgs = Spr("Props/generated/log_placeholder", 0, -0.55f, 0.85f, 4, lg.transform); lgs.name = "Visual";
+            var lgs = SprW("Water/log_0", 0, -0.42f, 3.1f, 9, lg.transform); lgs.name = "Visual";
             var lbc = lg.AddComponent<BoxCollider2D>(); lbc.size = new Vector2(2.5f, 0.35f); lbc.offset = new Vector2(0, -0.12f); lbc.sharedMaterial = noFriction;
             var lrb = lg.AddComponent<Rigidbody2D>(); lrb.bodyType = RigidbodyType2D.Kinematic;
-            lg.AddComponent<MovingPlatform>();
+            var lmp = lg.AddComponent<MovingPlatform>();
+            lmp.bobAmount = 0.05f; lmp.dipOnRide = 0.1f; lmp.ripple = S("Water/ripple_0");   // floats on the stream and sinks a little under his weight
             SavePrefab(lg, "Assets/Prefabs/Environment/MovingLog.prefab");
 
             // ---- vine
@@ -294,14 +296,15 @@ namespace BalHanuman.EditorTools
                     Piece(st, "Strip" + i, m0 + w * (i + 0.5f), y + topPad - H / 2f, (w + 0.34f) / st.bounds.size.x, k, 2, i % 2 == 1);
             }
             // deep rock fill below the strip (exact fit left to right so nothing overhangs a pit)
-            float fillTop = y + topPad - H + 0.12f;
+            float fillTop = y + topPad - H + 0.65f;
             const float tile = 1.7f;
-            int cols = Mathf.Max(1, Mathf.CeilToInt((x1 - x0) / tile));
-            float tw = (x1 - x0) / cols;
+            float fx0 = x0 + 0.18f, fw = (x1 - x0) - 0.36f;
+            int cols = Mathf.Max(1, Mathf.CeilToInt(fw / tile));
+            float tw = fw / cols;
             for (int row = 0; fillTop - row * tile > -3.6f; row++)
                 for (int c = 0; c < cols; c++)
                 {
-                    var g = Piece(df, "Deep", x0 + tw * (c + 0.5f), fillTop - tile * (row + 0.5f), tw / df.bounds.size.x, tile / df.bounds.size.y, 0, (c + row) % 2 == 1, row % 2 == 1);
+                    var g = Piece(df, "Deep", fx0 + tw * (c + 0.5f), fillTop - tile * (row + 0.5f), tw / df.bounds.size.x, tile / df.bounds.size.y, 0, (c + row) % 2 == 1, row % 2 == 1);
                     float shade = Mathf.Lerp(0.82f, 0.42f, Mathf.Clamp01(row / 4f));
                     g.GetComponent<SpriteRenderer>().color = new Color(shade, shade * 0.97f, shade * 0.95f);
                 }
@@ -350,20 +353,38 @@ namespace BalHanuman.EditorTools
         static void Scatter(float x0, float x1, float y, int seed)
         {
             var r = new System.Random(seed);
-            // back bushes
-            for (float x = x0 + 1.2f; x < x1 - 0.8f; x += 2.8f + (float)r.NextDouble() * 3.5f)
-                Spr("Props/ruins/ruin_12", x, y - 0.02f, 1.0f + (float)r.NextDouble() * 0.6f, 2, propRoot, r.NextDouble() < 0.5);
-            // foreground plant clusters: strictly inside the ground segment so nothing hangs over a pit
-            for (float x = x0 + 2.0f; x < x1 - 2.0f; x += 4.5f + (float)r.NextDouble() * 5f)
-                Spr("Props/generated/fgplant_" + r.Next(0, FgPlantCount).ToString("00"), x, y - 0.1f, 0.7f + (float)r.NextDouble() * 0.4f, 26, propRoot, r.NextDouble() < 0.5);
+            // a few low bushes behind the player, well inside the segment (nothing near a drop)
+            for (float x = x0 + 2.5f; x < x1 - 2.5f; x += 6.5f + (float)r.NextDouble() * 6f)
+                Spr("Props/ruins/ruin_12", x, y - 0.02f, 0.9f + (float)r.NextDouble() * 0.4f, 2, propRoot, r.NextDouble() < 0.5);
         }
 
-        static void Parallax(string path, float factor, float yOff, float width, int order, bool followY = true)
+        static void ParallaxPropAt(string path, float worldX, float bottomRel, float width, float factor, int order, float alpha, Transform parent)
+        {
+            var s = S(path);
+            float h = width * s.bounds.size.y / s.bounds.size.x;
+            var go = new GameObject(System.IO.Path.GetFileName(path));
+            go.transform.localScale = Vector3.one * (width / s.bounds.size.x);
+            var sr = go.AddComponent<SpriteRenderer>(); sr.sprite = s; sr.sortingOrder = order; sr.color = new Color(1f, 1f, 1f, alpha);
+            var pp = go.AddComponent<ParallaxProp>(); pp.baseX = worldX; pp.factor = factor; pp.yOffset = bottomRel + h / 2f;
+            go.transform.SetParent(parent);
+        }
+
+        static void ParallaxProp(string path, float worldX, float yRel, float width, float factor, int order, Transform parent)
         {
             var s = S(path);
             var go = new GameObject(System.IO.Path.GetFileName(path));
             go.transform.localScale = Vector3.one * (width / s.bounds.size.x);
             var sr = go.AddComponent<SpriteRenderer>(); sr.sprite = s; sr.sortingOrder = order;
+            var pp = go.AddComponent<ParallaxProp>(); pp.baseX = worldX; pp.factor = factor; pp.yOffset = yRel;
+            go.transform.SetParent(parent);
+        }
+
+        static void Parallax(string path, float factor, float yOff, float width, int order, bool followY = true, float alpha = 1f)
+        {
+            var s = S(path);
+            var go = new GameObject(System.IO.Path.GetFileName(path));
+            go.transform.localScale = Vector3.one * (width / s.bounds.size.x);
+            var sr = go.AddComponent<SpriteRenderer>(); sr.sprite = s; sr.sortingOrder = order; sr.color = new Color(1f, 1f, 1f, alpha);
             var pl = go.AddComponent<ParallaxLayer>(); pl.factor = factor; pl.yOffset = yOff; pl.width = width; pl.followCameraY = followY;
         }
 
@@ -461,30 +482,25 @@ namespace BalHanuman.EditorTools
 
             // ---- parallax (factors from the brief; mirrored tiling because the art is not seamless)
             var par = new GameObject("Parallax").transform;
-            Parallax("Parallax/L1_sky_clouds", 0.02f, 2.2f, 40f, -100);
-            Parallax("Parallax/L2_distant_mountains", 0.05f, 1.2f, 40f, -95);
-            Parallax("Parallax/L3_temple_waterfall", 0.10f, -0.05f, 40f, -90);
-            Parallax("Parallax/L4_mid_forest_mist", 0.15f, -1.2f, 40f, -85);
-            // soft horizon haze for depth between the far and near layers
-            var haze = new GameObject("HorizonHaze");
-            haze.transform.localScale = new Vector3(60f / S("UI/haze").bounds.size.x, 3.2f / S("UI/haze").bounds.size.y, 1);
-            var hz = haze.AddComponent<SpriteRenderer>(); hz.sprite = S("UI/haze"); hz.sortingOrder = -83;
-            var hzl = haze.AddComponent<ParallaxLayer>(); hzl.factor = 0f; hzl.yOffset = -1.7f; hzl.width = 60f;
-            // soft base under the forest layers: hides their flat lower edges at any camera height
-            var horizon = new GameObject("HorizonFill");
-            horizon.transform.localScale = new Vector3(60f / S("UI/fill_gradient").bounds.size.x, 9f / S("UI/fill_gradient").bounds.size.y, 1);
-            var hsr = horizon.AddComponent<SpriteRenderer>(); hsr.sprite = S("UI/fill_gradient"); hsr.color = Color.white; hsr.sortingOrder = -88;
-            var hpl = horizon.AddComponent<ParallaxLayer>(); hpl.factor = 0f; hpl.yOffset = -5.6f; hpl.width = 60f;
+            // Watercolour backdrop. Layer widths are chosen so every layer is shown at (or close to) native resolution.
+            // yOffset is the layer centre relative to the camera; at the lowest camera position the ground line sits at -2.0.
+            Parallax("Backdrop/bg_sky", 0.02f, 0f, 24f, -100);                 // sky: covers the whole view
+            Parallax("Backdrop/bg_far", 0.05f, -0.17f, 30f, -95);              // mountains and boulder hills (fades into the sky above)
+            ParallaxProp("Backdrop/bg_hill", 68f, -1.0f, 7f, 0.08f, -93, par);       // Anjanadri hill: drifts past in the first half
+            ParallaxProp("Backdrop/bg_gopuram", 197f, -0.81f, 7f, 0.08f, -93, par);  // temple tower and waterfall: appears in the second half
+            Parallax("Backdrop/bg_mid", 0.15f, -1.08f, 22f, -90);              // misty forest
+            // stone ruins only where they suit the story: the ancient bridge and the forgotten temple
+            ParallaxPropAt("Backdrop/bg_ruin_0", 104f, -2.35f, 4.6f, 0.4f, -86, 0.65f, par);   // pavilion near the bridge
             foreach (var p in Object.FindObjectsByType<ParallaxLayer>(FindObjectsSortMode.None)) p.transform.SetParent(par);
 
             // ---- terrain (x ranges from the brief; unit = 1m)
-            Ground(-6f, 23f, 0f);          // 1 The Request
+            Ground(-16f, 23f, 0f);          // 1 The Request
             Ground(26.5f, 36f, 0f);        // 2 Forest Path
             Ground(39.5f, 47f, 0f);
             Ground(70f, 89f, 0f);          // 4 Hanging Vines
             Ground(89f, 97f, 5.5f);        //   cliff with the baby monkey
             Ground(97f, 105f, 0f);         // 5 Moving Bridge
-            Ground(117f, 152f, 0f);        // 6 Forgotten Temple
+            Ground(117f, 164f, 0f);        // 6 Forgotten Temple
             Float(24.75f, 1.1f, 2.4f, "Platforms/tile_06");
             Float(31.2f, 2.1f, 3.4f, "Platforms/tile_05");
             Float(34.6f, 3.4f, 2.4f, "Platforms/tile_02");
@@ -503,15 +519,14 @@ namespace BalHanuman.EditorTools
             // ---- vines (climb to the cliff top at x ~ 89)
             var vine = Place("ClimbableVine", new Vector3(87.4f, 0f, 0), interactRoot);
             vine.GetComponent<ClimbableVine>().exitDirection = 1f;
-            for (int i = 0; i < 3; i++) Spr("Platforms/tile_17", 87.4f, 0.2f + i * 1.95f, 2.0f, 3, propRoot).name = "VineSeg";
-            Spr("Platforms/tile_17", 87.4f, 5.9f, 1.6f, 3, propRoot).name = "VineTop";
+            // the hanging pieces hang from one pivot at the top so the whole vine can sway and swing when grabbed
+            var sway = new GameObject("VineSway"); sway.transform.SetParent(propRoot, false); sway.transform.position = new Vector3(87.4f, 6.0f, 0);
+            vine.GetComponent<ClimbableVine>().swayRoot = sway.transform;
+            for (int i = 0; i < 3; i++) { var seg = Spr("Platforms/tile_17", 87.4f, 0.2f + i * 1.95f, 2.0f, 3, propRoot); seg.name = "VineSeg"; seg.transform.SetParent(sway.transform, true); }
+            var vtop = Spr("Platforms/tile_17", 87.4f, 5.9f, 1.6f, 3, propRoot); vtop.name = "VineTop"; vtop.transform.SetParent(sway.transform, true);
             SprW("Platforms/tile_18", 87.4f, 5.4f, 3.6f, 4, propRoot).name = "VineCanopy";
-            var jt = Spr("Props/generated/banyan_tree2", 82.0f, -0.3f, 3.8f, -20, propRoot); jt.name = "BigJungleTree";
-            jt.GetComponent<SpriteRenderer>().color = new Color(0.82f, 0.9f, 0.88f, 0.9f);
 
             // ---- decor: start area
-            var banyan = Spr("Props/generated/banyan_tree", 1.2f, -0.3f, 4.0f, -20, propRoot); banyan.name = "Banyan";
-            banyan.GetComponent<SpriteRenderer>().color = new Color(0.82f, 0.9f, 0.88f, 0.9f);
             Spr("Props/generated/signpost_placeholder", 14.0f, 0f, 1.7f, 3, propRoot).name = "Signpost";
             Spr("Props/pillars/pillar_01", 20.8f, 0f, 2.2f, -5, propRoot);
             // ---- decor: forest
@@ -552,20 +567,11 @@ namespace BalHanuman.EditorTools
 
             // ---- animals
             Animal("Animals/animal_01", 16.0f, 0f, 2.0f, true, false);
-            Animal("Animals/animal_10", 18.2f, 0f, 0.95f, false);
-            Animal("Animals/animal_13", 6.2f, 0f, 0.8f, false);
-            Animal("Animals/animal_05", 33.2f, 3.4f, 0.95f, true);
-            Animal("Animals/animal_09", 30f, 6.0f, 1.0f, false, false, true);
-            Animal("Animals/animal_08", 62f, 4.6f, 0.9f, true, false, true);
-            Animal("Animals/animal_09", 78f, 7.2f, 1.0f, true, false, true);
-            Animal("Animals/animal_12", 73.2f, 0f, 1.2f, false);
-            Animal("Animals/animal_05", 128.5f, 0f, 1.0f, false);
             Animal("Animals/animal_07", 133.5f, 0f, 1.9f, false, false);
-            Animal("Animals/animal_14", 123f, 0f, 0.8f, true);
 
             // ---- ambient fx
             var amb = new GameObject("AmbientFx").AddComponent<AmbientFx>();
-            amb.leaves = new[] { S("Props/misc/misc_01"), S("Props/misc/misc_02"), S("VFX/fx_20") };
+            amb.leaves = new Sprite[0];
             amb.sparkle = Sparkle;
 
             // ---- player + camera + session + UI
@@ -576,13 +582,14 @@ namespace BalHanuman.EditorTools
 
             var follow = camGo.AddComponent<SideScrollCamera>();
             follow.target = playerGo.transform; follow.minBounds = new Vector2(2.2f, 2.0f); follow.maxBounds = new Vector2(144f, 9.5f);
+            follow.fitToWorld = true; follow.worldLeft = -6.5f; follow.worldRight = 152.5f;
 
             var ui = new GameObject("UI");
             var hud = ui.AddComponent<HudController>();
-            hud.sprites = UiSprites();
-            hud.mangoIcon = S("Items/item_01"); hud.arrowSprite = S("UI/arrow"); hud.pauseIcon = S("UI/pause");
-            hud.jumpIcon = S("UI/arrow"); hud.interactIcon = S("Items/item_27"); hud.rollIcon = S("UI/roll");
+            var skin = BuildSkin();
+            hud.skin = skin;
             var ov = ui.AddComponent<OverlayUI>();
+            ov.skin = skin;
             ov.portraits = new[]
             {
                 new Portrait { speaker = "Sage", sprite = S("NPCs/elder_01") },
@@ -601,9 +608,29 @@ namespace BalHanuman.EditorTools
             EditorSceneManager.SaveScene(scene, ScenePath);
         }
 
-        static UiKit.Sprites UiSprites()
+        static UiSkin BuildSkin()
         {
-            return new UiKit.Sprites { circle = S("UI/circle"), ring = S("UI/ring"), panel = S("UI/panel"), white = S("UI/white") };
+            const string path = "Assets/Prefabs/UI/UiSkin.asset";
+            var skin = AssetDatabase.LoadAssetAtPath<UiSkin>(path);
+            if (skin == null) { skin = ScriptableObject.CreateInstance<UiSkin>(); AssetDatabase.CreateAsset(skin, path); }
+            skin.titleFont = AssetDatabase.LoadAssetAtPath<Font>("Assets/Fonts/Cinzel-Variable.ttf");
+            skin.bodyFont = AssetDatabase.LoadAssetAtPath<Font>("Assets/Fonts/NunitoSans-Variable.ttf");
+            skin.panelLarge = S("UI2/panel_large"); skin.hudWide = S("UI2/hud_wide"); skin.hudMid = S("UI2/hud_mid");
+            skin.hudPill = S("UI2/hud_pill"); skin.hudPillPrimary = S("UI2/hud_pill_primary"); skin.divider = S("UI2/divider");
+            skin.btnNormal = S("UI2/btn_normal"); skin.btnPressed = S("UI2/btn_pressed"); skin.btnPrimary = S("UI2/btn_primary"); skin.btnDisabled = S("UI2/btn_disabled");
+            skin.portraitRing = S("UI2/portrait_ring");
+            skin.barFrame = S("UI2/bar_frame"); skin.fillCoral = S("UI2/fill_coral"); skin.fillGold = S("UI2/fill_gold"); skin.fillTeal = S("UI2/fill_teal");
+            skin.btnPause = S("UI2/btn2_pause"); skin.btnRoll = S("UI2/btn2_roll"); skin.btnJump = S("UI2/btn2_jump"); skin.btnBend = S("UI2/btn2_bend");
+            skin.btnInteract = S("UI2/btn2_interact"); skin.btnClimb = S("UI2/btn2_climb"); skin.btnLeft = S("UI2/btn2_left"); skin.btnRight = S("UI2/btn2_right");
+            skin.iconPause = S("UI2/icon2_pause"); skin.iconRoll = S("UI2/icon2_roll"); skin.iconJump = S("UI2/icon_jump"); skin.iconBend = S("UI2/icon_bend");
+            skin.iconInteract = S("UI2/icon2_interact"); skin.iconClimb = S("UI2/icon2_climb"); skin.iconMango = S("UI2/icon2_mango"); skin.iconHeart = S("UI2/icon2_heart");
+            skin.iconEnergy = S("UI2/icon2_energy"); skin.iconFlag = S("UI2/icon2_flag"); skin.iconOm = S("UI2/icon2_om"); skin.iconLotus = S("UI2/icon2_lotus");
+            skin.iconCheck = S("UI2/icon2_check"); skin.iconStar = S("UI2/icon2_star"); skin.iconPin = S("UI2/icon2_pin"); skin.iconTalk = S("UI2/icon2_talk");
+            skin.failFrames = F("Character/Death", "death", 1, 5);
+            skin.circle = S("UI/circle"); skin.white = S("UI/white"); skin.heroPortrait = S("Character/Expressions/face_happy");
+            EditorUtility.SetDirty(skin);
+            AssetDatabase.SaveAssets();
+            return skin;
         }
 
         static void Wall(float x)
@@ -623,25 +650,37 @@ namespace BalHanuman.EditorTools
             var bsr = bed.AddComponent<SpriteRenderer>(); bsr.sprite = S("UI/white"); bsr.color = new Color(0.08f, 0.22f, 0.36f); bsr.sortingOrder = -2;
 
             var wGo = new GameObject("Water"); wGo.transform.SetParent(envRoot, false);
-            var ws = S("UI/water");
+            var ws = S("Water/body");
             wGo.transform.position = new Vector3(58.5f, -0.55f - 1.75f, 0);
-            wGo.transform.localScale = new Vector3(23f / ws.bounds.size.x, 3.5f / ws.bounds.size.y, 1);
-            var wsr = wGo.AddComponent<SpriteRenderer>(); wsr.sprite = ws; wsr.sortingOrder = 8;
+            wGo.transform.localScale = new Vector3(23.6f / ws.bounds.size.x, 3.5f / ws.bounds.size.y, 1);
+            var wsr = wGo.AddComponent<SpriteRenderer>(); wsr.sprite = ws; wsr.sortingOrder = 6;
+            wGo.AddComponent<WaterDrift>().driftX = 0.12f;
+            // foam-crested surface strip along the top of the water
+            var sfs = S("Water/surface");
+            var sfGo = new GameObject("WaterSurfaceStrip"); sfGo.transform.SetParent(envRoot, false);
+            sfGo.transform.position = new Vector3(58.5f, -0.42f - 0.4f, 0);
+            sfGo.transform.localScale = new Vector3(23.6f / sfs.bounds.size.x, 0.8f / sfs.bounds.size.y, 1);
+            var sfr = sfGo.AddComponent<SpriteRenderer>(); sfr.sprite = sfs; sfr.sortingOrder = 7;
+            var sfd = sfGo.AddComponent<WaterDrift>(); sfd.driftX = 0.2f; sfd.driftSpeed = 0.5f; sfd.swellY = 0.03f;
             var surf = new GameObject("WaterSurfaceFx"); surf.transform.SetParent(envRoot, false);
-            surf.transform.position = new Vector3(58.5f, -0.5f, 0);
-            var wf = surf.AddComponent<WaterSurface>(); wf.ripple = S("VFX/fx_12"); wf.width = 22f;
+            surf.transform.position = new Vector3(58.5f, -0.55f, 0);
+            var wf = surf.AddComponent<WaterSurface>(); wf.ripple = S("Water/ripple_1"); wf.width = 22f;
             var flow = new GameObject("WaterFlow"); flow.transform.SetParent(envRoot, false);
             flow.transform.position = new Vector3(58.5f, -0.6f, 0);
             var wfl = flow.AddComponent<WaterFlow>(); wfl.streak = S("UI/white"); wfl.width = 22.5f; wfl.height = 2.6f;
             var deep = new GameObject("WaterDeep"); deep.transform.SetParent(envRoot, false);
             deep.transform.position = new Vector3(58.5f, -2.9f, 0);
             deep.transform.localScale = new Vector3(23f / 0.08f, 2.4f / 0.08f, 1);
-            var dsr = deep.AddComponent<SpriteRenderer>(); dsr.sprite = S("UI/white"); dsr.color = new Color(0.03f, 0.12f, 0.26f, 0.45f); dsr.sortingOrder = 8;
+            var dsr = deep.AddComponent<SpriteRenderer>(); dsr.sprite = S("UI/white"); dsr.color = new Color(0.03f, 0.12f, 0.26f, 0.0f); dsr.sortingOrder = 5;   // the new water art has its own depth gradient; kept (invisible) so old references stay valid
 
             // waterfall decor
-            SprW("Platforms/tile_22", 64.0f, -0.6f, 3.2f, -10, propRoot).name = "SmallWaterfall";
-            SprW("Platforms/tile_01", 64.0f, 3.1f, 3.6f, -11, propRoot).name = "WaterfallRock";
+            SprW("Water/waterfall", 64.0f, -0.75f, 3.1f, -10, propRoot).name = "Waterfall";
             Spr("VFX/fx_17", 64.0f, -0.62f, 0.55f, 9, propRoot).name = "WaterfallSplash";
+
+            // mossy boulders half sunk in the stream (decoration only, nothing to stand on)
+            SprW("Water/stone_1", 47.7f, -0.52f, 1.5f, 9, propRoot).name = "BankBoulder";
+            SprW("Water/stone_2", 69.7f, -0.52f, 1.3f, 9, propRoot).name = "BankBoulder";
+            SprW("Water/stone_0", 61.2f, -0.55f, 1.1f, 3, propRoot).name = "StreamBoulder";
 
             // stepping stones + raised rocks
             Stone(49.6f, 0.7f, 1.5f, "Platforms/tile_14");
@@ -651,10 +690,23 @@ namespace BalHanuman.EditorTools
             Stone(68.8f, 1.0f, 1.8f, "Platforms/tile_06");
 
             // floating logs
-            var l1 = Place("MovingLog", new Vector3(55.2f, 0.1f, 0), envRoot).GetComponent<MovingPlatform>();
+            // the logs sit a little lower than before so the ring of water at their base lies on the surface
+            var l1 = Place("MovingLog", new Vector3(55.2f, -0.1f, 0), envRoot).GetComponent<MovingPlatform>();
             l1.travel = new Vector2(1.7f, 0f); l1.speed = 1.0f;
-            var l2 = Place("MovingLog", new Vector3(65.4f, 0.1f, 0), envRoot).GetComponent<MovingPlatform>();
+            SetLogArt(l1.gameObject, "Water/log_1");
+            var l2 = Place("MovingLog", new Vector3(65.4f, -0.1f, 0), envRoot).GetComponent<MovingPlatform>();
             l2.travel = new Vector2(1.7f, 0f); l2.speed = 1.0f; l2.phaseOffset = 1.4f;
+            SetLogArt(l2.gameObject, "Water/log_2");
+        }
+
+        static void SetLogArt(GameObject log, string path)
+        {
+            var v = log.transform.Find("Visual");
+            var s = S(path);
+            v.GetComponent<SpriteRenderer>().sprite = s;
+            float k = 3.1f / s.bounds.size.x;
+            v.localScale = Vector3.one * k;
+            v.localPosition = new Vector3(0f, -0.42f, 0f);
         }
 
         static void BuildBridge(out BridgeController bridge)
@@ -682,22 +734,33 @@ namespace BalHanuman.EditorTools
 
         static void BuildTemple()
         {
-            Spr("Props/ruins/ruin_02", 126.0f, 0f, 5.6f, -6, propRoot).name = "TempleArch";
-            Spr("Props/pillars/pillar_02", 122.0f, 0f, 3.2f, -5, propRoot);
-            Spr("Props/pillars/pillar_04", 130.5f, 0f, 3.2f, -5, propRoot);
-            Spr("Props/ruins/ruin_04", 137.0f, 0f, 5.2f, -6, propRoot).name = "StatueShrine";
-            Spr("Props/ruins/ruin_07", 147.0f, 0f, 3.6f, -5, propRoot);
-            Spr("Props/ruins/ruin_13", 150.8f, 0f, 3.3f, -4, propRoot).name = "GoldenBell";
-            Spr("Items/item_29", 140.0f, 0f, 3.4f, -3, propRoot).name = "Flag";
-            Spr("Items/item_29", 146.0f, 0f, 3.4f, -3, propRoot).name = "Flag";
-            Spr("Items/item_29", 119.5f, 0f, 3.0f, -3, propRoot).name = "Flag";
-            // altar
-            SprW("Platforms/tile_10", 144.0f, -0.05f, 2.6f, 2, propRoot).name = "Altar";
+            // ---- the inner hall: a wide painted backdrop behind the altar (its floor hides under the ground, so the ground line is at y = 0)
+            float hallH = 558f * 0.01925f;                                       // 0.01925 world units per pixel
+            Spr("Temple/int_hall", 144.0f, -1.5f + hallH / 2f, hallH, -8, propRoot).name = "TempleHall";
+
+            // ---- the temple front, where the bridge ends
+            Spr("Temple/ext_temple", 124.5f, -0.1f, 6.3f, -6, propRoot).name = "TempleFront";
+            Spr("Temple/ext_pillar_a", 120.3f, -0.05f, 3.3f, -5, propRoot).name = "PillarLeft";
+            Spr("Temple/ext_pillar_b", 128.7f, -0.05f, 3.3f, -5, propRoot).name = "PillarRight";
+            Spr("Temple/ext_lamp", 122.4f, 0f, 1.45f, -4, propRoot).name = "LampLeft";
+            Spr("Temple/ext_lamp", 126.7f, 0f, 1.45f, -4, propRoot).name = "LampRight";
+            SprW("Temple/ext_garland_b", 124.5f, 3.0f, 2.5f, -4, propRoot).name = "Garland";    // centre pivot: hangs over the doorway
+            SprW("Temple/ext_garland_a", 120.3f, 3.0f, 1.9f, -4, propRoot).name = "GarlandLeft";
+            SprW("Temple/ext_garland_c", 128.7f, 3.0f, 1.9f, -4, propRoot).name = "GarlandRight";
+            Spr("Temple/ext_bellpost", 131.4f, 0f, 3.2f, -5, propRoot).name = "BellPost";
+
+            // fallen stones scattered on the hall floor
+            Spr("Temple/ext_block_a", 134.2f, 0f, 0.95f, -3, propRoot).name = "Block";
+            Spr("Temple/ext_block_b", 139.3f, 0f, 0.7f, -3, propRoot).name = "Block";
+            Spr("Temple/ext_fallen", 151.0f, 0f, 0.8f, -3, propRoot).name = "FallenPillar";
+
+            // ---- altar (the basket rests on top at y = 1.1)
+            Spr("Temple/int_altar", 144.0f, -0.05f, 1.15f, 2, propRoot).name = "Altar";
             // golden light
-            var glow = Spr("VFX/fx_09", 144.0f, 1.2f, 2.6f, 1, propRoot); glow.name = "AltarGlow";
-            glow.GetComponent<SpriteRenderer>().color = new Color(1f, 0.9f, 0.5f, 0.55f);
+            var glow = Spr("Temple/int_glow", 144.0f, 1.45f, 3.4f, 1, propRoot); glow.name = "AltarGlow";
+            glow.GetComponent<SpriteRenderer>().color = new Color(1f, 1f, 1f, 0.7f);
             var fx = Spr("VFX/fx_07", 144.0f, 1.0f, 3.6f, -7, propRoot); fx.name = "GoldenLight";
-            fx.GetComponent<SpriteRenderer>().color = new Color(1f, 0.9f, 0.5f, 0.35f);
+            fx.GetComponent<SpriteRenderer>().color = new Color(1f, 0.9f, 0.5f, 0.28f);
         }
 
         static void PlaceCollectibles()
@@ -748,19 +811,11 @@ namespace BalHanuman.EditorTools
             var lg = new GameObject("Global Light 2D").AddComponent<Light2D>(); lg.lightType = Light2D.LightType.Global;
 
             // static parallax composition behind the title
-            string[] layers = { "Parallax/L1_sky_clouds", "Parallax/L2_distant_mountains", "Parallax/L3_temple_waterfall", "Parallax/L4_mid_forest_mist", "Parallax/L5_large_trees_canopy" };
-            float[] ys = { 2.4f, 1.4f, -0.4f, -1.9f, -1.6f };
-            for (int i = 0; i < layers.Length; i++)
-            {
-                var g = SprW(layers[i], 0, ys[i], 20f, -100 + i * 5, null);
-                g.name = System.IO.Path.GetFileName(layers[i]);
-            }
-            var floor = new GameObject("MenuForestFloor");
-            floor.transform.position = new Vector3(0, -4.2f, 0); floor.transform.localScale = new Vector3(40f / 0.08f, 5f / 0.08f, 1);
-            var fsr = floor.AddComponent<SpriteRenderer>(); fsr.sprite = S("UI/white"); fsr.color = new Color(0.17f, 0.34f, 0.30f); fsr.sortingOrder = -101;
+            SprW("Backdrop/bg_sky", 0, 0, 24f, -100, null);
+            SprW("Backdrop/bg_far", 0, -0.17f, 30f, -95, null);
+            SprW("Backdrop/bg_mid", 0, -1.08f, 22f, -90, null);
             var mm = new GameObject("MainMenu").AddComponent<MainMenuController>();
-            mm.sprites = UiSprites();
-            mm.hero = S("Character/Expressions/face_happy");
+            mm.skin = BuildSkin();
             EditorSceneManager.SaveScene(scene, MenuScenePath);
         }
     }

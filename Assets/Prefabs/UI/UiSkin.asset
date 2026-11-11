@@ -1,0 +1,64 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 16394d8451c567a45b0c724197ec956f, type: 3}
+  m_Name: UiSkin
+  m_EditorClassIdentifier: Assembly-CSharp::BalHanuman.UiSkin
+  titleFont: {fileID: 12800000, guid: 4a4069c0f33c32344bfab48769705ab9, type: 3}
+  bodyFont: {fileID: 12800000, guid: 85bd4ee61a83c254d83182df0177e1b8, type: 3}
+  panelLarge: {fileID: 21300000, guid: b42109f5505626046890f122e45a02ce, type: 3}
+  hudWide: {fileID: 21300000, guid: 719da5fbdb41b374185a8ad4fdad602a, type: 3}
+  hudMid: {fileID: 21300000, guid: 70392a7da3aaeb944a80acd0887f23dd, type: 3}
+  hudPill: {fileID: 21300000, guid: ba523b757e1e5234c8b010098deefc80, type: 3}
+  hudPillPrimary: {fileID: 21300000, guid: a425a1028adfa2b4e9f04c7792c4d1bd, type: 3}
+  divider: {fileID: 21300000, guid: 9bbe284ae56508f469d806cc7555f5b2, type: 3}
+  btnNormal: {fileID: 21300000, guid: e7a9f2ea82bdd47429055f918ae13605, type: 3}
+  btnPressed: {fileID: 21300000, guid: f0985c21b0bd7bc4d8fc8c292516309d, type: 3}
+  btnPrimary: {fileID: 21300000, guid: ac04fc0aa3a3fdb489cbe39881e91c8a, type: 3}
+  btnDisabled: {fileID: 21300000, guid: 7f477eb5d18a04a45a6947976dfef8ef, type: 3}
+  portraitRing: {fileID: 21300000, guid: b1163692d9d9e734d9fc36ee9d728ccd, type: 3}
+  barFrame: {fileID: 21300000, guid: 277e5e0f1a853db48b2e2f4efe262b84, type: 3}
+  fillCoral: {fileID: 21300000, guid: e818d347351786d458903f44ae39ddf5, type: 3}
+  fillGold: {fileID: 21300000, guid: 5beece4102454244bb68c8c60c07679b, type: 3}
+  fillTeal: {fileID: 21300000, guid: 5f5fc5155765be94584a9868100bb8e5, type: 3}
+  btnPause: {fileID: 21300000, guid: 0e1c4670c7e82ae49a840049770f208f, type: 3}
+  btnRoll: {fileID: 21300000, guid: da06f9f366763774e88f4f409ea87f2d, type: 3}
+  btnJump: {fileID: 21300000, guid: b8150bf8c2a48414391d1a873804962b, type: 3}
+  btnBend: {fileID: 21300000, guid: d49adf13d8af2644a96c7d02c344d69d, type: 3}
+  btnInteract: {fileID: 21300000, guid: 760d63488297d954a90652e501af3cb8, type: 3}
+  btnClimb: {fileID: 21300000, guid: 78ffb4aea31d7034f8e75c1fbca0ef8d, type: 3}
+  btnLeft: {fileID: 21300000, guid: 196166e9960952046b379123a84f9d14, type: 3}
+  btnRight: {fileID: 21300000, guid: c894d5810d78ccc43916b46fc9da7b82, type: 3}
+  iconPause: {fileID: 21300000, guid: c79f07c71bfad604cad25523443a888e, type: 3}
+  iconRoll: {fileID: 21300000, guid: 7a349f311fc2b1f45804229b00ba6c9c, type: 3}
+  iconJump: {fileID: 21300000, guid: 009eee49d2f51d64782cf02c740568dd, type: 3}
+  iconBend: {fileID: 21300000, guid: 4123056dcbe733441865eebe90a1716f, type: 3}
+  iconInteract: {fileID: 21300000, guid: 4ece2d0fdbedeec4cafd8c0e0b0f4755, type: 3}
+  iconClimb: {fileID: 21300000, guid: 77dd18dc294d4084db25c5bbe91411f5, type: 3}
+  iconMango: {fileID: 21300000, guid: 293293618739c6e45bf2da254cc6dd7c, type: 3}
+  iconHeart: {fileID: 21300000, guid: 04e203ac96d3c8840ba41fc332c22266, type: 3}
+  iconEnergy: {fileID: 21300000, guid: 31f23efc1a02a904a9adf57971b74aec, type: 3}
+  iconFlag: {fileID: 21300000, guid: b81e989fb9b99dc4bb11e2effefd7684, type: 3}
+  iconOm: {fileID: 21300000, guid: e263072719ce63247bee4de6f061fab8, type: 3}
+  iconLotus: {fileID: 21300000, guid: 3729ec16eb21e464fa4f2e68865a599f, type: 3}
+  iconCheck: {fileID: 21300000, guid: 50548a444d14e1c419bfc39728963fbe, type: 3}
+  iconStar: {fileID: 21300000, guid: e552ffee471dbc347b06845eb48e0c8c, type: 3}
+  iconPin: {fileID: 21300000, guid: 22e57c4e0a705684785b97b4aed16b32, type: 3}
+  iconTalk: {fileID: 21300000, guid: 64f28ba3ad0246745a9471359c3ce133, type: 3}
+  failFrames:
+  - {fileID: 21300000, guid: b29b67f06c25fed44a941807d218148e, type: 3}
+  - {fileID: 21300000, guid: 9a9d5959a767b9a46bc872cba980f726, type: 3}
+  - {fileID: 21300000, guid: 2030db99e12e30a4380a14a6a2eeaa8b, type: 3}
+  - {fileID: 21300000, guid: 120953a50087c0e46b146ad62f2aaded, type: 3}
+  - {fileID: 21300000, guid: 39dbf6d3906a8db44ae4bb7563ae3cfc, type: 3}
+  circle: {fileID: 21300000, guid: 260f17a1b9587864b86ded77688c3708, type: 3}
+  white: {fileID: 21300000, guid: 5051b6b4dbf6134438653ca1ed6cf403, type: 3}
+  heroPortrait: {fileID: 21300000, guid: 2c0f18bef2ae9bd4e9c1be124696bc5c, type: 3}

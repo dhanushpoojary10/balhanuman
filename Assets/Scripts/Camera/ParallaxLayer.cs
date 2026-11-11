@@ -11,6 +11,7 @@ namespace BalHanuman
         public float factor = 0.5f;
         public float width = 40f;            // world width of one tile
         public bool followCameraY = true;
+        public bool mirror = false;          // true only for art that is not seamless
         public float yOffset;                // relative to camera Y (or world Y when followCameraY is false)
         Transform cam;
 
@@ -28,7 +29,7 @@ namespace BalHanuman
                 c.transform.localPosition = new Vector3(i * localStep, 0, 0);
                 var csr = c.AddComponent<SpriteRenderer>();
                 csr.sprite = sr.sprite; csr.sortingOrder = sr.sortingOrder; csr.color = sr.color;
-                csr.flipX = Mathf.Abs(i) % 2 == 1;
+                csr.flipX = mirror && Mathf.Abs(i) % 2 == 1;
             }
         }
 
@@ -36,7 +37,7 @@ namespace BalHanuman
         {
             if (cam == null) return;
             float cx = cam.position.x;
-            float period = width * 2f; // mirrored pair
+            float period = mirror ? width * 2f : width;
             float wrap = Mathf.Repeat(cx * factor + period * 0.5f, period) - period * 0.5f;
             float y = followCameraY ? cam.position.y + yOffset : yOffset;
             transform.position = new Vector3(cx - wrap, y, 0f);

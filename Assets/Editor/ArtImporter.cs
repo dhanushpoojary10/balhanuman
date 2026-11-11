@@ -28,6 +28,41 @@ public class ArtImporter : AssetPostprocessor
         if (assetPath.Contains("/bat/") || assetPath.Contains("/Expressions/")) bottom = false;
         if (bottom) settings.spriteAlignment = (int)SpriteAlignment.BottomCenter;
         ti.SetTextureSettings(settings);
+        if (assetPath.Contains("/Idle24/"))
+        {
+            // the 24-frame idle is drawn larger than the other clips: pixels-per-unit keeps Hanuman the same size in game
+            string f = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(assetPath), "_ppu.txt");
+            if (System.IO.File.Exists(f) && float.TryParse(System.IO.File.ReadAllText(f).Trim(), System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out float ppu))
+                ti.spritePixelsPerUnit = ppu;
+            ti.maxTextureSize = 512; ti.textureCompression = TextureImporterCompression.Uncompressed;
+        }
+        if (assetPath.Contains("/Water/") || assetPath.Contains("/Temple/"))
+        {
+            // stream and temple pieces: crisp, uncompressed; props stand on their bottom edge, strips and glows use the centre
+            string n = System.IO.Path.GetFileNameWithoutExtension(assetPath);
+            bool standing = n.StartsWith("log_") || n.StartsWith("stone_") || n == "waterfall" || n == "int_altar"
+                            || (n.StartsWith("ext_") && !n.StartsWith("ext_garland"));
+            var ts = new TextureImporterSettings();
+            ti.ReadTextureSettings(ts);
+            ts.spriteAlignment = (int)(standing ? SpriteAlignment.BottomCenter : SpriteAlignment.Center);
+            ti.SetTextureSettings(ts);
+            ti.textureCompression = TextureImporterCompression.Uncompressed;
+            ti.maxTextureSize = 2048;
+        }
+        if (assetPath.Contains("/Backdrop/")) { ti.maxTextureSize = 4096; ti.textureCompression = TextureImporterCompression.CompressedHQ; ti.filterMode = FilterMode.Bilinear; }
+        if (assetPath.Contains("/UI2/"))
+        {
+            string n = System.IO.Path.GetFileNameWithoutExtension(assetPath);
+            switch (n)
+            {
+                case "panel_large": ti.spriteBorder = new Vector4(78, 78, 78, 78); break;      // left, bottom, right, top
+                case "hud_wide": ti.spriteBorder = new Vector4(74, 52, 74, 52); break;
+                case "hud_mid": ti.spriteBorder = new Vector4(60, 38, 60, 38); break;
+                case "hud_pill":
+                case "hud_pill_primary": ti.spriteBorder = new Vector4(46, 30, 46, 30); break;
+            }
+            ti.maxTextureSize = 2048; ti.textureCompression = TextureImporterCompression.Uncompressed;
+        }
         if (assetPath.EndsWith("UI/panel.png")) ti.spriteBorder = new Vector4(72, 72, 72, 72);
     }
 }

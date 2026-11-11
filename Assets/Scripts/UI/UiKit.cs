@@ -4,26 +4,16 @@ using UnityEngine.UI;
 
 namespace BalHanuman
 {
-    /// <summary>Shared helpers + dark navy / gold theme used by every runtime-built UI.</summary>
+    /// <summary>Small helpers for building the runtime UI from the UiSkin art (navy glass, bronze hairline, gold accents).</summary>
     public static class UiKit
     {
-        public static readonly Color Navy = new Color(0.05f, 0.08f, 0.19f, 0.93f);
-        public static readonly Color NavyLight = new Color(0.12f, 0.17f, 0.34f, 0.95f);
-        public static readonly Color Gold = new Color(0.99f, 0.8f, 0.3f, 1f);
-        public static readonly Color Cream = new Color(1f, 0.97f, 0.88f, 1f);
+        public static UiSkin Skin;
 
-        public static Font Font;
-        public static Sprite Circle, Ring, Panel, White;
+        public static readonly Color Cream = new Color(0.97f, 0.94f, 0.87f, 1f);
+        public static readonly Color Gold = new Color(0.96f, 0.78f, 0.36f, 1f);
+        public static readonly Color Muted = new Color(0.97f, 0.94f, 0.87f, 0.72f);
 
-        [System.Serializable]
-        public class Sprites { public Sprite circle, ring, panel, white; }
-
-        public static void Init(Sprites s)
-        {
-            if (Font == null) Font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
-            if (s == null) return;
-            Circle = s.circle; Ring = s.ring; Panel = s.panel; White = s.white;
-        }
+        public static void Init(UiSkin skin) { if (skin != null) Skin = skin; }
 
         public static RectTransform Rect(string name, Transform parent, Vector2 aMin, Vector2 aMax, Vector2 pivot, Vector2 pos, Vector2 size)
         {
@@ -35,45 +25,94 @@ namespace BalHanuman
             return rt;
         }
 
-        public static Image Img(string name, Transform parent, Sprite s, Vector2 aMin, Vector2 aMax, Vector2 pivot, Vector2 pos, Vector2 size, Color c, bool raycast = false)
+        public static RectTransform Stretch(string name, Transform parent)
+        {
+            return Rect(name, parent, Vector2.zero, Vector2.one, new Vector2(0.5f, 0.5f), Vector2.zero, Vector2.zero);
+        }
+
+        public static Image Img(string name, Transform parent, Sprite s, Vector2 aMin, Vector2 aMax, Vector2 pivot, Vector2 pos, Vector2 size, Color? color = null, bool raycast = false)
         {
             var rt = Rect(name, parent, aMin, aMax, pivot, pos, size);
             var img = rt.gameObject.AddComponent<Image>();
-            img.sprite = s; img.color = c; img.raycastTarget = raycast;
+            img.sprite = s; img.color = color ?? Color.white; img.raycastTarget = raycast;
             if (s != null) img.preserveAspect = true;
             return img;
         }
 
-        public static Text Label(string name, Transform parent, string text, int size, TextAnchor anchor, Vector2 aMin, Vector2 aMax, Vector2 pivot, Vector2 pos, Vector2 sz, Color c, bool outline = true)
+        /// <summary>9-sliced frame (the sprite must have borders set).</summary>
+        public static Image Frame(string name, Transform parent, Sprite s, Vector2 anchor, Vector2 pivot, Vector2 pos, Vector2 size, Color? color = null, bool raycast = false)
         {
-            var rt = Rect(name, parent, aMin, aMax, pivot, pos, sz);
+            var img = Img(name, parent, s, anchor, anchor, pivot, pos, size, color, raycast);
+            img.type = Image.Type.Sliced; img.preserveAspect = false;
+            return img;
+        }
+
+        public static Text Label(string name, Transform parent, string text, Font font, int size, TextAnchor align, Vector2 anchor, Vector2 pivot, Vector2 pos, Vector2 sz, Color color,
+            FontStyle style = FontStyle.Normal, bool shadow = true, bool bestFit = false)
+        {
+            var rt = Rect(name, parent, anchor, anchor, pivot, pos, sz);
             var t = rt.gameObject.AddComponent<Text>();
-            t.font = Font; t.text = text; t.fontSize = size; t.alignment = anchor; t.color = c;
+            t.font = font; t.text = text; t.fontSize = size; t.alignment = align; t.color = color; t.fontStyle = style;
             t.horizontalOverflow = HorizontalWrapMode.Wrap; t.verticalOverflow = VerticalWrapMode.Overflow;
-            t.raycastTarget = false;
-            if (outline) { var ol = rt.gameObject.AddComponent<Outline>(); ol.effectColor = new Color(0, 0, 0, 0.8f); ol.effectDistance = new Vector2(2, -2); }
+            t.supportRichText = true; t.raycastTarget = false;
+            if (bestFit) { t.resizeTextForBestFit = true; t.resizeTextMinSize = Mathf.Max(14, size - 14); t.resizeTextMaxSize = size; t.verticalOverflow = VerticalWrapMode.Truncate; }
+            if (shadow)
+            {
+                var sh = rt.gameObject.AddComponent<Shadow>();
+                sh.effectColor = new Color(0.02f, 0.05f, 0.12f, 0.75f); sh.effectDistance = new Vector2(1.5f, -2f);
+            }
             return t;
         }
 
-        /// <summary>Navy rounded panel with a gold border.</summary>
-        public static RectTransform FramedPanel(string name, Transform parent, Vector2 aMin, Vector2 aMax, Vector2 pivot, Vector2 pos, Vector2 size, Color? fill = null)
+        public static Text Title(string name, Transform parent, string text, int size, TextAnchor align, Vector2 anchor, Vector2 pivot, Vector2 pos, Vector2 sz, Color? color = null, bool bestFit = false)
+            => Label(name, parent, text, Skin.titleFont, size, align, anchor, pivot, pos, sz, color ?? Cream, FontStyle.Bold, true, bestFit);
+
+        public static Text Body(string name, Transform parent, string text, int size, TextAnchor align, Vector2 anchor, Vector2 pivot, Vector2 pos, Vector2 sz, Color? color = null, FontStyle style = FontStyle.Normal, bool bestFit = false)
+            => Label(name, parent, text, Skin.bodyFont, size, align, anchor, pivot, pos, sz, color ?? Cream, style, true, bestFit);
+
+        /// <summary>Capsule meter: frame + horizontal fill. Returns the fill image.</summary>
+        public static Image Bar(string name, Transform parent, Sprite fillSprite, Vector2 anchor, Vector2 pivot, Vector2 pos, Vector2 size)
         {
-            var outer = Img(name, parent, Panel, aMin, aMax, pivot, pos, size, Gold);
-            outer.type = Image.Type.Sliced; outer.preserveAspect = false;
-            var inner = Img("Fill", outer.transform, Panel, Vector2.zero, Vector2.one, new Vector2(0.5f, 0.5f), Vector2.zero, Vector2.zero, fill ?? Navy);
-            inner.type = Image.Type.Sliced; inner.preserveAspect = false;
-            inner.rectTransform.offsetMin = new Vector2(5, 5); inner.rectTransform.offsetMax = new Vector2(-5, -5);
-            return outer.rectTransform;
+            var frame = Img(name, parent, Skin.barFrame, anchor, anchor, pivot, pos, size, Color.white);
+            frame.preserveAspect = false;
+            var fill = Img("Fill", frame.transform, fillSprite, Vector2.zero, Vector2.one, new Vector2(0, 0.5f), Vector2.zero, Vector2.zero, Color.white);
+            fill.preserveAspect = false;
+            fill.rectTransform.offsetMin = new Vector2(size.y * 0.16f, size.y * 0.16f);
+            fill.rectTransform.offsetMax = new Vector2(-size.y * 0.16f, -size.y * 0.16f);
+            fill.type = Image.Type.Filled; fill.fillMethod = Image.FillMethod.Horizontal; fill.fillOrigin = 0; fill.fillAmount = 1f;
+            return fill;
         }
 
-        public static Button TextButton(string name, Transform parent, string label, Vector2 anchor, Vector2 pos, Vector2 size, UnityAction onClick, int fontSize = 52)
+        /// <summary>Round portrait badge: bronze ring with a circular mask; the portrait is top-aligned so heads fill the circle.</summary>
+        public static Image Portrait(string name, Transform parent, Vector2 anchor, Vector2 pivot, Vector2 pos, float size, Sprite portrait)
         {
-            var rt = FramedPanel(name, parent, anchor, anchor, new Vector2(0.5f, 0.5f), pos, size, NavyLight);
-            rt.GetComponent<Image>().raycastTarget = true;
-            var b = rt.gameObject.AddComponent<Button>();
-            b.targetGraphic = rt.GetComponent<Image>();
+            var ring = Img(name, parent, Skin.portraitRing, anchor, anchor, pivot, pos, new Vector2(size, size));
+            var inner = size * 0.80f;
+            var mask = Img("Mask", ring.transform, Skin.circle, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(inner, inner), new Color(0.08f, 0.14f, 0.27f, 1f));
+            mask.gameObject.AddComponent<Mask>().showMaskGraphic = true;
+            var face = Img("Face", mask.transform, portrait, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0, 4f), new Vector2(inner, inner), Color.white);
+            face.preserveAspect = false;
+            SetPortrait(face, portrait, inner);
+            return face;
+        }
+
+        public static void SetPortrait(Image face, Sprite s, float width)
+        {
+            face.sprite = s; face.enabled = s != null;
+            if (s == null) return;
+            float aspect = s.rect.width / s.rect.height;
+            face.rectTransform.sizeDelta = new Vector2(width, width / aspect);
+        }
+
+        /// <summary>Wide pill button (primary = copper, secondary = navy).</summary>
+        public static Button PillButton(string name, Transform parent, string label, Vector2 anchor, Vector2 pos, Vector2 size, UnityAction onClick, bool primary, int fontSize = 36)
+        {
+            var img = Frame(name, parent, primary ? Skin.hudPillPrimary : Skin.hudPill, anchor, new Vector2(0.5f, 0.5f), pos, size, Color.white, true);
+            var b = img.gameObject.AddComponent<Button>();
+            b.targetGraphic = img;
+            var colors = b.colors; colors.highlightedColor = new Color(1.08f, 1.08f, 1.08f); colors.pressedColor = new Color(0.78f, 0.78f, 0.78f); b.colors = colors;
             b.onClick.AddListener(onClick);
-            Label("Label", rt, label, fontSize, TextAnchor.MiddleCenter, Vector2.zero, Vector2.one, new Vector2(0.5f, 0.5f), Vector2.zero, Vector2.zero, Gold);
+            Title("Label", img.transform, label, fontSize, TextAnchor.MiddleCenter, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, size, Cream);
             return b;
         }
     }

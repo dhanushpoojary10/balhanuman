@@ -40,6 +40,7 @@ namespace BalHanuman
 
         void Update()
         {
+            if (bands == null) { Start(); if (bands == null) return; }   // survives an editor script reload during play
             float u = streak != null ? streak.bounds.size.x : 0.08f;
             float v = streak != null ? streak.bounds.size.y : 0.08f;
             foreach (var b in bands)

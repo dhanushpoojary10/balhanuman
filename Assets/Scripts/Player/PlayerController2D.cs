@@ -26,6 +26,9 @@ namespace BalHanuman
         public float rollSpeed = 9.5f;
         public float rollDuration = 0.5f;
         public float rollCooldown = 0.35f;
+        public float rollCost = 0.45f;         // roll stamina (the HUD energy bar)
+        public float energyRegen = 0.12f;
+        public float energyRegenDelay = 0.6f;
         [Range(0f, 1f)] public float crouchSpeedFactor = 0.3f;
         public Vector2 standSize = new Vector2(0.7f, 1.5f);
         public Vector2 standOffset = new Vector2(0f, 0.75f);
@@ -47,7 +50,13 @@ namespace BalHanuman
         float coyoteTimer, jumpBufferTimer, airTime, stepTimer, moveInput, vertInput;
         float noClimbUntil, airLockUntil, rollTimer, rollCooldownTimer, rollBufferTimer, rollDir = 1f;
         ClimbableVine vine;
+        float energy = 1f, lastRollTime = -10f;
+        // juice: squash and stretch, landing strength, skid dust
+        Transform squashTf; Vector3 baseScale = Vector3.one; Vector2 squash = Vector2.one;
+        float maxFall, skidCooldown;
 
+        public float Energy01 => energy;
+        public event System.Action RollDenied;
         public bool InputLocked { get; set; }
         public bool Grounded => grounded;
         public bool Climbing => climbing;
@@ -65,6 +74,15 @@ namespace BalHanuman
             rb.freezeRotation = true;
             rb.interpolation = RigidbodyInterpolation2D.Interpolate;
             rb.collisionDetectionMode = CollisionDetectionMode2D.Continuous;
+            // squash and stretch only on the visual child (never scale the root: it carries the colliders)
+            if (spriteRenderer != null && spriteRenderer.transform != transform) { squashTf = spriteRenderer.transform; baseScale = squashTf.localScale; }
+        }
+
+        Vector3 Feet => transform.position + Vector3.up * 0.08f;
+
+        void Dust(int n, float speed, float size, float alpha, float drift = 0f)
+        {
+            Fx.Burst(dustSprite, Feet, n, speed, 0.4f, -0.4f, size, new Color(1f, 1f, 1f, alpha), 0.3f, 11, drift);
         }
 
         bool CanStand()
@@ -87,9 +105,11 @@ namespace BalHanuman
             rollCooldownTimer = rollDuration + rollCooldown;
             rollDir = facingRight ? 1f : -1f;
             rollBufferTimer = 0f;
+            energy = Mathf.Max(0f, energy - rollCost); lastRollTime = Time.time;
             ApplyCollider();
             Sfx.Play(Sfx.Id.Jump, 0.65f, 0.8f);
             Fx.Burst(dustSprite, transform.position + Vector3.up * 0.1f, 5, 1.5f, 0.4f, -0.4f, 0.35f, new Color(1, 1, 1, 0.5f), 0.3f, 11);
+            Haptics.Tick();
         }
 
         void EndRoll()
@@ -120,24 +140,46 @@ namespace BalHanuman
             if (grounded) coyoteTimer = coyoteTime; else coyoteTimer -= Time.deltaTime;
 
             // ---- roll
-            if (rollBufferTimer > 0f && grounded && !rolling && !climbing && rollCooldownTimer <= 0f && !InputLocked) StartRoll();
+            if (!rolling && Time.time - lastRollTime > energyRegenDelay) energy = Mathf.Min(1f, energy + energyRegen * Time.deltaTime);
+            if (rollBufferTimer > 0f && grounded && !rolling && !climbing && rollCooldownTimer <= 0f && !InputLocked)
+            {
+                if (energy >= rollCost) StartRoll();
+                else { rollBufferTimer = 0f; RollDenied?.Invoke(); }
+            }
 
             // ---- bend (crouch): hold down while on the ground and not next to a vine
             bool wantCrouch = !InputLocked && grounded && !rolling && !climbing && vine == null && vertInput < -0.3f;
             if (wantCrouch) { if (!crouching) { crouching = true; ApplyCollider(); } }
             else if (crouching && CanStand()) { crouching = false; ApplyCollider(); }
 
-            if (!grounded && !climbing) airTime += Time.deltaTime;
+            if (!grounded && !climbing)
+            {
+                airTime += Time.deltaTime;
+                maxFall = Mathf.Min(maxFall, rb.linearVelocity.y);
+            }
+            else if (climbing) maxFall = 0f;
             if (grounded && !wasGrounded)
             {
-                if (airTime > 0.3f)
+                float impact = -maxFall;                       // how fast he was falling when he touched down
+                if (airTime > 0.3f || impact > 6f)
                 {
-                    Sfx.Play(Sfx.Id.Land);
-                    Fx.Burst(dustSprite, transform.position + Vector3.up * 0.1f, 6, 1.6f, 0.45f, -0.5f, 0.35f, new Color(1, 1, 1, 0.55f), 0.4f, 11);
+                    float k = Mathf.Clamp01((impact - 6f) / 14f);
+                    Sfx.Play(Sfx.Id.Land, 1f - 0.15f * k, 0.7f + 0.3f * k);
+                    Dust(6 + Mathf.RoundToInt(6 * k), 1.6f + 1.2f * k, 0.35f + 0.15f * k, 0.55f);
+                    squash = new Vector2(1f + 0.10f + 0.20f * k, 1f - 0.10f - 0.22f * k);
+                    if (impact > 11f) SideScrollCamera.Shake(0.04f + 0.10f * k, 0.18f + 0.12f * k);
+                    if (impact > 18f) Haptics.Medium(); else if (impact > 11f) Haptics.Light();
                 }
-                airTime = 0f;
+                airTime = 0f; maxFall = 0f;
             }
             wasGrounded = grounded;
+
+            // skid: turning around at speed kicks up a little dust
+            if (grounded && !rolling && !crouching && Time.time > skidCooldown && Mathf.Abs(rb.linearVelocity.x) > 4.2f && moveInput * rb.linearVelocity.x < -0.1f)
+            {
+                skidCooldown = Time.time + 0.25f;
+                Dust(4, 1.4f, 0.28f, 0.5f, -Mathf.Sign(rb.linearVelocity.x) * 0.6f);
+            }
 
             if (!rolling)
             {
@@ -148,7 +190,18 @@ namespace BalHanuman
             if (grounded && !crouching && Mathf.Abs(rb.linearVelocity.x) > 2f && !rolling)
             {
                 stepTimer -= Time.deltaTime;
-                if (stepTimer <= 0f) { Sfx.Play(Sfx.Id.Step, Random.Range(0.9f, 1.2f), 0.7f); stepTimer = 0.28f; }
+                if (stepTimer <= 0f)
+                {
+                    Sfx.Play(Sfx.Id.Step, Random.Range(0.9f, 1.2f), 0.7f); stepTimer = 0.28f;
+                    Dust(1, 0.7f, 0.2f, 0.4f, -Mathf.Sign(rb.linearVelocity.x) * 0.5f);   // tiny puff behind each footstep
+                }
+            }
+
+            // squash and stretch settles back to normal
+            if (squashTf != null)
+            {
+                squash = Vector2.Lerp(squash, Vector2.one, 1f - Mathf.Exp(-13f * Time.deltaTime));
+                squashTf.localScale = new Vector3(baseScale.x * squash.x, baseScale.y * squash.y, baseScale.z);
             }
 
             if (animator != null)
@@ -183,6 +236,7 @@ namespace BalHanuman
                     rb.linearVelocity = new Vector2(dir * moveSpeed * 0.8f, jumpVelocity * 0.8f);
                     airLockUntil = Time.time + 0.35f;
                     Sfx.Play(Sfx.Id.Jump);
+                    squash = new Vector2(0.88f, 1.14f);
                     return;
                 }
                 if (vertInput > 0.1f && transform.position.y >= vine.TopY)
@@ -229,10 +283,15 @@ namespace BalHanuman
                 v.y = jumpVelocity;
                 jumpBufferTimer = 0f; coyoteTimer = 0f; grounded = false; jumpCutPending = false;
                 Sfx.Play(Sfx.Id.Jump);
+                squash = new Vector2(0.86f, 1.16f);                 // stretch up on take-off
+                Dust(4, 1.3f, 0.3f, 0.5f);
             }
             if (jumpCutPending) { if (v.y > 0f) v.y *= jumpCutMultiplier; jumpCutPending = false; }
 
-            rb.gravityScale = v.y < -0.1f ? gravityScale * fallGravityMultiplier : gravityScale;
+            float g = v.y < -0.1f ? gravityScale * fallGravityMultiplier : gravityScale;
+            // a moment of float at the top of a held jump
+            if (!grounded && jumpHeldLast && Mathf.Abs(v.y) < 1.6f) g *= 0.7f;
+            rb.gravityScale = g;
             rb.linearVelocity = v;
         }
 
@@ -242,6 +301,8 @@ namespace BalHanuman
             crouching = false; ApplyCollider();
             rb.gravityScale = 0f;
             rb.linearVelocity = Vector2.zero;
+            if (vine != null) vine.Nudge(facingRight ? 1f : -1f);
+            Haptics.Tick();
         }
 
         void StopClimb()
@@ -270,11 +331,11 @@ namespace BalHanuman
         {
             StopClimb();
             vine = null;
-            rolling = false; crouching = false; ApplyCollider();
+            rolling = false; crouching = false; energy = 1f; ApplyCollider();
             rb.position = pos;
             transform.position = pos;
             rb.linearVelocity = Vector2.zero;
-            jumpBufferTimer = 0f; airTime = 0f;
+            jumpBufferTimer = 0f; airTime = 0f; maxFall = 0f; squash = Vector2.one;
         }
 
         /// <summary>Called by moving platforms so the player is carried along.</summary>

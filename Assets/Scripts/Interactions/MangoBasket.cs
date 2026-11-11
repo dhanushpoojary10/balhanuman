@@ -14,7 +14,7 @@ namespace BalHanuman
         {
             if (S.quest.State == QuestState.NotStarted) S.quest.StartQuest(); // player ran ahead of the sage: still counts
             if (!S.quest.CollectBasket()) return;
-            Sfx.Play(Sfx.Id.Pickup, 0.8f);
+            Sfx.Play(Sfx.Id.PickupBig);
             Fx.Burst(sparkle, transform.position + Vector3.up * 0.5f, 30, 4f, 1.4f, 1f, 0.4f, new Color(1f, 0.85f, 0.3f), 2f, 25);
             S.Toast("I found it! The sage will be so happy!", 3.5f);
             if (portal != null) portal.Activate();

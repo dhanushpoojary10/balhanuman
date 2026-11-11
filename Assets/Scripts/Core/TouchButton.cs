@@ -9,6 +9,8 @@ namespace BalHanuman
     {
         public enum Kind { Left, Right, Up, Down, Jump, Interact, Roll }
         public Kind kind;
+        public UnityEngine.UI.Image visual;
+        public Sprite normalSprite, pressedSprite;
         bool down;
 
         public void OnPointerDown(PointerEventData e)
@@ -24,7 +26,8 @@ namespace BalHanuman
                 case Kind.Interact: GameInput.TouchInteractDown(); break;
                 case Kind.Roll: GameInput.TouchRollDown(); break;
             }
-            transform.localScale = Vector3.one * 0.92f;
+            transform.localScale = Vector3.one * 0.93f;
+            if (visual != null) { if (pressedSprite != null) visual.sprite = pressedSprite; else visual.color = new Color(0.78f, 0.78f, 0.82f, 1f); }
         }
 
         public void OnPointerUp(PointerEventData e) { Release(); }
@@ -43,6 +46,7 @@ namespace BalHanuman
                 case Kind.Jump: GameInput.JumpHeldTouch = false; break;
             }
             transform.localScale = Vector3.one;
+            if (visual != null) { if (normalSprite != null) visual.sprite = normalSprite; else visual.color = Color.white; }
         }
     }
 }

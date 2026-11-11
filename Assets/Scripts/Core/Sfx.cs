@@ -4,10 +4,10 @@ using UnityEngine;
 
 namespace BalHanuman
 {
-    /// <summary>No audio files exist in the project, so short sound effects are synthesised at runtime.</summary>
+    /// <summary>Plays sound effects from Assets/Resources/Audio (made by Tools/AudioGen); falls back to a synthesised beep if a file is missing.</summary>
     public static class Sfx
     {
-        public enum Id { Jump, Land, Step, Pickup, Lever, Bell, Splash, Chirp, Rescue, Click, Portal, Complete, Dialogue }
+        public enum Id { Jump, Land, Step, Pickup, Lever, Bell, Splash, Chirp, Rescue, Click, Portal, Complete, Dialogue, PickupBig, Checkpoint, Conch }
 
         const int Rate = 22050;
         static readonly Dictionary<Id, AudioClip> clips = new Dictionary<Id, AudioClip>();
@@ -23,9 +23,19 @@ namespace BalHanuman
                 source = go.AddComponent<AudioSource>();
                 source.playOnAwake = false;
             }
-            if (!clips.TryGetValue(id, out var c)) { c = Build(id); clips[id] = c; }
+            if (!clips.TryGetValue(id, out var c)) { c = Resources.Load<AudioClip>("Audio/" + FileName(id)) ?? Build(id); clips[id] = c; }
             source.pitch = pitch;
             source.PlayOneShot(c, Volume * vol);
+        }
+
+        static string FileName(Id id)
+        {
+            switch (id)
+            {
+                case Id.Bell: return "temple_bell";
+                case Id.PickupBig: return "pickup_big";
+                default: return id.ToString().ToLowerInvariant();
+            }
         }
 
         static AudioClip Make(string name, float dur, Func<float, float> f)

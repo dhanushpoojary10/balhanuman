@@ -26,8 +26,8 @@ Transform:
   m_GameObject: {fileID: 745922330905958300}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: -0.55, z: 0}
-  m_LocalScale: {x: 0.9883721, y: 0.9883721, z: 0.9883721}
+  m_LocalPosition: {x: 0, y: -0.42, z: 0}
+  m_LocalScale: {x: 0.45994064, y: 0.45994064, z: 0.45994064}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 735367153852932213}
@@ -79,14 +79,14 @@ SpriteRenderer:
   m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 4
+  m_SortingOrder: 9
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 21300000, guid: 2f1fd5ff250f6f2478e6b2374fc445c3, type: 3}
+  m_Sprite: {fileID: 21300000, guid: f860b72bd57c5234b9248539cc7e9d18, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 3, y: 0.86}
+  m_Size: {x: 6.74, y: 1.28}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
@@ -215,3 +215,6 @@ MonoBehaviour:
   travel: {x: 2, y: 0}
   speed: 1.2
   phaseOffset: 0
+  bobAmount: 0.05
+  dipOnRide: 0.1
+  ripple: {fileID: 21300000, guid: d143095f1720e1e47ba18ee44abd4c0b, type: 3}
