@@ -53,12 +53,16 @@ namespace BalHanuman.EditorTools
 
             var idle = Clip("Hanuman_Idle", Frames("Idle24", "idle24", 24), 12f, true);
             var run = Clip("Hanuman_Run", Frames("Run", "run", 8), 14f, true);
-            var jump = Clip("Hanuman_Jump", Frames("Jump", "jump", 6).GetRange(2, 1), 1f, false);
-            var fall = Clip("Hanuman_Fall", Frames("Jump", "jump", 6).GetRange(4, 1), 1f, false);
-            var climb = Clip("Hanuman_Climb", Frames("Climb", "climb", 5), 8f, true);
+            // the 12-frame jump sheet is split by phase: 1-3 crouch, 4-6 take-off and rise, 7 top, 8-9 falling, 10-12 landing
+            var j12 = Frames("Jump12", "jump12", 12);
+            var jump = Clip("Hanuman_Jump", j12.GetRange(3, 3), 14f, false);
+            var apex = Clip("Hanuman_Apex", j12.GetRange(6, 1), 1f, false);
+            var fall = Clip("Hanuman_Fall", j12.GetRange(7, 2), 9f, false);
+            var land = Clip("Hanuman_Land", j12.GetRange(9, 3), 15f, false);
+            var climb = Clip("Hanuman_Climb", Frames("Climb10", "climb10", 10), 12f, true);
             var interact = Clip("Hanuman_Interact", Frames("Special", "power", 3), 7f, false);
-            var roll = Clip("Hanuman_Roll", Frames("Roll", "roll", 8), 16f, false);
-            var crouch = Clip("Hanuman_Crouch", Frames("Roll", "roll", 8).GetRange(7, 1), 1f, true);
+            var roll = Clip("Hanuman_Roll", Frames("Roll12", "roll12", 12), 24f, false);
+            var crouch = Clip("Hanuman_Crouch", j12.GetRange(1, 1), 1f, true);
 
             string path = Dir + "/BalHanuman.controller";
             AssetDatabase.DeleteAsset(path);
@@ -76,6 +80,8 @@ namespace BalHanuman.EditorTools
             var sRun = sm.AddState("Run"); sRun.motion = run;
             var sJump = sm.AddState("Jump"); sJump.motion = jump;
             var sFall = sm.AddState("Fall"); sFall.motion = fall;
+            var sApex = sm.AddState("Apex"); sApex.motion = apex;
+            var sLand = sm.AddState("Land"); sLand.motion = land;
             var sClimb = sm.AddState("Climb"); sClimb.motion = climb;
             var sInteract = sm.AddState("Interact"); sInteract.motion = interact;
             var sRoll = sm.AddState("Roll"); sRoll.motion = roll;
@@ -86,12 +92,18 @@ namespace BalHanuman.EditorTools
             t = T(sRun, sIdle); t.AddCondition(AnimatorConditionMode.Less, 0.5f, "Speed");
 
             t = sm.AddAnyStateTransition(sJump); t.hasExitTime = false; t.duration = 0f; t.canTransitionToSelf = false;
-            t.AddCondition(AnimatorConditionMode.IfNot, 0, "Grounded"); t.AddCondition(AnimatorConditionMode.Greater, 0.5f, "VelY"); t.AddCondition(AnimatorConditionMode.IfNot, 0, "Climbing");
+            t.AddCondition(AnimatorConditionMode.IfNot, 0, "Grounded"); t.AddCondition(AnimatorConditionMode.Greater, 1.2f, "VelY"); t.AddCondition(AnimatorConditionMode.IfNot, 0, "Climbing");
+            t = sm.AddAnyStateTransition(sApex); t.hasExitTime = false; t.duration = 0f; t.canTransitionToSelf = false;
+            t.AddCondition(AnimatorConditionMode.IfNot, 0, "Grounded"); t.AddCondition(AnimatorConditionMode.Less, 1.2f, "VelY"); t.AddCondition(AnimatorConditionMode.Greater, -1.2f, "VelY"); t.AddCondition(AnimatorConditionMode.IfNot, 0, "Climbing");
             t = sm.AddAnyStateTransition(sFall); t.hasExitTime = false; t.duration = 0f; t.canTransitionToSelf = false;
-            t.AddCondition(AnimatorConditionMode.IfNot, 0, "Grounded"); t.AddCondition(AnimatorConditionMode.Less, -0.5f, "VelY"); t.AddCondition(AnimatorConditionMode.IfNot, 0, "Climbing");
+            t.AddCondition(AnimatorConditionMode.IfNot, 0, "Grounded"); t.AddCondition(AnimatorConditionMode.Less, -1.2f, "VelY"); t.AddCondition(AnimatorConditionMode.IfNot, 0, "Climbing");
 
-            t = T(sJump, sIdle); t.AddCondition(AnimatorConditionMode.If, 0, "Grounded");
-            t = T(sFall, sIdle); t.AddCondition(AnimatorConditionMode.If, 0, "Grounded");
+            // touching down plays the landing crouch (frames 10-12); running or turning straight on cuts it short
+            t = T(sJump, sLand); t.AddCondition(AnimatorConditionMode.If, 0, "Grounded");
+            t = T(sApex, sLand); t.AddCondition(AnimatorConditionMode.If, 0, "Grounded");
+            t = T(sFall, sLand); t.AddCondition(AnimatorConditionMode.If, 0, "Grounded");
+            t = T(sLand, sRun); t.AddCondition(AnimatorConditionMode.Greater, 0.5f, "Speed");
+            T(sLand, sIdle, true);
 
             t = sm.AddAnyStateTransition(sClimb); t.hasExitTime = false; t.duration = 0f; t.canTransitionToSelf = false;
             t.AddCondition(AnimatorConditionMode.If, 0, "Climbing");

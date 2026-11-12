@@ -10,10 +10,12 @@ namespace BalHanuman
         public int bonusMangoes = 3;
         public DialogueLine[] lines =
         {
-            new DialogueLine("Baby Monkey", "I can't get down!"),
+            new DialogueLine("Baby Monkey", "I can't get down!", "scared"),
             new DialogueLine("Hanuman", "Don't worry, little friend!"),
         };
 
+        public ClipAnimator clips;
+        public SpriteRenderer sprite;
         AmbientAnimal anim;
         bool busy, rescued;
 
@@ -33,6 +35,8 @@ namespace BalHanuman
             if (anim != null) anim.enabled = false;
             Vector3 a = transform.position;
             Vector3 b = landingPoint != null ? landingPoint.position : a + Vector3.down * 4f;
+            if (clips != null) clips.Play("rescued");                          // looks up, cheers, leaps
+            if (sprite != null) sprite.flipX = b.x < a.x;
             float dur = 1.5f, t = 0f;
             while (t < dur)
             {
@@ -50,6 +54,7 @@ namespace BalHanuman
             Fx.Burst(sparkle, b + Vector3.up, 24, 3.5f, 1.4f, 1f, 0.35f, new Color(1f, 0.9f, 0.4f), 2f, 25);
             S.AddMangoes(bonusMangoes);
             S.Toast("Baby Monkey Rescued!  +" + bonusMangoes + " mangoes", 3.5f);
+            if (clips != null) clips.Play("happy");                            // claps and bounces
             if (anim != null) { anim.enabled = true; anim.hopHeight = 0.7f; anim.Celebrate(); }
         }
     }

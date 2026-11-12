@@ -62,3 +62,7 @@ Desktop.ini
 /Assets/Legacy_Level1.meta
 /Assets/Art/
 /Assets/Art.meta
+
+# Local Android builds
+Builds/
+.utmp/

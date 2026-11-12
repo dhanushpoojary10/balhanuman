@@ -17,6 +17,7 @@ namespace BalHanuman
 
         // picking several in a row raises the pitch of the chime
         static int chain;
+        static readonly float[] BhoopRatios = { 1f, 1.1225f, 1.2599f, 1.4983f, 1.6818f, 2f };
         static float lastPickup = -10f;
 
         void Start()
@@ -49,7 +50,8 @@ namespace BalHanuman
 
             if (Time.time - lastPickup > 1.3f) chain = 0;
             chain++; lastPickup = Time.time;
-            float pitch = (kind == CollectibleKind.Mango ? 1f : 1.25f) * (1f + 0.055f * Mathf.Min(chain - 1, 9));
+            // each pickup in a quick run climbs raga Bhoop (D E F# A B D'), so a row of mangoes plays a little tune
+            float pitch = BhoopRatios[Mathf.Min(chain - 1, BhoopRatios.Length - 1)] * (kind == CollectibleKind.Mango ? 1f : 1.5f);
             Sfx.Play(Sfx.Id.Pickup, pitch);
             Haptics.Tick();
 

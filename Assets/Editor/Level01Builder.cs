@@ -143,13 +143,13 @@ namespace BalHanuman.EditorTools
             pc.acceleration = 42f; pc.deceleration = 34f;     // a little slide when he lets go of the stick, instead of stopping dead
             var pi = player.AddComponent<PlayerInteractor>(); pi.player = pc;
             AddShadow(player.transform, 1.0f, true);
-            var carried = BasketVisual("CarriedBasket", 0.9f);
+            var carried = BasketAnimated("CarriedBasket", 0.55f, false);
             carried.transform.SetParent(player.transform, false);
             carried.transform.localPosition = new Vector3(0.0f, 2.25f, 0);
             SavePrefab(player, "Assets/Prefabs/Player/BalHanuman.prefab");
 
             // ---- collectibles
-            prefabs["Mango"] = MakeCollectible("Mango", "Items/item_01", 0.75f, CollectibleKind.Mango, 1, 0.4f);
+            prefabs["Mango"] = MakeCollectible("Mango", "Items/item_01", 0.5625f, CollectibleKind.Mango, 1, 0.4f);
             prefabs["GoldCoin"] = MakeCollectible("GoldCoin", "Items/item_03", 0.5f, CollectibleKind.GoldCoin, 1, 0.35f);
             prefabs["Lotus"] = MakeCollectible("Lotus", "Items/item_10", 0.7f, CollectibleKind.Lotus, 1, 0.45f);
 
@@ -162,19 +162,35 @@ namespace BalHanuman.EditorTools
 
             // ---- sage
             var sage = new GameObject("Sage");
-            var sv = Spr("NPCs/elder_01", 0, 0, 2.0f, 5, sage.transform); sv.name = "Visual";
-            var sa = sv.AddComponent<SpriteAnimator>(); sa.frames = F("NPCs", "elder", 1, 3); sa.fps = 1.6f;
-            var marker = Spr("Items/item_27", 0, 2.45f, 0.5f, 7, sage.transform); marker.name = "Marker";
+            var sv = SprNative("NPCs/Sage/sage_idle_01", 0, 0, 5, sage.transform); sv.name = "Visual";
+            var sca = sv.AddComponent<ClipAnimator>();
+            sca.clips = new[]
+            {
+                MakeClip("idle", F("NPCs/Sage", "sage_idle", 1, 12), 6f, true),
+                MakeClip("talk", F("NPCs/Sage", "sage_talk", 1, 12), 8f, true),
+                MakeClip("bless", F("NPCs/Sage", "sage_bless", 1, 8), 6f, false),
+                MakeClip("wave", F("NPCs/Sage", "sage_wave", 1, 8), 7f, true),
+            };
+            sca.startClip = "idle";
+            var marker = Spr("Items/item_27", 0, 2.8f, 0.5f, 7, sage.transform); marker.name = "Marker";
             var sn = sage.AddComponent<SageNPC>(); sn.sprite = sv.GetComponent<SpriteRenderer>(); sn.marker = marker.transform;
+            sn.anim = sca; sn.artFacesRight = false;                        // the new sage artwork faces left, towards Hanuman
             AddShadow(sage.transform, 1.2f, false);
             SetRadius(sn, 3.2f);
             SavePrefab(sage, "Assets/Prefabs/Interactables/Sage.prefab");
 
             // ---- baby monkey
             var mk = new GameObject("BabyMonkey");
-            var mv = Spr("Animals/animal_04", 0, 0, 1.35f, 6, mk.transform); mv.name = "Visual";
-            var am = mk.AddComponent<AmbientAnimal>(); am.bobAmount = 0.03f; am.hopHeight = 0.25f;
-            var bm = mk.AddComponent<BabyMonkey>(); bm.sparkle = Sparkle;
+            var mv = SprNative("NPCs/Monkey/monkey_scared_01", 0, 0, 6, mk.transform); mv.name = "Visual";
+            var mca = mv.AddComponent<ClipAnimator>();
+            mca.clips = new[]
+            {
+                MakeClip("scared", F("NPCs/Monkey", "monkey_scared", 1, 8), 8f, true),
+                MakeClip("rescued", F("NPCs/Monkey", "monkey_rescued", 1, 8), 5.5f, false),
+                MakeClip("happy", F("NPCs/Monkey", "monkey_happy", 1, 8), 8f, true),
+            };
+            mca.startClip = "scared";
+            var bm = mk.AddComponent<BabyMonkey>(); bm.sparkle = Sparkle; bm.clips = mca; bm.sprite = mv.GetComponent<SpriteRenderer>();
             AddShadow(mk.transform, 0.9f, false);
             SetRadius(bm, 2.8f);
             SavePrefab(mk, "Assets/Prefabs/Interactables/BabyMonkey.prefab");
@@ -187,19 +203,23 @@ namespace BalHanuman.EditorTools
             SavePrefab(lv, "Assets/Prefabs/Interactables/Lever.prefab");
 
             // ---- mango basket
-            var bk = BasketVisual("MangoBasket", 1.1f);
-            AddGlow(bk, 2.2f, new Color(1f, 0.9f, 0.5f, 0.6f), 5);
-            var bkc = bk.AddComponent<MangoBasket>(); bkc.sparkle = Sparkle;
+            var bk = BasketAnimated("MangoBasket", 1f, true);
+            var bkc = bk.AddComponent<MangoBasket>(); bkc.sparkle = Sparkle; bkc.anim = bk.GetComponentInChildren<ClipAnimator>();
             SetRadius(bkc, 2.6f);
             SavePrefab(bk, "Assets/Prefabs/Interactables/MangoBasket.prefab");
 
             // ---- return portal
             var pt = new GameObject("ReturnPortal");
-            var pv = new GameObject("Visual"); pv.transform.SetParent(pt.transform, false);
-            var beam = Spr("VFX/fx_14", 0, 0.05f, 3.6f, 6, pv.transform); beam.name = "Beam";
-            var ring = Spr("VFX/fx_18", 0, 0.1f, 0.9f, 5, pv.transform); ring.name = "Ring";
-            ring.transform.localScale = new Vector3(ring.transform.localScale.x * 1.7f, ring.transform.localScale.y * 1.7f, 1);
-            var rp = pt.AddComponent<ReturnPortal>(); rp.visual = pv;
+            var pv = SprNative("Props/PortalAnim/portal_dormant_01", 0, 0, 6, pt.transform); pv.name = "Visual";
+            var pca = pv.AddComponent<ClipAnimator>();
+            pca.clips = new[]
+            {
+                MakeClip("dormant", F("Props/PortalAnim", "portal_dormant", 1, 8), 6f, true),
+                MakeClip("open", F("Props/PortalAnim", "portal_open", 1, 8), 9f, false),
+                MakeClip("active", F("Props/PortalAnim", "portal_active", 1, 8), 10f, true),
+            };
+            pca.startClip = "dormant";
+            var rp = pt.AddComponent<ReturnPortal>(); rp.visual = pv; rp.anim = pca;
             SetRadius(rp, 2.2f);
             SavePrefab(pt, "Assets/Prefabs/Interactables/ReturnPortal.prefab");
 
@@ -236,6 +256,33 @@ namespace BalHanuman.EditorTools
             var c = go.AddComponent<Collectible>(); c.kind = kind; c.value = value; c.sparkle = Sparkle;
             var path = "Assets/Prefabs/Collectibles/" + name + ".prefab";
             return SavePrefab(go, path);
+        }
+
+        /// <summary>A sprite at its native size (the art was cut for a known world size), bottom-centre pivot.</summary>
+        static GameObject SprNative(string path, float x, float y, int order, Transform parent)
+        {
+            var s = S(path);
+            return Spr(path, x, y, s.bounds.size.y, order, parent);
+        }
+
+        static ClipAnimator.Clip MakeClip(string name, Sprite[] frames, float fps, bool loop)
+        {
+            return new ClipAnimator.Clip { name = name, frames = frames, fps = fps, loop = loop };
+        }
+
+        /// <summary>Animated mango basket (glow loop, and a "lift" clip for when it is picked up).</summary>
+        static GameObject BasketAnimated(string name, float scale, bool withLift)
+        {
+            var root = new GameObject(name);
+            var v = SprNative("Props/BasketAnim/basket_glow_01", 0, 0, 6, root.transform); v.name = "Visual";
+            v.transform.localScale = Vector3.one * scale;
+            var ca = v.AddComponent<ClipAnimator>();
+            var clips = new System.Collections.Generic.List<ClipAnimator.Clip> { MakeClip("glow", F("Props/BasketAnim", "basket_glow", 1, 8), 8f, true) };
+            if (withLift) clips.Add(MakeClip("lift", F("Props/BasketAnim", "basket_lift", 1, 8), 15f, false));
+            ca.clips = clips.ToArray(); ca.startClip = "glow";
+            // trigger so the basket can be picked up when it is a scene interactable
+            var bc = root.AddComponent<BoxCollider2D>(); bc.isTrigger = true; bc.size = new Vector2(1.5f * scale, 1.3f * scale); bc.offset = new Vector2(0, 0.7f * scale);
+            return root;
         }
 
         /// <summary>Basket with a few mangoes on top, built from the available basket + mango sprites.</summary>
@@ -520,11 +567,7 @@ namespace BalHanuman.EditorTools
             var vine = Place("ClimbableVine", new Vector3(87.4f, 0f, 0), interactRoot);
             vine.GetComponent<ClimbableVine>().exitDirection = 1f;
             // the hanging pieces hang from one pivot at the top so the whole vine can sway and swing when grabbed
-            var sway = new GameObject("VineSway"); sway.transform.SetParent(propRoot, false); sway.transform.position = new Vector3(87.4f, 6.0f, 0);
-            vine.GetComponent<ClimbableVine>().swayRoot = sway.transform;
-            for (int i = 0; i < 3; i++) { var seg = Spr("Platforms/tile_17", 87.4f, 0.2f + i * 1.95f, 2.0f, 3, propRoot); seg.name = "VineSeg"; seg.transform.SetParent(sway.transform, true); }
-            var vtop = Spr("Platforms/tile_17", 87.4f, 5.9f, 1.6f, 3, propRoot); vtop.name = "VineTop"; vtop.transform.SetParent(sway.transform, true);
-            SprW("Platforms/tile_18", 87.4f, 5.4f, 3.6f, 4, propRoot).name = "VineCanopy";
+            BuildVine(vine.GetComponent<ClimbableVine>(), 87.4f);
 
             // ---- decor: start area
             Spr("Props/generated/signpost_placeholder", 14.0f, 0f, 1.7f, 3, propRoot).name = "Signpost";
@@ -592,9 +635,13 @@ namespace BalHanuman.EditorTools
             ov.skin = skin;
             ov.portraits = new[]
             {
-                new Portrait { speaker = "Sage", sprite = S("NPCs/elder_01") },
+                new Portrait { speaker = "Sage", sprite = S("NPCs/Portraits/sage_neutral") },
+                new Portrait { speaker = "Sage:worried", sprite = S("NPCs/Portraits/sage_worried") },
+                new Portrait { speaker = "Sage:smile", sprite = S("NPCs/Portraits/sage_smile") },
+                new Portrait { speaker = "Sage:joy", sprite = S("NPCs/Portraits/sage_joy") },
                 new Portrait { speaker = "Hanuman", sprite = S("Character/Expressions/face_happy") },
-                new Portrait { speaker = "Baby Monkey", sprite = S("Animals/animal_04") },
+                new Portrait { speaker = "Baby Monkey", sprite = S("NPCs/Portraits/monkey_scared") },
+                new Portrait { speaker = "Baby Monkey:happy", sprite = S("NPCs/Portraits/monkey_happy") },
             };
 
             var gsGo = new GameObject("GameSession");
@@ -639,6 +686,50 @@ namespace BalHanuman.EditorTools
             w.layer = LayerMask.NameToLayer("Ground");
             w.transform.position = new Vector3(x, 6, 0);
             var bc = w.AddComponent<BoxCollider2D>(); bc.size = new Vector2(1, 60); bc.sharedMaterial = noFriction;
+        }
+
+        /// <summary>The hanging vine: a mossy ledge with the rope coming down from it, a stretch of rope, a frayed end and a few leaves. The lower part sways.</summary>
+        static void BuildVine(ClimbableVine vine, float vx)
+        {
+            // pieces were cut at 212 pixels per world unit; rope centres measured on the artwork (pixels)
+            float k = 1f / 212f;
+            float ledgeTop = 5.85f;
+            var top = S("Props/Vine/top"); var seg = S("Props/Vine/seg_slice"); var end = S("Props/Vine/end");
+            float topH = top.bounds.size.y, topW = top.bounds.size.x;
+            float seamY = ledgeTop - topH;                                   // where the rope leaves the ledge artwork
+            float topCx = vx - (368.5f - 370f) * k;
+            var topGo = PlaceSprite("Props/Vine/top", topCx, ledgeTop - topH / 2f, 3, propRoot); topGo.name = "VineLedge";
+
+            var sway = new GameObject("VineSway"); sway.transform.SetParent(propRoot, false);
+            sway.transform.position = new Vector3(vx, seamY, 0);
+            vine.swayRoot = sway.transform;
+            float segH = seg.bounds.size.y;
+            var segGo = PlaceSprite("Props/Vine/seg_slice", vx, seamY - segH / 2f, 3, propRoot); segGo.name = "VineRope"; segGo.transform.SetParent(sway.transform, true);
+            float endH = end.bounds.size.y;
+            var endGo = PlaceSprite("Props/Vine/end", vx - (43f - 60.5f) * k, seamY - segH - endH / 2f, 3, propRoot); endGo.name = "VineEnd"; endGo.transform.SetParent(sway.transform, true);
+
+            // a few leaf clusters and a flower on the rope
+            string[] leaves = { "leaf_0", "leaf_2", "leaf_3", "leaf_1" };
+            float[] ly = { seamY - 0.25f, seamY - 0.62f, seamY - 1.0f, seamY - 1.55f };
+            float[] lx = { 0.34f, -0.30f, 0.30f, -0.34f };
+            float[] lw = { 0.62f, 0.56f, 0.34f, 0.60f };
+            for (int i = 0; i < leaves.Length; i++)
+            {
+                var ls = S("Props/Vine/" + leaves[i]);
+                var lg = PlaceSprite("Props/Vine/" + leaves[i], vx + lx[i], ly[i], 4, propRoot);
+                float sc = lw[i] / ls.bounds.size.x;
+                lg.transform.localScale = Vector3.one * sc; lg.name = "VineLeaf"; lg.transform.SetParent(sway.transform, true);
+            }
+        }
+
+        static GameObject PlaceSprite(string path, float cx, float cy, int order, Transform parent)
+        {
+            var s = S(path);
+            var go = new GameObject(System.IO.Path.GetFileName(path));
+            go.transform.SetParent(parent, false);
+            go.transform.position = new Vector3(cx, cy, 0);
+            var sr = go.AddComponent<SpriteRenderer>(); sr.sprite = s; sr.sortingOrder = order;
+            return go;
         }
 
         static void BuildStream()

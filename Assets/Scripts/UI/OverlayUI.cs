@@ -10,7 +10,8 @@ namespace BalHanuman
     {
         public string speaker;
         [TextArea] public string text;
-        public DialogueLine(string s, string t) { speaker = s; text = t; }
+        public string mood;           // optional portrait expression, e.g. "worried" -> portrait "Sage:worried"
+        public DialogueLine(string s, string t, string m = "") { speaker = s; text = t; mood = m; }
     }
 
     [Serializable] public class Portrait { public string speaker; public Sprite sprite; }
@@ -147,7 +148,11 @@ namespace BalHanuman
             dlgName.text = line.speaker.ToUpperInvariant();
             Sprite face = null;
             if (portraits != null)
-                foreach (var p in portraits) if (p.speaker == line.speaker) face = p.sprite;
+            {
+                string moodKey = string.IsNullOrEmpty(line.mood) ? null : line.speaker + ":" + line.mood;
+                foreach (var p in portraits) if (p.speaker == line.speaker) face = p.sprite;                       // the plain portrait first
+                if (moodKey != null) foreach (var p in portraits) if (p.speaker == moodKey) face = p.sprite;      // then the expression, if there is one
+            }
             UiKit.SetPortrait(dlgFace, face, 200 * 0.80f);
             fullText = line.text;
             if (typing != null) StopCoroutine(typing);

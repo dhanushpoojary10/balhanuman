@@ -29,7 +29,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1.2295082, y: 1.2295082, z: 1.2295082}
+  m_LocalScale: {x: 0.9221312, y: 0.9221312, z: 0.9221312}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 8563468199262808338}
@@ -130,7 +130,7 @@ CircleCollider2D:
   m_CompositeOperation: 0
   m_CompositeOrder: 0
   m_Offset: {x: 0, y: 0}
-  m_Radius: 0.32533336
+  m_Radius: 0.4337
 --- !u!114 &8016527609426414585
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -174,7 +174,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.47656253, y: 0.47656253, z: 0.47656253}
+  m_LocalScale: {x: 0.63538, y: 0.63538, z: 0.63538}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 4111761224589035446}

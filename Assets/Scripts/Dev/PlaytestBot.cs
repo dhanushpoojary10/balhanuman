@@ -37,6 +37,26 @@ namespace BalHanuman
 
         public void VineTest() { StartCoroutine(Vine()); }
 
+        /// <summary>Logs which sprite frame is showing while Hanuman jumps, lands, rolls and bends (to check the animation states).</summary>
+        public void AnimTrace() { StartCoroutine(Trace()); }
+
+        IEnumerator Trace()
+        {
+            var p = GameSession.Current.player;
+            yield return W(0.5f);
+            GameInput.TouchJumpDown(); yield return W(0.15f); GameInput.JumpHeldTouch = false;
+            for (int i = 0; i < 26; i++) { TraceLine("jump", p); yield return W(0.06f); }
+            yield return W(0.6f);
+            GameInput.TouchRollDown();
+            for (int i = 0; i < 14; i++) { TraceLine("roll", p); yield return W(0.05f); }
+            Log("SUMMARY trace");
+        }
+
+        void TraceLine(string tag, PlayerController2D p)
+        {
+            Log("anim " + tag + " y=" + p.transform.position.y.ToString("0.00") + " vy=" + p.Body.linearVelocity.y.ToString("0.0") + " grounded=" + p.Grounded + " rolling=" + p.Rolling + " sprite=" + p.spriteRenderer.sprite.name);
+        }
+
         IEnumerator Vine()
         {
             p = FindFirstObjectByType<PlayerController2D>();
