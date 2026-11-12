@@ -9,6 +9,7 @@ namespace BalHanuman
     {
         public UiSkin skin;
         public string levelScene = "Level01_MissingFruitOffering";
+        public string fightScene = "Level02_PatalaYuddha";
 
         void Awake()
         {
@@ -45,6 +46,12 @@ namespace BalHanuman
             UiKit.PillButton("Play", cgo.transform, "PLAY", c, new Vector2(330, -90), new Vector2(520, 124), () => SceneManager.LoadScene(levelScene), true, 52);
             var level = UiKit.Body("Level", cgo.transform, "Level 1  ·  The Missing Fruit Offering", 30, TextAnchor.MiddleCenter, c, c, new Vector2(330, -200), new Vector2(1000, 44), descBlue, FontStyle.Bold);
             Plain(level);
+
+            // Level 2: the Patala Yuddha fight (story, training room, demo reel)
+            void Go(BalHanuman.Fight.FightSetup.Mode m) { BalHanuman.Fight.FightSetup.Current = m; SceneManager.LoadScene(fightScene); }
+            UiKit.PillButton("Fight", cgo.transform, "LEVEL 2  ·  PATALA YUDDHA", c, new Vector2(330, -300), new Vector2(620, 100), () => Go(BalHanuman.Fight.FightSetup.Mode.Story), true, 34);
+            UiKit.PillButton("Training", cgo.transform, "TRAINING", c, new Vector2(170, -415), new Vector2(300, 84), () => Go(BalHanuman.Fight.FightSetup.Mode.Training), false, 30);
+            UiKit.PillButton("Demo", cgo.transform, "DEMO REEL", c, new Vector2(490, -415), new Vector2(300, 84), () => Go(BalHanuman.Fight.FightSetup.Mode.Demo), false, 30);
         }
     }
 }
