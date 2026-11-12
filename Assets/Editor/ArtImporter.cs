@@ -36,8 +36,27 @@ public class ArtImporter : AssetPostprocessor
                 ti.spritePixelsPerUnit = ppu;
             ti.maxTextureSize = 512; ti.textureCompression = TextureImporterCompression.Uncompressed;
         }
-        if (assetPath.Contains("/Character/Gada/"))
+        // any folder with a _ppu.txt ("<pixels per unit> <bottom|center>") is a set of frames cut for a known world size
         {
+            string dir = System.IO.Path.GetDirectoryName(assetPath);
+            string f2 = System.IO.Path.Combine(dir, "_ppu.txt");
+            if (System.IO.File.Exists(f2))
+            {
+                var parts = System.IO.File.ReadAllText(f2).Trim().Split(new[] { ' ', '\t', '\n', '\r' }, System.StringSplitOptions.RemoveEmptyEntries);
+                if (parts.Length > 0 && float.TryParse(parts[0], System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out float ppu2))
+                {
+                    ti.spritePixelsPerUnit = ppu2;
+                    var gs = new TextureImporterSettings();
+                    ti.ReadTextureSettings(gs);
+                    gs.spriteAlignment = (int)((parts.Length > 1 && parts[1] == "center") ? SpriteAlignment.Center : SpriteAlignment.BottomCenter);
+                    ti.SetTextureSettings(gs);
+                    ti.textureCompression = TextureImporterCompression.Uncompressed;
+                    ti.maxTextureSize = 1024;
+                }
+            }
+        }
+        if (assetPath.Contains("/Character/Gada/"))
+        {   // (runs after the generic _ppu.txt rule above, so its per-pose feet anchors win)
             // Hanuman with his gada (cut from one sheet): one pixels-per-unit for the set (_ppu.txt) so he matches his
             // other frames, and each pose stands on its own feet point (_pivots.txt: "name x-fraction" per line)
             string dir = System.IO.Path.GetDirectoryName(assetPath);

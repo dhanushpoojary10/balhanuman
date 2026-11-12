@@ -101,7 +101,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8520342693263248922}
-  - component: {fileID: 3705189650247341914}
   - component: {fileID: 2665224720366297240}
   m_Layer: 0
   m_Name: BabyMonkey
@@ -127,24 +126,6 @@ Transform:
   - {fileID: 3635067006127814030}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &3705189650247341914
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1565352783241038157}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b83d31daa5c24ab4fb2cb2377b7549c2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::BalHanuman.AmbientAnimal
-  bobAmount: 0.03
-  bobSpeed: 2
-  hops: 1
-  hopHeight: 0.25
-  flies: 0
-  flyRadius: 0.5
 --- !u!114 &2665224720366297240
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -164,8 +145,12 @@ MonoBehaviour:
   lines:
   - speaker: Baby Monkey
     text: I can't get down!
+    mood: scared
   - speaker: Hanuman
     text: Don't worry, little friend!
+    mood: 
+  clips: {fileID: 7767151970859942162}
+  sprite: {fileID: 6368163679288734211}
 --- !u!1 &5248100262076135846
 GameObject:
   m_ObjectHideFlags: 0
@@ -176,6 +161,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4084408548176469314}
   - component: {fileID: 6368163679288734211}
+  - component: {fileID: 7767151970859942162}
   m_Layer: 0
   m_Name: Visual
   m_TagString: Untagged
@@ -193,7 +179,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1.25, y: 1.25, z: 1.25}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 8520342693263248922}
@@ -247,14 +233,64 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 6
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 21300000, guid: 94ebcb38238a32742856aded19144ea0, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 5699cfab434f78d4fb96ba81c0804aa9, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 0.74, y: 1.08}
+  m_Size: {x: 1.4194285, y: 1.26101}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
   m_BlendShapeWeights: []
+--- !u!114 &7767151970859942162
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5248100262076135846}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6fa0bebba13e7f243bd6ba457038da3f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BalHanuman.ClipAnimator
+  clips:
+  - name: scared
+    frames:
+    - {fileID: 21300000, guid: 5699cfab434f78d4fb96ba81c0804aa9, type: 3}
+    - {fileID: 21300000, guid: 0c539a7752a4aa4458c882977cd81b85, type: 3}
+    - {fileID: 21300000, guid: 795c3bda2584d3d4e8d60772b3068702, type: 3}
+    - {fileID: 21300000, guid: a39fb1f9939ee4b41935e02b1b7382ed, type: 3}
+    - {fileID: 21300000, guid: 91e6f43ab9ddbc84c8266d78ea9b131c, type: 3}
+    - {fileID: 21300000, guid: 8f8e6ba66f1aae44582db2f53a2d4357, type: 3}
+    - {fileID: 21300000, guid: 6bc76e92780694745b8216e7b9057c6c, type: 3}
+    - {fileID: 21300000, guid: cb42ac817bb306f45958439740252a51, type: 3}
+    fps: 8
+    loop: 1
+  - name: rescued
+    frames:
+    - {fileID: 21300000, guid: c812eb53687e6cf4389a8b2a0c0c0dba, type: 3}
+    - {fileID: 21300000, guid: cb55a5785278db8429ecfa3142de47b4, type: 3}
+    - {fileID: 21300000, guid: 7e83850decb59ee4b96f8bf98b29f74f, type: 3}
+    - {fileID: 21300000, guid: 4ca2d93898fdf2b42be20eb72c2eaea7, type: 3}
+    - {fileID: 21300000, guid: dba0d39da2e02de4ca307353ac915c24, type: 3}
+    - {fileID: 21300000, guid: 91fcd3d07dc48e04abcbff22fedd3930, type: 3}
+    - {fileID: 21300000, guid: 216fb1b80bac7744d88ccf54c0c5c135, type: 3}
+    - {fileID: 21300000, guid: 1a6c349e4b1f80e4b955133e755b75d6, type: 3}
+    fps: 5.5
+    loop: 0
+  - name: happy
+    frames:
+    - {fileID: 21300000, guid: 76cdf351847aa0543863b58f70a61f6e, type: 3}
+    - {fileID: 21300000, guid: 5afaa0aac502df64fa1a744624c90fcd, type: 3}
+    - {fileID: 21300000, guid: 453f5af4473cab84fb8be8c8b89a207b, type: 3}
+    - {fileID: 21300000, guid: ae64992dd7a395848979553e05e9d887, type: 3}
+    - {fileID: 21300000, guid: 20a3b5e38e64aec41a8d6909c946a133, type: 3}
+    - {fileID: 21300000, guid: c967d2c650a40f74eb1ae79c940dce30, type: 3}
+    - {fileID: 21300000, guid: e2a2d88935bfb6b49ac36be1a0b3cba4, type: 3}
+    - {fileID: 21300000, guid: 5a2904547223cab498c4f940c510e11e, type: 3}
+    fps: 8
+    loop: 1
+  startClip: scared

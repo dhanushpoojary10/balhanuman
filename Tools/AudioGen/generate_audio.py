@@ -411,7 +411,14 @@ def make_sfx():
     D5, FS5, A5, B5, D6, E6, FS6, A6 = [midi(m) for m in (74, 78, 81, 83, 86, 88, 90, 93)]
 
     # collect a mango: soft rising sparkle
-    save("pickup", wet_sfx(place(1.6, [(0, chime(A5, 1.2, 0.8)), (0.07, chime(D6, 1.2, 0.8)), (0.14, chime(FS6, 1.3, 0.7))]), 1.0, 0.25), SR)
+    # mango: a juicy "pop" + a short kalimba-style pluck on D5 (pitched up the raga scale in code when picked in a row)
+    t = T(0.5)
+    pop = np.sin(2 * np.pi * np.cumsum(520 * np.exp(-t * 55) + 180) / SR) * np.exp(-t * 60) * 0.7
+    f0 = midi(74)
+    tink = (np.sin(2 * np.pi * f0 * t) * np.exp(-t * 9) + 0.35 * np.sin(2 * np.pi * f0 * 2 * t) * np.exp(-t * 14)
+            + 0.18 * np.sin(2 * np.pi * f0 * 5.4 * t) * np.exp(-t * 45))
+    tink = tink * np.minimum(1, t / 0.002) * 0.6
+    save("pickup", wet_sfx(pop + tink, 0.6, 0.18), SR)
     # basket / quest item: warm rising pentatonic with a bell underneath
     save("pickup_big", wet_sfx(place(2.6, [(0, temple_bell(midi(62), 2.4, 0.5, SR)), (0.0, chime(D5, 1.6, 0.8)), (0.1, chime(FS5, 1.6, 0.8)),
          (0.2, chime(A5, 1.6, 0.8)), (0.3, chime(B5, 1.8, 0.8)), (0.42, chime(D6, 2.0, 1.0))]), 1.6, 0.3), SR)

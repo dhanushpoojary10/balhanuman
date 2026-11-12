@@ -126,25 +126,26 @@ namespace BalHanuman
             trackerDot = UiKit.Img("Dot", tb.transform.parent, S.circle, new Vector2(0, 0.5f), new Vector2(0, 0.5f), c, Vector2.zero, new Vector2(20, 20), UiKit.Cream);
             UiKit.Img("Flag", track.transform, S.iconFlag, bc, bc, new Vector2(0.5f, 0), new Vector2(228, 24), new Vector2(34, 34), Color.white);
 
-            // ---------- touch controls (small round buttons; the icon is part of each sprite)
+            // ---------- touch controls (round buttons; the icon is part of each sprite)
             controls = UiKit.Stretch("Controls", root);
-            MakeTouch(controls, "BtnLeft", TouchButton.Kind.Left, S.btnLeft, bl, new Vector2(120, 112), 112, null, out _);
-            MakeTouch(controls, "BtnRight", TouchButton.Kind.Right, S.btnRight, bl, new Vector2(262, 112), 112, null, out _);
+            // (button sizes from the larger layout; positions follow the one-thumb-per-job rule)
+            MakeTouch(controls, "BtnLeft", TouchButton.Kind.Left, S.btnLeft, bl, new Vector2(150, 130), 140, null, out _);
+            MakeTouch(controls, "BtnRight", TouchButton.Kind.Right, S.btnRight, bl, new Vector2(322, 130), 140, null, out _);
             // left thumb only moves; every action sits under the right thumb. Bend sits right above Jump
             // (its label clears Jump's top edge); on vines the Climb button appears above Bend: up over down.
-            MakeTouch(controls, "BtnBend", TouchButton.Kind.Down, S.btnBend, br, new Vector2(-120, 284), 92, "Bend", out _);
-            MakeTouch(controls, "BtnJump", TouchButton.Kind.Jump, S.btnJump, br, new Vector2(-120, 124), 132, "Jump", out _);
-            MakeTouch(controls, "BtnRoll", TouchButton.Kind.Roll, S.btnRoll, br, new Vector2(-268, 100), 104, "Roll", out rollBg);
+            MakeTouch(controls, "BtnBend", TouchButton.Kind.Down, S.btnBend, br, new Vector2(-150, 336), 112, "Bend", out _);
+            MakeTouch(controls, "BtnJump", TouchButton.Kind.Jump, S.btnJump, br, new Vector2(-150, 150), 168, "Jump", out _);
+            MakeTouch(controls, "BtnRoll", TouchButton.Kind.Roll, S.btnRoll, br, new Vector2(-340, 122), 130, "Roll", out rollBg);
 
             // ---------- interact (only when something can be used) and climb (only on vines)
             interactGroup = UiKit.Stretch("InteractGroup", root); interactCg = interactGroup.gameObject.AddComponent<CanvasGroup>();
             // sits high enough that its label clears the Roll button below it
-            MakeTouch(interactGroup, "BtnInteract", TouchButton.Kind.Interact, S.btnInteract, br, new Vector2(-268, 248), 104, "", out interactBg);
+            MakeTouch(interactGroup, "BtnInteract", TouchButton.Kind.Interact, S.btnInteract, br, new Vector2(-340, 292), 130, "", out interactBg);
             interactLabel = interactGroup.Find("BtnInteract_Label").GetComponent<Text>();
             interactCg.alpha = 0f; interactCg.blocksRaycasts = false;
 
             climbGroup = UiKit.Stretch("ClimbGroup", root); climbCg = climbGroup.gameObject.AddComponent<CanvasGroup>();
-            MakeTouch(climbGroup, "BtnUp", TouchButton.Kind.Up, S.btnClimb, br, new Vector2(-120, 424), 100, "Climb", out _);
+            MakeTouch(climbGroup, "BtnUp", TouchButton.Kind.Up, S.btnClimb, br, new Vector2(-150, 498), 124, "Climb", out _);
             climbCg.alpha = 0f; climbCg.blocksRaycasts = false;
 
             // ---------- toast
@@ -163,7 +164,7 @@ namespace BalHanuman
         {
             var b = UiKit.Img(name, parent, disc, anchor, anchor, new Vector2(0.5f, 0.5f), pos, new Vector2(size, size), Color.white, true);
             b.preserveAspect = true;
-            b.raycastPadding = new Vector4(-18f, -18f, -18f, -18f);   // bigger tap area than the visible disc
+            b.raycastPadding = new Vector4(-22f, -22f, -22f, -22f);   // bigger tap area than the visible disc
             var t = b.gameObject.AddComponent<TouchButton>(); t.kind = kind; t.visual = b;
             // labels sit under the button and do not scale with the press animation.
             // Every label lives in a fixed box (one line, LabelWidth wide): longer text shrinks to fit

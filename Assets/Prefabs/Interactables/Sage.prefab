@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7997591510360598054}
   - component: {fileID: 1743089723411417611}
-  - component: {fileID: 4093903029740830263}
+  - component: {fileID: 8415046143190293567}
   m_Layer: 0
   m_Name: Visual
   m_TagString: Untagged
@@ -28,7 +28,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1.438849, y: 1.438849, z: 1.438849}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 4333039676093411102}
@@ -82,18 +82,18 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 5
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 21300000, guid: 6b03904c03f3e344fb06d54d8eb4b0e0, type: 3}
+  m_Sprite: {fileID: 21300000, guid: d52e6ac40785b2b4c87913ec492ec5ef, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 0.97, y: 1.39}
+  m_Size: {x: 1.5951957, y: 2.2801914}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
   m_BlendShapeWeights: []
---- !u!114 &4093903029740830263
+--- !u!114 &8415046143190293567
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -102,15 +102,67 @@ MonoBehaviour:
   m_GameObject: {fileID: 2411147372369286829}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e435cbc2cc66cc242a8a0a5a04ae10b4, type: 3}
+  m_Script: {fileID: 11500000, guid: 6fa0bebba13e7f243bd6ba457038da3f, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::BalHanuman.SpriteAnimator
-  frames:
-  - {fileID: 21300000, guid: 6b03904c03f3e344fb06d54d8eb4b0e0, type: 3}
-  - {fileID: 21300000, guid: 804339c7b6e507941a125e61421a1d81, type: 3}
-  - {fileID: 21300000, guid: 6c32acf08abea8247a3e082b076c9ce1, type: 3}
-  fps: 1.6
-  pingPong: 1
+  m_EditorClassIdentifier: Assembly-CSharp::BalHanuman.ClipAnimator
+  clips:
+  - name: idle
+    frames:
+    - {fileID: 21300000, guid: d52e6ac40785b2b4c87913ec492ec5ef, type: 3}
+    - {fileID: 21300000, guid: 42f668d47c8a40d4da2111145abcce1d, type: 3}
+    - {fileID: 21300000, guid: 4552d94ebbfd0bd4f8d2e031d06d0ee3, type: 3}
+    - {fileID: 21300000, guid: 1872485ee624bb044a7e3f3f36ae43b1, type: 3}
+    - {fileID: 21300000, guid: b1c4ad06d22d68842a847ac8e3a58fd7, type: 3}
+    - {fileID: 21300000, guid: 087721ec380f0684aa703a7b608a3768, type: 3}
+    - {fileID: 21300000, guid: 1b42fa67d76bc0e4c8caacbb688ae9e5, type: 3}
+    - {fileID: 21300000, guid: ca24fc8f174da6745a251a8473ef9835, type: 3}
+    - {fileID: 21300000, guid: 30c0de838df34a947af1b05afc8b61be, type: 3}
+    - {fileID: 21300000, guid: ce26385e13d4d09469462650e29ed2d1, type: 3}
+    - {fileID: 21300000, guid: f95d4a6b6dd2042489c907c20d8e73b3, type: 3}
+    - {fileID: 21300000, guid: f1376d52ac147ec4fa34f66db55827e7, type: 3}
+    fps: 6
+    loop: 1
+  - name: talk
+    frames:
+    - {fileID: 21300000, guid: 283e08bf51e7f7d4da9aefd490a575a8, type: 3}
+    - {fileID: 21300000, guid: da49b0dc6e078714c9afd88cdab444c3, type: 3}
+    - {fileID: 21300000, guid: 83cd2c17b9b411a468c62ab29da46b77, type: 3}
+    - {fileID: 21300000, guid: 0a8b7fcb25473e942ae5b8a047379c94, type: 3}
+    - {fileID: 21300000, guid: e8f8aa35f90fce04f8e9a5e0af45fbcc, type: 3}
+    - {fileID: 21300000, guid: bd07eeaa1e2bd8846ad53e194eb6a5a9, type: 3}
+    - {fileID: 21300000, guid: 662c1944272affc4b8e50c3071f589a5, type: 3}
+    - {fileID: 21300000, guid: 69485651d3c50e9429fd09d92f562967, type: 3}
+    - {fileID: 21300000, guid: 9fd43ae19fd3b7547b75b359646dcb9e, type: 3}
+    - {fileID: 21300000, guid: ff907549f9abec442bd23b988e795368, type: 3}
+    - {fileID: 21300000, guid: 6cd6f112cb94c62429174d2aa08ce0e1, type: 3}
+    - {fileID: 21300000, guid: bb887fed522bcef49a3aa8280802af8b, type: 3}
+    fps: 8
+    loop: 1
+  - name: bless
+    frames:
+    - {fileID: 21300000, guid: 53a1705d36cb10545b4015d2b0eadca2, type: 3}
+    - {fileID: 21300000, guid: 73e32118e20f8d943a60838aefafda02, type: 3}
+    - {fileID: 21300000, guid: 8204c4d278e6ea64daa983c0591c9085, type: 3}
+    - {fileID: 21300000, guid: 904e8342094ece244b520a9def17a2a9, type: 3}
+    - {fileID: 21300000, guid: 57f7cba465e7331469cd2a03079e9fa2, type: 3}
+    - {fileID: 21300000, guid: 91a7862b1ff88144ba8ccd7a1aa00356, type: 3}
+    - {fileID: 21300000, guid: 5e080d2d6688ad9459dd191966eaa00a, type: 3}
+    - {fileID: 21300000, guid: 763ae4487b2668340ac4767e79314c75, type: 3}
+    fps: 6
+    loop: 0
+  - name: wave
+    frames:
+    - {fileID: 21300000, guid: 742d9aea524fcf0408c327d85b4b41cd, type: 3}
+    - {fileID: 21300000, guid: d5042180e1f047949aa8db048b273816, type: 3}
+    - {fileID: 21300000, guid: c926e5c50a0bde248a0d19bdf1d26b4e, type: 3}
+    - {fileID: 21300000, guid: a502e7fd419340d419139325f66c0b8e, type: 3}
+    - {fileID: 21300000, guid: 5803483dabc99c34eb72a68d8ea79e15, type: 3}
+    - {fileID: 21300000, guid: 4ee1518d07b043a4ebfa6d82257af485, type: 3}
+    - {fileID: 21300000, guid: dd9ef152d0d01e34fa80853137647058, type: 3}
+    - {fileID: 21300000, guid: d969eaa778f781d48b79499806e78ec2, type: 3}
+    fps: 7
+    loop: 1
+  startClip: idle
 --- !u!1 &6216507269527912897
 GameObject:
   m_ObjectHideFlags: 0
@@ -229,7 +281,7 @@ Transform:
   m_GameObject: {fileID: 7323721300274108693}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 2.45, z: 0}
+  m_LocalPosition: {x: 0, y: 2.8, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -345,24 +397,35 @@ MonoBehaviour:
   interactionRadius: 3.2
   sprite: {fileID: 1743089723411417611}
   marker: {fileID: 8331421329924884108}
+  anim: {fileID: 8415046143190293567}
+  artFacesRight: 0
   introLines:
   - speaker: Sage
     text: Little Hanuman, I need your help!
+    mood: worried
   - speaker: Hanuman
     text: Of course! What happened?
+    mood: 
   - speaker: Sage
     text: The basket of mangoes for the temple offering has gone missing.
+    mood: worried
   - speaker: Hanuman
     text: Don't worry! I'll find it!
+    mood: 
   - speaker: Sage
     text: Follow the forest path. May your journey be blessed!
+    mood: smile
   hintLines:
   - speaker: Sage
     text: Follow the forest path, little one. The mangoes will show you the way.
+    mood: 
   finalLines:
   - speaker: Hanuman
     text: I found the basket!
+    mood: 
   - speaker: Sage
     text: Wonderful, little Hanuman! Your kindness has brought joy to the forest.
+    mood: joy
   - speaker: Hanuman
     text: I'm happy I could help!
+    mood: 
