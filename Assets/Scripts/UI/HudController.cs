@@ -22,7 +22,7 @@ namespace BalHanuman
 
         RectTransform safe, controls, interactGroup, climbGroup;
         Rect lastSafe; Vector2 lastScreen;
-        Text regionText, titleText, subText, mangoText, trackerText, toastText, interactLabel;
+        Text kickerText, titleText, subText, mangoText, trackerText, toastText, interactLabel;
         Image blessingFill, energyFill, trackerFill, trackerDot, rollBg, interactBg, fade;
         RectTransform mangoPill, trackerPanel, mangoIcon;
         GameObject toastPanel;
@@ -32,6 +32,18 @@ namespace BalHanuman
         float blessingShown, energyFlash;
         bool hasTarget;
         string interactText = "";
+
+        // one message slot under the journey tracker, shared by tips (toasts) and task messages: never two at once
+        const float SlotY = -205f;
+        // widest a touch-button label may be: the space between two neighbouring buttons
+        const float LabelWidth = 170f;
+        // centre line of the top HUD row (the Hanuman plate: 30 from the top, 156 tall)
+        const float TopMid = -30f - 156f / 2f;
+        RectTransform questMsg;
+        CanvasGroup questCg;
+        bool msgWanted, msgSwapping, titleCardOn;
+        float msgShown, msgHoldLeft;
+        string nextKicker, nextTitle, nextSub; float nextHold;
 
         void Awake()
         {
@@ -78,25 +90,35 @@ namespace BalHanuman
             energyFill = UiKit.Bar("EnergyBar", plate.transform, S.fillGold, tl, tl, new Vector2(196, -106), new Vector2(300, 26));
             blessingFill.fillAmount = 0f;
 
-            // ---------- objective card (top centre)
-            var card = UiKit.Frame("ObjectiveCard", root, S.hudWide, tc, new Vector2(0.5f, 1), new Vector2(0, -30), new Vector2(860, 170));
-            regionText = UiKit.Body("Region", card.transform, "THE REQUEST", 21, TextAnchor.MiddleCenter, tc, c, new Vector2(0, -26), new Vector2(600, 28), UiKit.Gold, FontStyle.Bold);
-            titleText = UiKit.Title("Title", card.transform, "Talk to the sage", 38, TextAnchor.MiddleCenter, tc, c, new Vector2(0, -68), new Vector2(740, 52), UiKit.Cream, true);
+            // ---------- quest message (screen centre): slides in with each new task, moves away when it is done
+            var card = UiKit.Frame("QuestMessage", root, S.hudWide, tc, tc, new Vector2(0, SlotY), new Vector2(860, 170));
+            questMsg = card.rectTransform;
+            questCg = card.gameObject.AddComponent<CanvasGroup>(); questCg.alpha = 0f; questCg.blocksRaycasts = false; questCg.interactable = false;
+            kickerText = UiKit.Body("Kicker", card.transform, "THE REQUEST", 21, TextAnchor.MiddleCenter, tc, c, new Vector2(0, -26), new Vector2(600, 28), UiKit.Gold, FontStyle.Bold);
+            titleText = UiKit.Title("Title", card.transform, "", 38, TextAnchor.MiddleCenter, tc, c, new Vector2(0, -68), new Vector2(740, 52), UiKit.Cream, true);
             subText = UiKit.Body("Subtitle", card.transform, "", 25, TextAnchor.MiddleCenter, tc, c, new Vector2(0, -108), new Vector2(740, 34), UiKit.Muted, FontStyle.Normal, true);
             UiKit.Img("Divider", card.transform, S.divider, tc, tc, tc, new Vector2(0, -138), new Vector2(380, 22), Color.white);
 
-            // ---------- mango pill + pause (top right)
-            var pause = UiKit.Img("PauseButton", root, S.btnPause, tr, tr, tr, new Vector2(-40, -34), new Vector2(78, 78), Color.white, true);
+            // ---------- top right, from the corner inwards: How to Play (?) · pause · mango pill
+            // Every top element is centred on the same line as the Hanuman plate (TopMid).
+            const float btn = 78f, gap = 18f;
+            var help = UiKit.Img("HelpButton", root, S.btnBlank != null ? S.btnBlank : S.btnPause, tr, tr, tr, new Vector2(-40, TopMid + btn / 2f), new Vector2(btn, btn), Color.white, true);
+            help.raycastPadding = new Vector4(-14f, -14f, -14f, -14f);
+            var hb = help.gameObject.AddComponent<Button>(); hb.targetGraphic = help; hb.transition = Selectable.Transition.ColorTint;
+            hb.onClick.AddListener(() => GameSession.Current?.OpenRules());
+            UiKit.Title("Glyph", help.transform, "?", 46, TextAnchor.MiddleCenter, c, c, new Vector2(1, 1), new Vector2(btn, btn), UiKit.Cream);
+
+            var pause = UiKit.Img("PauseButton", root, S.btnPause, tr, tr, tr, new Vector2(-40 - btn - gap, TopMid + btn / 2f), new Vector2(btn, btn), Color.white, true);
             pause.raycastPadding = new Vector4(-14f, -14f, -14f, -14f);
             var pb = pause.gameObject.AddComponent<Button>(); pb.targetGraphic = pause; pb.transition = Selectable.Transition.ColorTint;
             pb.onClick.AddListener(() => GameSession.Current?.TogglePause());
-            var pill = UiKit.Frame("MangoPill", root, S.hudPill, tr, tr, new Vector2(-134, -38), new Vector2(262, 80));
+            var pill = UiKit.Frame("MangoPill", root, S.hudPill, tr, tr, new Vector2(-40 - 2f * (btn + gap), TopMid + 40f), new Vector2(262, 80));
             mangoPill = pill.rectTransform;
             mangoIcon = UiKit.Img("MangoIcon", pill.transform, S.iconMango, new Vector2(0, 0.5f), new Vector2(0, 0.5f), new Vector2(0, 0.5f), new Vector2(26, 0), new Vector2(44, 44), Color.white).rectTransform;
             mangoText = UiKit.Body("Count", pill.transform, "0 / 0", 40, TextAnchor.MiddleCenter, c, c, new Vector2(20, 0), new Vector2(170, 60), UiKit.Cream, FontStyle.Bold);
 
-            // ---------- journey tracker (bottom centre)
-            var track = UiKit.Frame("JourneyTracker", root, S.hudMid, bc, new Vector2(0.5f, 0), new Vector2(0, 34), new Vector2(540, 120));
+            // ---------- journey tracker (top centre)
+            var track = UiKit.Frame("JourneyTracker", root, S.hudMid, tc, new Vector2(0.5f, 1), new Vector2(0, TopMid + 60f), new Vector2(540, 120));
             trackerPanel = track.rectTransform;
             trackerText = UiKit.Body("Place", track.transform, "", 23, TextAnchor.MiddleCenter, tc, c, new Vector2(0, -36), new Vector2(480, 30), UiKit.Cream, FontStyle.Bold, true);
             var tb = UiKit.Bar("TrackBar", track.transform, S.fillTeal, bc, new Vector2(0.5f, 0), new Vector2(-18, 26), new Vector2(380, 24));
@@ -108,22 +130,25 @@ namespace BalHanuman
             controls = UiKit.Stretch("Controls", root);
             MakeTouch(controls, "BtnLeft", TouchButton.Kind.Left, S.btnLeft, bl, new Vector2(120, 112), 112, null, out _);
             MakeTouch(controls, "BtnRight", TouchButton.Kind.Right, S.btnRight, bl, new Vector2(262, 112), 112, null, out _);
-            MakeTouch(controls, "BtnBend", TouchButton.Kind.Down, S.btnBend, bl, new Vector2(191, 228), 92, "Bend", out _);
+            // left thumb only moves; every action sits under the right thumb. Bend sits right above Jump
+            // (its label clears Jump's top edge); on vines the Climb button appears above Bend: up over down.
+            MakeTouch(controls, "BtnBend", TouchButton.Kind.Down, S.btnBend, br, new Vector2(-120, 284), 92, "Bend", out _);
             MakeTouch(controls, "BtnJump", TouchButton.Kind.Jump, S.btnJump, br, new Vector2(-120, 124), 132, "Jump", out _);
             MakeTouch(controls, "BtnRoll", TouchButton.Kind.Roll, S.btnRoll, br, new Vector2(-268, 100), 104, "Roll", out rollBg);
 
             // ---------- interact (only when something can be used) and climb (only on vines)
             interactGroup = UiKit.Stretch("InteractGroup", root); interactCg = interactGroup.gameObject.AddComponent<CanvasGroup>();
-            MakeTouch(interactGroup, "BtnInteract", TouchButton.Kind.Interact, S.btnInteract, br, new Vector2(-268, 232), 104, "", out interactBg);
+            // sits high enough that its label clears the Roll button below it
+            MakeTouch(interactGroup, "BtnInteract", TouchButton.Kind.Interact, S.btnInteract, br, new Vector2(-268, 248), 104, "", out interactBg);
             interactLabel = interactGroup.Find("BtnInteract_Label").GetComponent<Text>();
             interactCg.alpha = 0f; interactCg.blocksRaycasts = false;
 
             climbGroup = UiKit.Stretch("ClimbGroup", root); climbCg = climbGroup.gameObject.AddComponent<CanvasGroup>();
-            MakeTouch(climbGroup, "BtnUp", TouchButton.Kind.Up, S.btnClimb, br, new Vector2(-120, 266), 100, "Climb", out _);
+            MakeTouch(climbGroup, "BtnUp", TouchButton.Kind.Up, S.btnClimb, br, new Vector2(-120, 424), 100, "Climb", out _);
             climbCg.alpha = 0f; climbCg.blocksRaycasts = false;
 
             // ---------- toast
-            var toast = UiKit.Frame("Toast", root, S.hudMid, tc, new Vector2(0.5f, 1), new Vector2(0, -218), new Vector2(980, 112));
+            var toast = UiKit.Frame("Toast", root, S.hudMid, tc, new Vector2(0.5f, 1), new Vector2(0, SlotY), new Vector2(980, 112));
             toastPanel = toast.gameObject;
             toastText = UiKit.Body("Text", toast.transform, "", 31, TextAnchor.MiddleCenter, c, c, Vector2.zero, new Vector2(880, 90), UiKit.Cream, FontStyle.Normal, true);
             toastPanel.SetActive(false);
@@ -140,17 +165,55 @@ namespace BalHanuman
             b.preserveAspect = true;
             b.raycastPadding = new Vector4(-18f, -18f, -18f, -18f);   // bigger tap area than the visible disc
             var t = b.gameObject.AddComponent<TouchButton>(); t.kind = kind; t.visual = b;
-            // labels sit under the button and do not scale with the press animation
-            var lab = UiKit.Label(name + "_Label", parent, label ?? "", UiKit.Skin.bodyFont, 24, TextAnchor.UpperCenter, anchor, new Vector2(0.5f, 1f), new Vector2(pos.x, pos.y - size / 2f - 1f), new Vector2(320, 34), UiKit.Cream, FontStyle.Bold, true);
+            // labels sit under the button and do not scale with the press animation.
+            // Every label lives in a fixed box (one line, LabelWidth wide): longer text shrinks to fit
+            // (down to 16) instead of spilling over the neighbouring buttons.
+            var lab = UiKit.Label(name + "_Label", parent, label ?? "", UiKit.Skin.bodyFont, 24, TextAnchor.UpperCenter, anchor, new Vector2(0.5f, 1f), new Vector2(pos.x, pos.y - size / 2f - 1f), new Vector2(LabelWidth, 34), UiKit.Cream, FontStyle.Bold, true, true);
+            lab.resizeTextMinSize = 16; lab.horizontalOverflow = HorizontalWrapMode.Wrap; lab.alignment = TextAnchor.MiddleCenter;
             var ol = lab.gameObject.AddComponent<Outline>(); ol.effectColor = new Color(0.03f, 0.06f, 0.14f, 0.95f); ol.effectDistance = new Vector2(2f, -2f);
             bg = b;
         }
 
         // ------------------------------------------------------------------ public API
-        public void SetObjective(string title, string subtitle)
+        /// <summary>
+        /// Show a new task as a message in the middle of the screen. The previous message moves away first.
+        /// holdSeconds &lt;= 0 keeps it up until the next task; otherwise it moves away after that long on screen.
+        /// A null title just moves the current message away.
+        /// </summary>
+        public void SetObjective(string title, string subtitle, string kicker = "NEW TASK", float holdSeconds = 5f)
         {
-            if (titleText) titleText.text = (title ?? "").TrimEnd('.');
-            if (subText) subText.text = subtitle ?? "";
+            nextTitle = string.IsNullOrEmpty(title) ? null : title.TrimEnd('.');
+            nextSub = subtitle ?? ""; nextKicker = kicker ?? ""; nextHold = holdSeconds;
+            msgSwapping = true;                  // Update hides the old one, then applies these
+        }
+
+        void UpdateQuestMessage()
+        {
+            if (questCg == null) return;
+            float dt = Time.unscaledDeltaTime;
+            if (msgSwapping && msgShown <= 0f)
+            {
+                msgSwapping = false;
+                msgWanted = nextTitle != null;
+                if (msgWanted)
+                {
+                    titleText.text = nextTitle; subText.text = nextSub; kickerText.text = nextKicker;
+                    msgHoldLeft = nextHold;
+                }
+            }
+            // stays out of the way of tips, dialogues, the pause/fail screens and the level title
+            bool show = msgWanted && !msgSwapping && !titleCardOn && !ToastShowing && Time.timeScale > 0f;
+            msgShown = Mathf.MoveTowards(msgShown, show ? 1f : 0f, dt * (show ? 2.5f : 3.5f));
+            float e = Mathf.SmoothStep(0f, 1f, msgShown);
+            questCg.alpha = e;
+            // comes in rising from below, leaves floating upward
+            questMsg.anchoredPosition = new Vector2(0f, SlotY + (1f - e) * (show ? -30f : 40f));
+            questMsg.localScale = Vector3.one * (0.9f + 0.1f * e);
+            if (show && msgShown >= 1f && msgHoldLeft > 0f)
+            {
+                msgHoldLeft -= dt;
+                if (msgHoldLeft <= 0f) msgWanted = false;
+            }
         }
 
         public void SetMangoCount(int n, int total)
@@ -181,6 +244,7 @@ namespace BalHanuman
 
         IEnumerator TitleCardRoutine(string kicker, string title)
         {
+            titleCardOn = true;
             var c = new Vector2(0.5f, 0.5f);
             var root = UiKit.Stretch("TitleCard", safe);
             if (fade != null) root.SetSiblingIndex(fade.transform.GetSiblingIndex());
@@ -208,6 +272,92 @@ namespace BalHanuman
                 yield return null;
             }
             Destroy(root.gameObject);
+            titleCardOn = false;
+        }
+
+        /// <summary>
+        /// "How to play" box shown before the level starts: the gold frame with a see-through middle over a soft dim.
+        /// The game waits (time stopped) until the player taps the button or presses Enter / Space.
+        /// </summary>
+        public void ShowRules(string buttonLabel, System.Action onClose)
+        {
+            StartCoroutine(RulesRoutine(buttonLabel, onClose));
+        }
+
+        IEnumerator RulesRoutine(string buttonLabel, System.Action onClose)
+        {
+            var S = UiKit.Skin;
+            Vector2 c = new Vector2(0.5f, 0.5f), tc = new Vector2(0.5f, 1f), bc = new Vector2(0.5f, 0f);
+            Vector2 tl = new Vector2(0f, 1f), tr = new Vector2(1f, 1f);
+
+            // light full-screen dim (outside the safe area too); the glass inside the box does most of the work
+            var root = UiKit.Stretch("RulesScreen", Canvas.transform);   // added last, so it sits over the whole HUD
+            var cg = root.gameObject.AddComponent<CanvasGroup>(); cg.alpha = 0f;
+            var dim = root.gameObject.AddComponent<Image>(); dim.color = new Color(0.02f, 0.04f, 0.09f, 0.55f); dim.raycastTarget = true;
+
+            // box = dark-blue see-through glass (shaped exactly like the inside of the frame) + gold frame on top.
+            // Sized to sit between the top HUD and the touch buttons.
+            Vector2 boxSize = new Vector2(1300, 700);
+            var box = UiKit.Rect("RulesBox", root, c, c, c, new Vector2(0, -16), boxSize);
+            var glass = UiKit.Frame("Glass", box, S.panelFill != null ? S.panelFill : S.white, c, c, Vector2.zero, boxSize, new Color(0.04f, 0.10f, 0.24f, 0.95f));   // deep navy glass; the project blends in linear space, so 0.95 still lets the level show through faintly
+            glass.rectTransform.anchorMin = Vector2.zero; glass.rectTransform.anchorMax = Vector2.one; glass.rectTransform.sizeDelta = Vector2.zero;
+            var frame = UiKit.Frame("Frame", box, S.panelFrame != null ? S.panelFrame : S.panelLarge, c, c, Vector2.zero, boxSize);
+            frame.rectTransform.anchorMin = Vector2.zero; frame.rectTransform.anchorMax = Vector2.one; frame.rectTransform.sizeDelta = Vector2.zero;
+            var bt = box.transform;
+
+            // every line gets a dark outline so it stays crisp over the glass and whatever shows through it
+            Text Crisp(Text t) { var o = t.gameObject.AddComponent<Outline>(); o.effectColor = new Color(0.03f, 0.07f, 0.16f, 0.9f); o.effectDistance = new Vector2(1.6f, -1.6f); return t; }
+            var navyLine = new Color(1f, 0.85f, 0.45f, 0.45f);
+
+            Crisp(UiKit.Body("Kicker", bt, "LEVEL 1  ·  THE MISSING FRUIT OFFERING", 24, TextAnchor.MiddleCenter, tc, c, new Vector2(0, -62), new Vector2(1100, 32), UiKit.Gold, FontStyle.Bold));
+            Crisp(UiKit.Title("Title", bt, "How to Play", 58, TextAnchor.MiddleCenter, tc, c, new Vector2(0, -110), new Vector2(1100, 70), UiKit.Cream));
+            UiKit.Img("Divider", bt, S.divider, tc, tc, tc, new Vector2(0, -152), new Vector2(460, 24), Color.white);
+
+            // ---- Controls: a small table, action names in gold, how-to in cream
+            Crisp(UiKit.Title("ControlsHead", bt, "Controls", 34, TextAnchor.MiddleLeft, tl, new Vector2(0f, 0.5f), new Vector2(100, -206), new Vector2(460, 44), UiKit.Gold));
+            var names = Crisp(UiKit.Body("ControlNames", bt, "Run\nJump\nRoll\nBend\nClimb\nInteract", 28, TextAnchor.UpperLeft, tl, tl, new Vector2(100, -240), new Vector2(140, 320), UiKit.Gold, FontStyle.Bold));
+            var how = Crisp(UiKit.Body("ControlKeys", bt,
+                "Arrow buttons  ·  A / D\n" +
+                "Jump button  ·  Space\n" +
+                "Roll button  ·  Shift\n" +
+                "Bend button  ·  S\n" +
+                "Climb button (vines)  ·  W\n" +
+                "Hand button  ·  E",
+                27, TextAnchor.UpperLeft, tl, tl, new Vector2(240, -241), new Vector2(330, 320), UiKit.Cream));
+            names.lineSpacing = how.lineSpacing = 1.22f;
+
+            // thin gold line between the two columns
+            UiKit.Img("ColumnLine", bt, S.white, tl, tl, tl, new Vector2(590, -204), new Vector2(2, 330), navyLine).preserveAspect = false;
+
+            // ---- Rules: gold bullets, short lines
+            Crisp(UiKit.Title("RulesHead", bt, "Rules", 34, TextAnchor.MiddleLeft, tl, new Vector2(0f, 0.5f), new Vector2(624, -206), new Vector2(580, 44), UiKit.Gold));
+            const string dot = "<color=#F5C75C>•</color>  ";
+            var rules = Crisp(UiKit.Body("Rules", bt,
+                dot + "Find the missing mango basket near the\n     temple and bring it back to the sage.\n" +
+                dot + "Help anyone who needs you. You can only\n     go on once it is done.\n" +
+                dot + "Collect mangoes to fill your blessing.\n" +
+                dot + "Rolling uses energy. It refills when you rest.\n" +
+                dot + "Mind the water and pits. If you fall,\n     you go back to the last flag.",
+                27, TextAnchor.UpperLeft, tl, tl, new Vector2(624, -240), new Vector2(600, 340), UiKit.Cream));
+            rules.lineSpacing = 1.02f;
+
+            bool closed = false;
+            UiKit.PillButton("StartButton", bt, buttonLabel, bc, new Vector2(0, 84), new Vector2(340, 86), () => closed = true, true, 36);
+
+            // fade in, wait for the player, fade out (all in unscaled time: the game is stopped meanwhile)
+            for (float t = 0f; t < 1f; t += Time.unscaledDeltaTime / 0.35f) { cg.alpha = t; yield return null; }
+            cg.alpha = 1f;
+            var kb = UnityEngine.InputSystem.Keyboard.current;
+            while (!closed)
+            {
+                if (kb != null && (kb.enterKey.wasPressedThisFrame || kb.spaceKey.wasPressedThisFrame || kb.numpadEnterKey.wasPressedThisFrame)) closed = true;
+                yield return null;
+            }
+            Sfx.Play(Sfx.Id.Click);
+            cg.blocksRaycasts = false;
+            for (float t = 1f; t > 0f; t -= Time.unscaledDeltaTime / 0.3f) { cg.alpha = t; yield return null; }
+            Destroy(root.gameObject);
+            onClose?.Invoke();
         }
 
         IEnumerator Punch(RectTransform rt)
@@ -238,25 +388,40 @@ namespace BalHanuman
         }
         bool climbShown;
 
-        public void ShowToast(string text, float seconds = 3f)
+        /// <summary>True while a tip is using the message slot (task messages wait for it).</summary>
+        public bool ToastShowing => toastPanel != null && toastPanel.activeSelf;
+
+        /// <summary>
+        /// Short tip in the message slot. A newer tip replaces it; a task message waits until it is gone.
+        /// dismissWhen (optional) ends it early, e.g. as soon as Hanuman moves.
+        /// </summary>
+        public void ShowToast(string text, float seconds = 3f, System.Func<bool> dismissWhen = null)
         {
             if (toastRoutine != null) StopCoroutine(toastRoutine);
-            toastRoutine = StartCoroutine(ToastRoutine(text, seconds));
+            toastRoutine = StartCoroutine(ToastRoutine(text, seconds, dismissWhen));
         }
 
-        IEnumerator ToastRoutine(string text, float seconds)
+        IEnumerator ToastRoutine(string text, float seconds, System.Func<bool> dismissWhen)
         {
             toastText.text = text;
             toastPanel.SetActive(true);
             if (!toastPanel.TryGetComponent(out CanvasGroup cg)) cg = toastPanel.AddComponent<CanvasGroup>();
             var rt = (RectTransform)toastPanel.transform;
+            const float fadeOut = 0.25f;
             float t = 0;
             while (t < seconds)
             {
-                t += Time.unscaledDeltaTime;
-                float a = Mathf.Clamp01(Mathf.Min(t, seconds - t) * 4f);
+                // hidden and on hold behind the level title, dialogues, pause and fail screens
+                // also waits for a task message to finish leaving the slot, so the two never overlap
+                bool held = titleCardOn || Time.timeScale == 0f || msgShown > 0f;
+                if (!held)
+                {
+                    t += Time.unscaledDeltaTime;
+                    if (dismissWhen != null && t < seconds - fadeOut && dismissWhen()) t = seconds - fadeOut;
+                }
+                float a = held ? 0f : Mathf.Clamp01(Mathf.Min(t, seconds - t) * 4f);
                 cg.alpha = a;
-                rt.anchoredPosition = new Vector2(0, -218 + (1f - a) * 16f);
+                rt.anchoredPosition = new Vector2(0, SlotY + (1f - a) * 16f);
                 yield return null;
             }
             toastPanel.SetActive(false);
@@ -272,6 +437,14 @@ namespace BalHanuman
                 yield return null;
             }
             fade.color = new Color(0, 0, 0, alpha);
+        }
+
+        /// <summary>Hides or shows the whole HUD (plate, tracker, counters, buttons, messages) — e.g. behind a full-screen popup.</summary>
+        public void SetHudVisible(bool v)
+        {
+            if (safe == null) return;
+            if (!safe.TryGetComponent(out CanvasGroup g)) g = safe.gameObject.AddComponent<CanvasGroup>();
+            g.alpha = v ? 1f : 0f; g.blocksRaycasts = v; g.interactable = v;
         }
 
         public void SetControlsVisible(bool v)
@@ -290,6 +463,7 @@ namespace BalHanuman
             if (interactCg) interactCg.alpha = Mathf.MoveTowards(interactCg.alpha, hasTarget ? 1f : 0f, dt);
             if (climbCg) climbCg.alpha = Mathf.MoveTowards(climbCg.alpha, climbShown ? 1f : 0f, dt);
             if (hasTarget && interactBg != null) interactBg.transform.localScale = Vector3.one * (1f + 0.04f * Mathf.Sin(Time.unscaledTime * 6f));
+            UpdateQuestMessage();
 
             var gs = GameSession.Current;
             if (gs == null || gs.player == null) return;
@@ -317,7 +491,6 @@ namespace BalHanuman
             float x = p.transform.position.x;
             int r = 0;
             for (int i = 0; i < RegionStart.Length; i++) if (x >= RegionStart[i]) r = i;
-            if (regionText) regionText.text = RegionName[r];
             var q = gs.quest.State;
             string tail = "";
             if (q == QuestState.NotStarted || q == QuestState.FindBasket) tail = "  ·  " + Mathf.Max(0, Mathf.RoundToInt(TempleX - x)) + " m to the temple";

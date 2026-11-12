@@ -28,11 +28,57 @@ namespace BalHanuman
         public Sprite goldSprite;
         [Tooltip("Show the 'Level 1' title card when the level opens")]
         public bool showTitleCard = true;
+        [Tooltip("Show the 'How to play' box (controls and rules) before the level starts.")]
+        public bool showRules = true;
+        bool rulesOpen;
 
         public int Mangoes { get; private set; }
         public int TotalMangoes { get; private set; }
         public int Bonus { get; private set; }
         public bool MonkeyRescued { get; set; }
+
+        // ---------------- the gada (earned at the stone wall) ----------------
+        public bool HasGada { get; private set; }
+        [Tooltip("Hanuman with his gada: idle, run, wind-up, swing, impact, recovery, victory (facing right).")]
+        public Sprite[] gadaPoses;
+        public GadaHolder Gada { get; private set; }
+        bool puzzleOpen;
+
+        /// <summary>Opens the "Complete the Gada" popup. The game is stopped until the player takes the gada.</summary>
+        public void OpenGadaPuzzle(Action done = null)
+        {
+            if (puzzleOpen || HasGada || ending || failOpen) return;
+            puzzleOpen = true;
+            Time.timeScale = 0f;
+            player.InputLocked = true;
+            hud.SetControlsVisible(false);
+            hud.SetHudVisible(false);
+            GadaPuzzle.Show(hud.Canvas.transform, player.spriteRenderer != null ? player.spriteRenderer.sprite : null, () =>
+            {
+                puzzleOpen = false;
+                Time.timeScale = 1f;
+                player.InputLocked = false;
+                hud.SetControlsVisible(true);
+                hud.SetHudVisible(true);
+                GameInput.Reset();
+                HasGada = true;
+                if (Gada == null)
+                {
+                    Gada = player.gameObject.AddComponent<GadaHolder>(); Gada.player = player;
+                    // Hanuman's "with gada" poses: idle, run, wind-up, swing, impact, recovery, victory
+                    if (gadaPoses != null && gadaPoses.Length >= 7)
+                    {
+                        Gada.idlePose = gadaPoses[0]; Gada.runPose = gadaPoses[1];
+                        Gada.windup = gadaPoses[2]; Gada.swing = gadaPoses[3]; Gada.impact = gadaPoses[4];
+                        Gada.recover = gadaPoses[5]; Gada.victory = gadaPoses[6];
+                    }
+                }
+                Gada.Equip(hud.skin != null ? hud.skin.gadaFull : null);
+                Sfx.Play(Sfx.Id.PickupBig);
+                interactor.Refresh();          // the wall's button now says "Break", with its hint
+                done?.Invoke();
+            });
+        }
         public bool IsPaused { get; private set; }
         public event Action LevelCompleted;
 
@@ -55,23 +101,67 @@ namespace BalHanuman
         {
             checkpoint = player.transform.position;
             quest.StateChanged += OnQuestChanged;
-            interactor.TargetChanged += t => hud.SetPrompt(t != null ? t.GetInteractionPrompt() : null);
-            hud.SetObjective(quest.Objective, quest.Hint);
+            interactor.TargetChanged += t =>
+            {
+                hud.SetPrompt(t != null ? t.GetInteractionPrompt() : null);
+                // the "what to do" message lives exactly as long as the hand button: it appears with it and goes
+                // the moment Hanuman moves away (or uses it)
+                if (t is InteractableBase ib && !string.IsNullOrEmpty(ib.Hint))
+                    Toast(ib.Hint, 600f, () => interactor.Current != t);
+            };
+            ShowObjective(quest.State);
             TotalMangoes = 0;
             foreach (var col in FindObjectsByType<Collectible>(FindObjectsSortMode.None)) if (col.kind == CollectibleKind.Mango) TotalMangoes += col.value;
             foreach (var m in FindObjectsByType<BabyMonkey>(FindObjectsSortMode.None)) TotalMangoes += m.bonusMangoes;
             hud.SetMangoCount(0, TotalMangoes);
             player.RollDenied += hud.FlashEnergy;
             player.RollDenied += Haptics.Tick;
-            if (showTitleCard) hud.ShowTitleCard("LEVEL 1", "The Missing Fruit Offering");
             if (carriedBasket != null) carriedBasket.SetActive(false);
+
+            // Opening order, one thing at a time: "How to play" box (controls + rules, game stopped)
+            // -> level title -> "Talk to the sage", which stays until the talk starts by itself next to the sage.
+            if (showRules) OpenRules(levelStart: true);
+            else if (showTitleCard) hud.ShowTitleCard("LEVEL 1", "The Missing Fruit Offering");
+        }
+
+        /// <summary>
+        /// The "How to play" box. At level start it says "Let's Go!" and is followed by the level title;
+        /// from the ? button it says "Continue" and play carries on where it was. The game is stopped while it is open.
+        /// </summary>
+        public void OpenRules(bool levelStart = false)
+        {
+            if (rulesOpen || puzzleOpen || ending || failOpen || IsPaused || overlay.DialogueOpen) return;
+            rulesOpen = true;
+            Time.timeScale = 0f;
+            player.InputLocked = true;
+            hud.ShowRules(levelStart ? "Let's Go!" : "Continue", () =>
+            {
+                rulesOpen = false;
+                Time.timeScale = 1f;
+                player.InputLocked = false;
+                GameInput.Reset();                 // the key that closed the box must not also make Hanuman jump
+                if (levelStart && showTitleCard) hud.ShowTitleCard("LEVEL 1", "The Missing Fruit Offering");
+            });
         }
 
         void OnDestroy() { if (Current == this) Current = null; }
 
+        /// <summary>Each task appears as a message in the middle of the screen. Tasks done right where Hanuman
+        /// stands stay up until done; the long journeys show for a few seconds and then move away.</summary>
+        void ShowObjective(QuestState s)
+        {
+            switch (s)
+            {
+                case QuestState.NotStarted: hud.SetObjective(quest.Objective, quest.Hint, "THE REQUEST", 0f); break;
+                case QuestState.ReturnToSage: hud.SetObjective(quest.Objective, quest.Hint, "ALMOST THERE", 0f); break;
+                case QuestState.Completed: hud.SetObjective(null, null); break;
+                default: hud.SetObjective(quest.Objective, quest.Hint, "NEW TASK", 5f); break;
+            }
+        }
+
         void OnQuestChanged(QuestState s)
         {
-            hud.SetObjective(quest.Objective, quest.Hint);
+            ShowObjective(s);
             if (carriedBasket != null) carriedBasket.SetActive(s == QuestState.BasketCollected || s == QuestState.ReturnToSage);
         }
 
@@ -89,7 +179,7 @@ namespace BalHanuman
         }
 
         // ---------------- helpers used by world objects ----------------
-        public void Toast(string text, float seconds = 3f) { hud.ShowToast(text, seconds); }
+        public void Toast(string text, float seconds = 3f, Func<bool> dismissWhen = null) { hud.ShowToast(text, seconds, dismissWhen); }
 
         public void Dialogue(DialogueLine[] lines, Action done = null)
         {
@@ -171,13 +261,13 @@ namespace BalHanuman
             yield return new WaitForSecondsRealtime(0.2f);
             yield return hud.FadeTo(0f, 0.5f);
             player.InputLocked = false;
-            Toast("You're back! Give the basket to the sage.", 4f);
+            // no arrival toast here: the sage's own hint ("Tap the hand button ... give the basket") takes the slot
         }
 
         // ---------------- pause ----------------
         public void TogglePause()
         {
-            if (ending || failOpen || overlay.DialogueOpen) return;
+            if (ending || failOpen || rulesOpen || puzzleOpen || overlay.DialogueOpen) return;
             IsPaused = !IsPaused;
             Time.timeScale = IsPaused ? 0f : 1f;
             overlay.SetPause(IsPaused);

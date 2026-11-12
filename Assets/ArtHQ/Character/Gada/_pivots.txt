@@ -1,0 +1,7 @@
+gada_idle 0.6434
+gada_run 0.5769
+gada_windup 0.5813
+gada_swing 0.2737
+gada_impact 0.2463
+gada_recover 0.6250
+gada_victory 0.5853

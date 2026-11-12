@@ -18,7 +18,11 @@ namespace BalHanuman
         bool busy, rescued;
 
         public override bool CanInteract => !busy && !rescued;
-        public override string GetInteractionPrompt() => "Help Baby Monkey";
+        public override string GetInteractionPrompt() => "Help";
+
+        // Mandatory stop: Hanuman helps the baby monkey before crossing the cliff.
+        protected override bool BlocksPath => !rescued;
+        protected override string BlockedMessage => "The baby monkey needs your help!";
 
         void Awake() { anim = GetComponent<AmbientAnimal>(); }
 

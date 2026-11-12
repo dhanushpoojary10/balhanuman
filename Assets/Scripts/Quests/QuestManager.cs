@@ -35,7 +35,7 @@ namespace BalHanuman
                     case QuestState.NotStarted: return "The sage is waiting nearby";
                     case QuestState.FindBasket: return "Follow the mango trail to the temple";
                     case QuestState.BasketCollected: return "Step into the glowing portal";
-                    case QuestState.ReturnToSage: return "Hand the basket to the sage";
+                    case QuestState.ReturnToSage: return "Tap the hand button next to the sage";
                     default: return "";
                 }
             }

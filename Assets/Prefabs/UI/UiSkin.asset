@@ -20,6 +20,8 @@ MonoBehaviour:
   hudPill: {fileID: 21300000, guid: ba523b757e1e5234c8b010098deefc80, type: 3}
   hudPillPrimary: {fileID: 21300000, guid: a425a1028adfa2b4e9f04c7792c4d1bd, type: 3}
   divider: {fileID: 21300000, guid: 9bbe284ae56508f469d806cc7555f5b2, type: 3}
+  panelFrame: {fileID: 21300000, guid: 1283c74883d0d475ea8313da44fd25ac, type: 3}
+  panelFill: {fileID: 21300000, guid: d21a4da301e9945b9aa713ce0c8c2104, type: 3}
   btnNormal: {fileID: 21300000, guid: e7a9f2ea82bdd47429055f918ae13605, type: 3}
   btnPressed: {fileID: 21300000, guid: f0985c21b0bd7bc4d8fc8c292516309d, type: 3}
   btnPrimary: {fileID: 21300000, guid: ac04fc0aa3a3fdb489cbe39881e91c8a, type: 3}
@@ -37,6 +39,7 @@ MonoBehaviour:
   btnClimb: {fileID: 21300000, guid: 78ffb4aea31d7034f8e75c1fbca0ef8d, type: 3}
   btnLeft: {fileID: 21300000, guid: 196166e9960952046b379123a84f9d14, type: 3}
   btnRight: {fileID: 21300000, guid: c894d5810d78ccc43916b46fc9da7b82, type: 3}
+  btnBlank: {fileID: 21300000, guid: caf24901f4c274acd8acee7bbe26f1c7, type: 3}
   iconPause: {fileID: 21300000, guid: c79f07c71bfad604cad25523443a888e, type: 3}
   iconRoll: {fileID: 21300000, guid: 7a349f311fc2b1f45804229b00ba6c9c, type: 3}
   iconJump: {fileID: 21300000, guid: 009eee49d2f51d64782cf02c740568dd, type: 3}
@@ -53,6 +56,16 @@ MonoBehaviour:
   iconStar: {fileID: 21300000, guid: e552ffee471dbc347b06845eb48e0c8c, type: 3}
   iconPin: {fileID: 21300000, guid: 22e57c4e0a705684785b97b4aed16b32, type: 3}
   iconTalk: {fileID: 21300000, guid: 64f28ba3ad0246745a9471359c3ce133, type: 3}
+  gadaFull: {fileID: 21300000, guid: d28abbe41c42943e996cd3d0362d81db, type: 3}
+  gadaSilhouette: {fileID: 21300000, guid: bec337a38524c48beba79ff8a3250597, type: 3}
+  gadaPieces:
+  - {fileID: 21300000, guid: 78264feb8d8f2468f8f5b68648529cb2, type: 3}
+  - {fileID: 21300000, guid: 051bd4d52d7e141a98ecfebfad6c0a24, type: 3}
+  - {fileID: 21300000, guid: c8f051c4c386946f98e31e2c2ac6e046, type: 3}
+  - {fileID: 21300000, guid: 9d969da58734e42b7bd3de7dbdf36bfa, type: 3}
+  - {fileID: 21300000, guid: 15745060bf4ba42c39c18fe7eb004e8a, type: 3}
+  stoneTexture: {fileID: 21300000, guid: c8b6b7531511e194799233a7b40de4aa, type: 3}
+  softGlow: {fileID: 21300000, guid: 6d1cbb576c5f4b8409055ab9229d43ea, type: 3}
   failFrames:
   - {fileID: 21300000, guid: b29b67f06c25fed44a941807d218148e, type: 3}
   - {fileID: 21300000, guid: 9a9d5959a767b9a46bc872cba980f726, type: 3}

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using UnityEditor;
 using UnityEditor.Build;
 using UnityEditor.SceneManagement;
@@ -542,6 +543,7 @@ namespace BalHanuman.EditorTools
             monkey.GetComponent<BabyMonkey>().landingPoint = landing;
             var lever = Place("Lever", new Vector3(102.5f, 0f, 0), interactRoot);
             lever.GetComponent<Lever>().bridge = bridge;
+            BuildStoneWall(interactRoot);
 
             var portal = Place("ReturnPortal", new Vector3(149.6f, 0f, 0), interactRoot);
             var basket = Place("MangoBasket", new Vector3(144.0f, 1.1f, 0), interactRoot);
@@ -603,9 +605,28 @@ namespace BalHanuman.EditorTools
             gs.player = pc; gs.interactor = playerGo.GetComponent<PlayerInteractor>(); gs.quest = quest;
             gs.cameraRig = follow; gs.hud = hud; gs.overlay = ov; gs.carriedBasket = carried;
             gs.sageReturnPosition = new Vector2(10.6f, 0.1f);
+            gs.gadaPoses = new[] { "idle", "run", "windup", "swing", "impact", "recover", "victory" }
+                .Select(n => S("Character/Gada/gada_" + n)).ToArray();
             gs.sparkleSprite = Sparkle; gs.goldSprite = S("Items/item_03");
 
             EditorSceneManager.SaveScene(scene, ScenePath);
+        }
+
+        /// <summary>The gada wall in the Forgotten Temple: Hanuman completes the gada puzzle, then breaks it.</summary>
+        public static StoneWall BuildStoneWall(Transform parent)
+        {
+            var go = new GameObject("StoneWall");
+            go.transform.SetParent(parent, false);
+            go.transform.position = new Vector3(136.5f, 0f, 0f);
+            var w = go.AddComponent<StoneWall>();
+            w.wallSprite = S("Ground/cliff_wall");
+            w.debris = new[] { S("Water/stone_0"), S("Water/stone_1"), S("Water/stone_2") };
+            w.blockA = S("Temple/ext_block_a"); w.blockB = S("Temple/ext_block_b");
+            w.dustSprite = S("VFX/fx_13"); w.sparkleSprite = Sparkle;
+            var frames = new System.Collections.Generic.List<Sprite>();
+            for (int i = 1; i <= 9; i++) { var f = S("Character/Attack/attack_" + i.ToString("00")); if (f != null) frames.Add(f); }
+            w.strikeFrames = frames.ToArray();
+            return w;
         }
 
         static UiSkin BuildSkin()
@@ -615,13 +636,15 @@ namespace BalHanuman.EditorTools
             if (skin == null) { skin = ScriptableObject.CreateInstance<UiSkin>(); AssetDatabase.CreateAsset(skin, path); }
             skin.titleFont = AssetDatabase.LoadAssetAtPath<Font>("Assets/Fonts/Cinzel-Variable.ttf");
             skin.bodyFont = AssetDatabase.LoadAssetAtPath<Font>("Assets/Fonts/NunitoSans-Variable.ttf");
-            skin.panelLarge = S("UI2/panel_large"); skin.hudWide = S("UI2/hud_wide"); skin.hudMid = S("UI2/hud_mid");
+            skin.panelLarge = S("UI2/panel_large"); skin.panelFrame = S("UI2/panel_large_frame");
+            skin.gadaFull = S("Gada/gada_full"); skin.gadaSilhouette = S("Gada/gada_silhouette"); skin.stoneTexture = S("Ground/deep_fill"); skin.softGlow = S("UI/glow");
+            skin.gadaPieces = new[] { S("Gada/gada_cap"), S("Gada/gada_head"), S("Gada/gada_collar"), S("Gada/gada_handle"), S("Gada/gada_pommel") }; skin.panelFill = S("UI2/panel_large_fill"); skin.hudWide = S("UI2/hud_wide"); skin.hudMid = S("UI2/hud_mid");
             skin.hudPill = S("UI2/hud_pill"); skin.hudPillPrimary = S("UI2/hud_pill_primary"); skin.divider = S("UI2/divider");
             skin.btnNormal = S("UI2/btn_normal"); skin.btnPressed = S("UI2/btn_pressed"); skin.btnPrimary = S("UI2/btn_primary"); skin.btnDisabled = S("UI2/btn_disabled");
             skin.portraitRing = S("UI2/portrait_ring");
             skin.barFrame = S("UI2/bar_frame"); skin.fillCoral = S("UI2/fill_coral"); skin.fillGold = S("UI2/fill_gold"); skin.fillTeal = S("UI2/fill_teal");
             skin.btnPause = S("UI2/btn2_pause"); skin.btnRoll = S("UI2/btn2_roll"); skin.btnJump = S("UI2/btn2_jump"); skin.btnBend = S("UI2/btn2_bend");
-            skin.btnInteract = S("UI2/btn2_interact"); skin.btnClimb = S("UI2/btn2_climb"); skin.btnLeft = S("UI2/btn2_left"); skin.btnRight = S("UI2/btn2_right");
+            skin.btnInteract = S("UI2/btn2_interact"); skin.btnBlank = S("UI2/btn2_blank"); skin.btnClimb = S("UI2/btn2_climb"); skin.btnLeft = S("UI2/btn2_left"); skin.btnRight = S("UI2/btn2_right");
             skin.iconPause = S("UI2/icon2_pause"); skin.iconRoll = S("UI2/icon2_roll"); skin.iconJump = S("UI2/icon_jump"); skin.iconBend = S("UI2/icon_bend");
             skin.iconInteract = S("UI2/icon2_interact"); skin.iconClimb = S("UI2/icon2_climb"); skin.iconMango = S("UI2/icon2_mango"); skin.iconHeart = S("UI2/icon2_heart");
             skin.iconEnergy = S("UI2/icon2_energy"); skin.iconFlag = S("UI2/icon2_flag"); skin.iconOm = S("UI2/icon2_om"); skin.iconLotus = S("UI2/icon2_lotus");

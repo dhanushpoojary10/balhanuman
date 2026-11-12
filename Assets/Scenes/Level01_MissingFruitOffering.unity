@@ -24193,6 +24193,7 @@ Transform:
   - {fileID: 657413780}
   - {fileID: 1926889029}
   - {fileID: 1675100474}
+  - {fileID: 1812988218}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1450517433
@@ -24864,6 +24865,15 @@ MonoBehaviour:
   sparkleSprite: {fileID: 21300000, guid: 09eae77e4d750834d818a0c74fe17e04, type: 3}
   goldSprite: {fileID: 21300000, guid: 93b3c745f1bd22d40b5f28c58dd65333, type: 3}
   showTitleCard: 1
+  showRules: 1
+  gadaPoses:
+  - {fileID: 21300000, guid: 6e6e3b031347840a3a92c4c1a4f30572, type: 3}
+  - {fileID: 21300000, guid: 20b8fbc94eb7f4120a104a1803c19d00, type: 3}
+  - {fileID: 21300000, guid: 1ce3ee66338e0452e90911f920560a84, type: 3}
+  - {fileID: 21300000, guid: 8b29492682c774473b39afa168d29049, type: 3}
+  - {fileID: 21300000, guid: 203b91aa39c9040c1a51f56d5e657674, type: 3}
+  - {fileID: 21300000, guid: 8d903be6660754c33b32bafeadde9e34, type: 3}
+  - {fileID: 21300000, guid: 7ac4e5ac8090a4c8e94b07013c49eaea, type: 3}
 --- !u!4 &1463259413
 Transform:
   m_ObjectHideFlags: 0
@@ -30539,6 +30549,75 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
   m_BlendShapeWeights: []
+--- !u!1 &1812988217
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1812988218}
+  - component: {fileID: 1812988219}
+  m_Layer: 0
+  m_Name: StoneWall
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1812988218
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1812988217}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 136.5, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1447586984}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1812988219
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1812988217}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6e8f9fad8f2444598aadc562cf3601db, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BalHanuman.StoneWall
+  interactionRadius: 2.5
+  autoStartDistance: 2.2
+  autoStartHeight: 2
+  gateOffset: -1.2
+  wallSprite: {fileID: 21300000, guid: 34dc5540aa30fa642a470d0178867916, type: 3}
+  wallHeight: 4.2
+  debris:
+  - {fileID: 21300000, guid: 582c07ab8c431084a849e78492dc62f8, type: 3}
+  - {fileID: 21300000, guid: f40e98b5a2e41344cb93a2579f995c0d, type: 3}
+  - {fileID: 21300000, guid: 78ce27dc37939ff449c4bbd6fa61d5a3, type: 3}
+  blockA: {fileID: 21300000, guid: 0eb0ff4dbfaf302489551b894dc3c422, type: 3}
+  blockB: {fileID: 21300000, guid: 12c9a90e7ce850f4589075ecf7a82851, type: 3}
+  dustSprite: {fileID: 21300000, guid: 111e5438cda5bf24a9a173a6a0fc6c92, type: 3}
+  sparkleSprite: {fileID: 21300000, guid: 09eae77e4d750834d818a0c74fe17e04, type: 3}
+  strikeFrames:
+  - {fileID: 21300000, guid: 027696556f2bb6448916afa81871f249, type: 3}
+  - {fileID: 21300000, guid: c379922b83d4e6842aba54f9ad192b58, type: 3}
+  - {fileID: 21300000, guid: c823a6960260b7d4aa3663244bdaea9b, type: 3}
+  - {fileID: 21300000, guid: b3d512120be1c3449b58c2c911740eec, type: 3}
+  - {fileID: 21300000, guid: 3fda00c1d137c5a4ab42302be1c8576b, type: 3}
+  - {fileID: 21300000, guid: f2120fb6f1ca7e14aa7ad1c3f217e088, type: 3}
+  - {fileID: 21300000, guid: 804a6b9764866a340bee9d6ccb822465, type: 3}
+  - {fileID: 21300000, guid: 87f26403f1384514eb27265369f7734e, type: 3}
+  - {fileID: 21300000, guid: 0011954a66606584e8474c07a1c1f593, type: 3}
+  sortingOrder: 6
 --- !u!1 &1817289135
 GameObject:
   m_ObjectHideFlags: 0

@@ -36,7 +36,7 @@ namespace BalHanuman
         public override string GetInteractionPrompt()
         {
             var q = S.quest.State;
-            return (q == QuestState.BasketCollected || q == QuestState.ReturnToSage) ? "Give Mango Basket" : "Talk to Sage";
+            return (q == QuestState.BasketCollected || q == QuestState.ReturnToSage) ? "Give Basket" : "Talk";
         }
 
         void Start() { if (marker != null) markerBase = marker.localPosition; }
@@ -54,19 +54,31 @@ namespace BalHanuman
             }
         }
 
+        // Mandatory stop: the first talk starts by itself and Hanuman cannot pass the sage before it.
+        protected override bool BlocksPath => S != null && S.quest.State == QuestState.NotStarted;
+        protected override string BlockedMessage => "The sage wants to talk to you first!";
+        // Coming back with the basket: the hand-over is done by the player, so say how.
+        protected override string ArriveHint =>
+            S != null && (S.quest.State == QuestState.BasketCollected || S.quest.State == QuestState.ReturnToSage)
+                ? "Tap the hand button (or press E) to give the basket to the sage." : "";
+
+        void StartIntro()
+        {
+            busy = true;
+            S.Dialogue(introLines, () =>
+            {
+                busy = false;
+                S.quest.StartQuest();
+            });
+        }
+
         public override void Interact(PlayerController2D player)
         {
             if (busy) return;
             switch (S.quest.State)
             {
                 case QuestState.NotStarted:
-                    busy = true;
-                    S.Dialogue(introLines, () =>
-                    {
-                        busy = false;
-                        S.quest.StartQuest();
-                        S.Toast("Run: arrows / A D    Jump: up button / Space\nRoll: dash button / Shift    Bend: down button / S    Interact: E", 8f);
-                    });
+                    StartIntro();
                     break;
                 case QuestState.FindBasket:
                     S.Dialogue(hintLines);

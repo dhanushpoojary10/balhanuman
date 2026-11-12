@@ -13,6 +13,13 @@ namespace BalHanuman
 
         void Awake() { if (player == null) player = GetComponent<PlayerController2D>(); }
 
+        /// <summary>Re-picks the target next frame (use when the same object's button label or hint has changed).</summary>
+        public void Refresh()
+        {
+            current = null;
+            TargetChanged?.Invoke(null);
+        }
+
         void Update()
         {
             if (Time.timeScale == 0f) return;

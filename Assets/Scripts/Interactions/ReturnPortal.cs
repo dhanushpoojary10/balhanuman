@@ -8,7 +8,11 @@ namespace BalHanuman
         bool active;
 
         public override bool CanInteract => active && S != null && S.quest.State == QuestState.BasketCollected;
-        public override string GetInteractionPrompt() => "Enter Portal";
+        public override string GetInteractionPrompt() => "Enter";
+
+        // Shows what to do when Hanuman reaches the portal (not a gate: nothing lies beyond it).
+        protected override bool AutoStart => false;
+        protected override string ArriveHint => "Tap the hand button (or press E) to step into the portal.";
 
         protected override void OnEnable()
         {
@@ -21,7 +25,7 @@ namespace BalHanuman
             active = true;
             if (visual != null) visual.SetActive(true);
             Sfx.Play(Sfx.Id.Portal);
-            S.Toast("A glowing portal appeared! Step in to travel back to the sage.", 5f);
+            S.Toast("A glowing portal appeared ahead! Go to it to travel back to the sage.", 5f);
         }
 
         void Update()

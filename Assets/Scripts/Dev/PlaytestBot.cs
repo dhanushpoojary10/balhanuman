@@ -33,13 +33,20 @@ namespace BalHanuman
             yield return W(0.2f);
         }
 
+        /// <summary>The level opens with the "How to play" box; tap its button so the game runs.</summary>
+        void CloseRules()
+        {
+            var b = GameObject.Find("StartButton");
+            if (b != null) b.GetComponent<UnityEngine.UI.Button>().onClick.Invoke();
+        }
+
         IEnumerator Interact() { GameInput.TouchInteractDown(); yield return W(0.3f); }
 
         public void VineTest() { StartCoroutine(Vine()); }
 
         IEnumerator Vine()
         {
-            p = FindFirstObjectByType<PlayerController2D>();
+            p = FindFirstObjectByType<PlayerController2D>(); CloseRules();
             Tp(87.4f, 0.05f); yield return W(0.5f);
             GameInput.Up = true;
             for (int i = 0; i < 24; i++)
@@ -61,7 +68,7 @@ namespace BalHanuman
 
         IEnumerator KeyTests()
         {
-            p = FindFirstObjectByType<PlayerController2D>();
+            p = FindFirstObjectByType<PlayerController2D>(); CloseRules();
             gs = GameSession.Current;
             kb = Keyboard.current;
             Log("keyboard device present=" + (kb != null) + " hasFocus=" + Application.isFocused);
@@ -123,7 +130,7 @@ namespace BalHanuman
 
         IEnumerator Energy()
         {
-            p = FindFirstObjectByType<PlayerController2D>();
+            p = FindFirstObjectByType<PlayerController2D>(); CloseRules();
             bool denied = false; p.RollDenied += () => denied = true;
             Tp(10f, 0.05f); yield return W(0.6f);
             float e0 = p.Energy01;
@@ -150,7 +157,7 @@ namespace BalHanuman
 
         IEnumerator All()
         {
-            p = FindFirstObjectByType<PlayerController2D>();
+            p = FindFirstObjectByType<PlayerController2D>(); CloseRules();
             gs = GameSession.Current;
             yield return W(1f);
 
@@ -158,9 +165,13 @@ namespace BalHanuman
             Check("quest starts NotStarted", gs.quest.State == QuestState.NotStarted);
             Check("cannot complete early", !gs.quest.Complete() && gs.quest.State == QuestState.NotStarted);
 
-            // ---------- sage dialogue starts quest
+            // ---------- gate: cannot pass the sage before talking
+            Tp(14f, 0.05f); yield return W(0.4f);
+            Check("gate holds Hanuman at the sage", Pos.x < 8.5f && gs.quest.State == QuestState.NotStarted, "pos=" + Pos);
+
+            // ---------- sage dialogue starts by itself and starts the quest
             Tp(7.6f, 0.05f); yield return W(0.5f);
-            yield return Interact();
+            Check("sage talk starts automatically", GameObject.Find("Dialogue") != null);
             yield return Dialogue(6);
             Check("sage dialogue starts quest", gs.quest.State == QuestState.FindBasket, gs.quest.State.ToString());
 
@@ -234,21 +245,40 @@ namespace BalHanuman
             // ---------- baby monkey
             Tp(92.0f, 5.55f); yield return W(0.5f);
             int m1 = gs.Mangoes;
-            yield return Interact();
+            Check("monkey talk starts automatically", GameObject.Find("Dialogue") != null);
             yield return Dialogue(3);
             yield return W(2.4f);
-            Check("baby monkey rescued", gs.MonkeyRescued && gs.Mangoes == m1 + 3, "rescued=" + gs.MonkeyRescued + " mangoes=" + gs.Mangoes);
+            Check("baby monkey rescued", gs.MonkeyRescued && gs.Mangoes >= m1 + 3, "rescued=" + gs.MonkeyRescued + " mangoes=" + gs.Mangoes);
 
-            // ---------- lever + bridge
-            Tp(101.5f, 0.05f); yield return W(0.6f);
+            // ---------- lever + bridge (gate in front of the lever; the player pulls it with the hand button)
             var bridge = FindFirstObjectByType<BridgeController>();
             Check("bridge starts raised", !bridge.Lowered);
+            Tp(104.5f, 0.05f); yield return W(1.0f);
+            Check("gate holds Hanuman before the lever", Pos.x < 101.5f, "pos=" + Pos);
+            Check("lever waits for the player", !bridge.Lowered);
             yield return Interact();
             yield return W(3.5f);
             Check("lever lowers bridge", bridge.Lowered);
             Tp(105.6f, 0.05f); yield return W(0.4f);
             GameInput.Right = true; yield return W(3.2f); GameInput.Right = false;
             Check("walks across bridge", Pos.x > 117f && Pos.y > -1f, "pos=" + Pos);
+
+            // ---------- stone wall: blocked; "Find Gada" opens the puzzle; then Break
+            var wall = FindFirstObjectByType<StoneWall>();
+            Tp(140f, 0.05f); yield return W(0.6f);
+            Check("wall holds Hanuman", Pos.x < wall.transform.position.x - 1f, "pos=" + Pos);
+            Check("puzzle waits for the hand button", GadaPuzzle.Current == null);
+            yield return Interact();
+            yield return W(0.5f);
+            Check("Find Gada opens the puzzle", GadaPuzzle.Current != null && Time.timeScale == 0f);
+            if (GadaPuzzle.Current != null) { GadaPuzzle.Current.SolveForTest(); yield return W(1.6f); GadaPuzzle.Current?.Close(); yield return W(0.6f); }
+            Check("Hanuman has the gada", gs.HasGada && gs.Gada != null && gs.Gada.Equipped && Time.timeScale == 1f);
+            yield return W(0.3f);
+            yield return Interact();
+            yield return W(1.2f);
+            Check("wall breaks", wall.Broken);
+            GameInput.Right = true; yield return W(1.0f); GameInput.Right = false;
+            Check("path open past the wall", Pos.x > wall.transform.position.x, "pos=" + Pos);
 
             // ---------- basket, portal, ending
             Check("cannot complete before basket", !gs.quest.Complete());

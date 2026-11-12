@@ -36,6 +36,30 @@ public class ArtImporter : AssetPostprocessor
                 ti.spritePixelsPerUnit = ppu;
             ti.maxTextureSize = 512; ti.textureCompression = TextureImporterCompression.Uncompressed;
         }
+        if (assetPath.Contains("/Character/Gada/"))
+        {
+            // Hanuman with his gada (cut from one sheet): one pixels-per-unit for the set (_ppu.txt) so he matches his
+            // other frames, and each pose stands on its own feet point (_pivots.txt: "name x-fraction" per line)
+            string dir = System.IO.Path.GetDirectoryName(assetPath);
+            var inv = System.Globalization.CultureInfo.InvariantCulture;
+            string pf = System.IO.Path.Combine(dir, "_ppu.txt");
+            if (System.IO.File.Exists(pf) && float.TryParse(System.IO.File.ReadAllText(pf).Trim(), System.Globalization.NumberStyles.Float, inv, out float ppu))
+                ti.spritePixelsPerUnit = ppu;
+            string vf = System.IO.Path.Combine(dir, "_pivots.txt");
+            string me = System.IO.Path.GetFileNameWithoutExtension(assetPath);
+            if (System.IO.File.Exists(vf))
+                foreach (var line in System.IO.File.ReadAllLines(vf))
+                {
+                    var parts = line.Trim().Split(' ');
+                    if (parts.Length == 2 && parts[0] == me && float.TryParse(parts[1], System.Globalization.NumberStyles.Float, inv, out float px))
+                    {
+                        var gs = new TextureImporterSettings(); ti.ReadTextureSettings(gs);
+                        gs.spriteAlignment = (int)SpriteAlignment.Custom; gs.spritePivot = new Vector2(px, 0f);
+                        ti.SetTextureSettings(gs);
+                    }
+                }
+            ti.textureCompression = TextureImporterCompression.Uncompressed;
+        }
         if (assetPath.Contains("/Water/") || assetPath.Contains("/Temple/"))
         {
             // stream and temple pieces: crisp, uncompressed; props stand on their bottom edge, strips and glows use the centre
@@ -55,7 +79,9 @@ public class ArtImporter : AssetPostprocessor
             string n = System.IO.Path.GetFileNameWithoutExtension(assetPath);
             switch (n)
             {
-                case "panel_large": ti.spriteBorder = new Vector4(78, 78, 78, 78); break;      // left, bottom, right, top
+                case "panel_large":
+                case "panel_large_frame":                                                     // gold frame only (see-through middle)
+                case "panel_large_fill": ti.spriteBorder = new Vector4(78, 78, 78, 78); break; // glass fill shaped like its inside
                 case "hud_wide": ti.spriteBorder = new Vector4(74, 52, 74, 52); break;
                 case "hud_mid": ti.spriteBorder = new Vector4(60, 38, 60, 38); break;
                 case "hud_pill":

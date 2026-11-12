@@ -11,6 +11,14 @@ namespace BalHanuman
         public override bool CanInteract => !used;
         public override string GetInteractionPrompt() => "Lower Bridge";
 
+        // Mandatory stop the player does himself: Hanuman cannot step towards the bridge until the lever is pulled,
+        // and arriving shows what to do (the hand button stays the way to pull it).
+        protected override bool BlocksPath => !used;
+        protected override bool AutoStart => false;
+        const string Hint = "Tap the hand button (or press E) to lower the bridge!";
+        protected override string ArriveHint => Hint;
+        protected override string BlockedMessage => Hint;
+
         public override void Interact(PlayerController2D player)
         {
             if (used) return;
