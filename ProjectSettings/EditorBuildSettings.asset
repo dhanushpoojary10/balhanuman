@@ -11,6 +11,9 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/Level01_MissingFruitOffering.unity
     guid: 4ed85dff6a1b6b544889225bdfde7c9c
+  - enabled: 1
+    path: Assets/Scenes/Level02_PatalaYuddha.unity
+    guid: 431b66471d7257a4682821da17d58cf2
   m_configObjects:
     com.unity.dt.app-ui: {fileID: 11400000, guid: 1b1c20d82303e4b5781c3ef50ac1449f, type: 2}
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}
