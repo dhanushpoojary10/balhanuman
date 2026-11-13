@@ -12,7 +12,7 @@ namespace BalHanuman.Fight
     {
         const string Folder = "Level02/Hanuman/";
 
-        [Serializable] public class Part { public string name, joint, kind; public int order, w, h; public float px, py, length, rot; }
+        [Serializable] public class Part { public string name, joint, kind, group; public int order, w, h; public float px, py, length, rot, s, shade; public bool def; }   // s = per-part scale (0 = 1), shade = grey tint (0 = none), group/def = sprite-swap variants
         [Serializable] public class DimsData { public float thigh, shin, ankle, torso, upperArm, foreArm, hand, shoulderY, neck, headR; public float[] tail; }
         [Serializable] public class Data { public float k; public Part[] parts; public DimsData dims; }
 

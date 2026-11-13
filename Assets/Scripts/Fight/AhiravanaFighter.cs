@@ -30,9 +30,98 @@ namespace BalHanuman.Fight
             maxHp = hp = clone ? 1f : 1000f;
             walkSpeed = 2.4f; jumpVel = 12f; mood = Expr.Smirk;
             puppet = Puppet.Build(transform, MoveLib.AhiravanaDims(), MoveLib.AhiravanaStyle(), clone ? 8 : 10);
+            puppet.ApplySkin(AhiravanaSkin.Get(), AhiravanaSkin.Sprite);      // painted art when present
             moves = MoveLib.Ahiravana(clips);
+            SetupPoses();
             hurtSize = new Vector2(0.95f, 2.85f);
             if (clone) { puppet.SetTint(new Color(0.8f, 0.6f, 1f, 0.7f)); damageDealtMul = 0.5f; aggression = 1.4f; }
+        }
+
+        // ---- whole-body pose pictures (clips with pictures use them; the rest still use the rig)
+        AhiravanaPoses.Data poseData;
+        SpriteRenderer poseSr;
+        readonly Dictionary<PuppetClip, string> clipNames = new Dictionary<PuppetClip, string>();
+        readonly Dictionary<string, AhiravanaPoses.Pose> poseInfo = new Dictionary<string, AhiravanaPoses.Pose>();
+        string shownPose;
+
+        void SetupPoses()
+        {
+            poseData = AhiravanaPoses.Get();
+            if (poseData == null || poseData.poses == null) return;
+            foreach (var p in poseData.poses) poseInfo[p.name] = p;
+            foreach (var kv in clips) if (kv.Value != null) clipNames[kv.Value] = kv.Key;
+            foreach (var kv in moves) if (kv.Value != null && kv.Value.clip != null) clipNames[kv.Value.clip] = kv.Key;
+            var go = new GameObject("PoseSprite"); go.transform.SetParent(puppet.transform, false);
+            poseSr = go.AddComponent<SpriteRenderer>(); poseSr.sortingOrder = 5; poseSr.enabled = false;
+            puppet.poseSprite = poseSr;
+        }
+
+        SpriteRenderer poseSr2;      // the next frame, faded in over the current one on blended clips
+        string shownPose2;
+
+        void Place(SpriteRenderer sr, string name, ref string shown)
+        {
+            if (name == shown || !poseInfo.TryGetValue(name, out var pi)) return;
+            var sp = AhiravanaPoses.Sprite(name);
+            if (sp == null) return;
+            shown = name;
+            float k = pi.k > 0f ? pi.k : poseData.k;
+            sr.sprite = sp;
+            // the pictures face left, the rig's forward is +x (the fighter is mirrored when facing left): flip once so they agree
+            sr.transform.localScale = new Vector3(-k * sp.pixelsPerUnit, k * sp.pixelsPerUnit, 1f);
+            sr.transform.localPosition = new Vector3((pi.px - pi.w * 0.5f) * k, (pi.py - pi.h * 0.5f) * k, 0f);
+        }
+
+        void LateUpdate()
+        {
+            if (poseSr == null || puppet == null) return;
+            string key = null; (float t, string name)[] frames = null;
+            var clip = puppet.Clip;
+            if (clip != null && clipNames.TryGetValue(clip, out key)) AhiravanaPoses.Frames.TryGetValue(key, out frames);
+            bool use = frames != null;
+            puppet.SetRigVisible(!use);
+            poseSr.enabled = use;
+            if (poseSr2 == null) { var g2 = new GameObject("PoseSprite2"); g2.transform.SetParent(puppet.transform, false); poseSr2 = g2.AddComponent<SpriteRenderer>(); poseSr2.sortingOrder = 6; }
+            if (!use) { poseSr2.enabled = false; return; }
+            float len = Mathf.Max(0.01f, clip.Length), t = puppet.ClipTime;
+            float u = clip.loop ? Mathf.Repeat(t, len) / len : Mathf.Clamp01(t / len);
+            int cur = 0;
+            for (int i = 0; i < frames.Length; i++) if (frames[i].t <= u + 1e-4f) cur = i;
+            Place(poseSr, frames[cur].name, ref shownPose);
+            var tint = puppet.Tinted(Color.white);
+            poseSr.color = tint;
+            // slow clips: dissolve into the next frame over the second half of each step
+            float blend = 0f; int nxt = -1;
+            if (AhiravanaPoses.Blends(key) && frames.Length > 1)
+            {
+                nxt = cur + 1 < frames.Length ? cur + 1 : (clip.loop ? 0 : -1);
+                if (nxt >= 0)
+                {
+                    float u0 = frames[cur].t, u1 = cur + 1 < frames.Length ? frames[cur + 1].t : 1f;
+                    blend = Mathf.SmoothStep(0f, 1f, Mathf.InverseLerp(0.4f, 1f, Mathf.InverseLerp(u0, u1, u)));
+                }
+            }
+            if (nxt >= 0 && blend > 0.01f)
+            {
+                Place(poseSr2, frames[nxt].name, ref shownPose2);
+                poseSr2.enabled = true; tint.a *= blend; poseSr2.color = tint;
+            }
+            else poseSr2.enabled = false;
+        }
+
+        string handPose;
+        protected override void Update()
+        {
+            base.Update();
+            if (puppet == null || !puppet.Skinned) return;
+            // hands follow the move: casting moves glow, everything else grips the trident (near) with a clawed far hand
+            string id = move != null ? move.id : null;
+            bool cast = id == "orb" || id == "barrage" || id == "summon" || id == "vanish";
+            string key = cast ? "cast" : "idle";
+            if (key == handPose) return;
+            handPose = key;
+            puppet.SetVariant("hand_near", cast ? "cast" : "fist");
+            puppet.SetVariant("hand_far", cast ? "cast" : "claw");
         }
 
         public override MoveDef GetMove(string id) => moves != null && moves.TryGetValue(id, out var m) ? m : null;

@@ -98,6 +98,7 @@ namespace BalHanuman.Fight
     {
         public FightInput.Btn btn;
         public Image visual;
+        public Sprite normal, pressed;      // painted buttons swap pictures instead of tinting
         public System.Action onPress;     // optional extra (e.g. training menu buttons)
         bool isDown;
 
@@ -105,7 +106,8 @@ namespace BalHanuman.Fight
         {
             isDown = true; FightInput.TouchDown(btn); onPress?.Invoke();
             transform.localScale = Vector3.one * 0.9f;
-            if (visual != null) visual.color = new Color(0.8f, 0.8f, 0.85f, visual.color.a);
+            if (pressed != null && visual != null) visual.sprite = pressed;
+            else if (visual != null) visual.color = new Color(0.8f, 0.8f, 0.85f, visual.color.a);
         }
         public void OnPointerUp(PointerEventData e) { Release(); }
         public void OnPointerExit(PointerEventData e) { if (isDown) Release(); }
@@ -115,7 +117,8 @@ namespace BalHanuman.Fight
         {
             isDown = false; FightInput.TouchUp(btn);
             transform.localScale = Vector3.one;
-            if (visual != null) visual.color = new Color(1f, 1f, 1f, visual.color.a);
+            if (normal != null && visual != null) visual.sprite = normal;
+            else if (visual != null) visual.color = new Color(1f, 1f, 1f, visual.color.a);
         }
     }
 

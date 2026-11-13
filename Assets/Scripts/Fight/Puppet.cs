@@ -456,7 +456,7 @@ namespace BalHanuman.Fight
         }
 
         // ================================================================== face
-        public void SetExpression(Expr e) { expr = e; }
+        public void SetExpression(Expr e) { expr = e; if (variantGroups.Count > 0) SetVariant("head", HeadKey(e)); }
 
         void FaceTick(float dt)
         {
@@ -556,6 +556,7 @@ namespace BalHanuman.Fight
         Transform JointByName(string n)
         {
             if (n.StartsWith("Tail") && n.Length > 4 && int.TryParse(n.Substring(4), out int ti)) return ti < tail.Count ? tail[ti] : null;
+            if (n.StartsWith("Cape") && n.Length > 4 && int.TryParse(n.Substring(4), out int ci)) return ci < cape.Count ? cape[ci] : null;
             if (n == "ClothFront") return clothFront;
             if (n == "ClothBack") return clothBack;
             return System.Enum.TryParse(n, out J j) ? Joint(j) : null;
@@ -563,31 +564,66 @@ namespace BalHanuman.Fight
 
         /// <summary>Replace the placeholder shapes with the real part sprites (the weapon stays). Each sprite is placed so its
         /// joint pixel sits exactly on its bone; hand variants other than the default are kept hidden for sprite swaps.</summary>
-        public void ApplySkin(HanumanSkin.Data data)
+        public void ApplySkin(HanumanSkin.Data data, System.Func<string, Sprite> sprites = null)
         {
             if (data == null || data.parts == null) return;
+            sprites = sprites ?? HanumanSkin.Sprite;
             var weapon = Joint(J.Weapon);
-            foreach (var r in renderers) if (r != null && !r.transform.IsChildOf(weapon)) r.enabled = false;
+            bool skinWeapon = false;
+            foreach (var p in data.parts) if (p.joint == "Weapon") skinWeapon = true;
+            foreach (var r in renderers) if (r != null && (skinWeapon || !r.transform.IsChildOf(weapon))) r.enabled = false;
             foreach (var p in data.parts)
             {
                 var j = JointByName(p.joint);
-                var sp = HanumanSkin.Sprite(p.name);
+                var sp = sprites(p.name);
                 if (j == null || sp == null) { Debug.LogWarning("Skin part skipped: " + p.name); continue; }
                 var go = new GameObject("Skin_" + p.name);
                 go.transform.SetParent(j, false);
                 go.transform.localRotation = Quaternion.Euler(0, 0, p.rot);
-                float scale = data.k * sp.pixelsPerUnit;
-                go.transform.localScale = Vector3.one * scale;
+                float k = data.k * (p.s > 0f ? p.s : 1f);
+                go.transform.localScale = Vector3.one * (k * sp.pixelsPerUnit);
                 // sprite pivot is its centre; move it so pixel (px, py) (y down from the top) lands on the joint
-                go.transform.localPosition = Quaternion.Euler(0, 0, p.rot) * new Vector3(-(p.px - p.w * 0.5f) * data.k, (p.py - p.h * 0.5f) * data.k, 0f);
+                go.transform.localPosition = Quaternion.Euler(0, 0, p.rot) * new Vector3(-(p.px - p.w * 0.5f) * k, (p.py - p.h * 0.5f) * k, 0f);
                 var sr = go.AddComponent<SpriteRenderer>();
                 sr.sprite = sp; sr.sortingOrder = p.order;
+                if (p.shade > 0f) sr.color = new Color(p.shade, p.shade, p.shade, 1f);
                 Reg(sr);
                 skinParts[p.name] = sr;
+                if (!string.IsNullOrEmpty(p.group))
+                {   // sprite-swap group (faces, hand poses): only the default one shows
+                    if (!variantGroups.TryGetValue(p.group, out var list)) variantGroups[p.group] = list = new System.Collections.Generic.List<SpriteRenderer>();
+                    list.Add(sr); sr.enabled = p.def;
+                    continue;
+                }
                 bool variant = p.name.Contains("_hand_") && !(p.name.EndsWith("near_fist") || p.name.EndsWith("far_fist"));
                 if (variant) sr.enabled = false;
             }
             Skinned = true;
+        }
+
+        readonly System.Collections.Generic.Dictionary<string, System.Collections.Generic.List<SpriteRenderer>> variantGroups = new System.Collections.Generic.Dictionary<string, System.Collections.Generic.List<SpriteRenderer>>();
+
+        /// <summary>Show the variant of a sprite-swap group whose name ends with "_key" (e.g. group "hand_near", key "cast").</summary>
+        public void SetVariant(string group, string key)
+        {
+            if (!variantGroups.TryGetValue(group, out var list)) return;
+            bool found = false;
+            foreach (var r in list) if (r != null && r.name.EndsWith("_" + key)) found = true;
+            if (!found) return;
+            foreach (var r in list) if (r != null) r.enabled = r.name.EndsWith("_" + key);
+        }
+
+        static string HeadKey(Expr e)
+        {
+            switch (e)
+            {
+                case Expr.Laugh: return "laugh";
+                case Expr.Shocked: return "shocked";
+                case Expr.Furious: case Expr.Roar: case Expr.Shout: return "furious";
+                case Expr.Desperate: case Expr.Hurt: return "desperate";
+                case Expr.Dizzy: return "defeated";
+                default: return "smirk";
+            }
         }
 
         /// <summary>Show one hand variant (e.g. "near_fist") and hide the other variants on that hand.</summary>
@@ -620,11 +656,41 @@ namespace BalHanuman.Fight
             }
         }
 
+        /// <summary>Whole-body picture shown instead of the rig (set by the fighter); the rig keeps running underneath for hit points.</summary>
+        public SpriteRenderer poseSprite;
+
+        /// <summary>Hide or show every rig sprite without touching their enabled state (sprite-swap groups keep working).</summary>
+        public void SetRigVisible(bool visible)
+        {
+            if (visible == rigVisible) return;
+            rigVisible = visible;
+            foreach (var r in renderers) if (r != null) r.forceRenderingOff = !visible;
+        }
+        bool rigVisible = true;
+
+        /// <summary>The colour a sprite would currently show: tint and hit flash applied (same as the rig sprites get).</summary>
+        public Color Tinted(Color c)
+        {
+            var b = c * tint; b.a = c.a * tint.a;
+            float k = flashT > 0f && flashDur > 0f ? Mathf.Clamp01(flashT / flashDur) : 0f;
+            return Color.Lerp(b, flashColor, k * flashColor.a);
+        }
+
         public void Afterimage(Color c, float life, int order = 5)
         {
+            if (poseSprite != null && poseSprite.enabled && poseSprite.sprite != null)
+            {
+                var go = new GameObject("ghost");
+                go.transform.SetPositionAndRotation(poseSprite.transform.position, poseSprite.transform.rotation);
+                go.transform.localScale = poseSprite.transform.lossyScale;
+                var g = go.AddComponent<SpriteRenderer>();
+                g.sprite = poseSprite.sprite; g.sortingOrder = order; g.color = c;
+                var a = go.AddComponent<FxAnim>(); a.life = life; a.c0 = c; a.c1 = new Color(c.r, c.g, c.b, 0f);
+                a.s0 = a.s1 = go.transform.localScale;
+            }
             foreach (var r in renderers)
             {
-                if (r == null || !r.enabled || !r.gameObject.activeInHierarchy || r.sprite == null) continue;
+                if (r == null || !r.enabled || r.forceRenderingOff || !r.gameObject.activeInHierarchy || r.sprite == null) continue;
                 var go = new GameObject("ghost");
                 go.transform.SetPositionAndRotation(r.transform.position, r.transform.rotation);
                 go.transform.localScale = r.transform.lossyScale;

@@ -1,0 +1,4582 @@
+fileFormatVersion: 2
+guid: 5e294026e976a41369ffc20237ab00d5
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: -8201938654240277648
+    second: bg_lava_sea_0
+  - first:
+      213: -5437042323624326459
+    second: bg_lava_sea_1
+  - first:
+      213: 6452335667458941576
+    second: bg_lava_sea_2
+  - first:
+      213: -3494352245220524446
+    second: bg_lava_sea_3
+  - first:
+      213: -7482920815423465795
+    second: bg_lava_sea_4
+  - first:
+      213: 1196541855618609779
+    second: bg_lava_sea_5
+  - first:
+      213: -6847919886609656320
+    second: bg_lava_sea_6
+  - first:
+      213: 8463149209270307833
+    second: bg_lava_sea_7
+  - first:
+      213: 4870630323491846273
+    second: bg_lava_sea_8
+  - first:
+      213: -2535439402702296673
+    second: bg_lava_sea_9
+  - first:
+      213: -352081310473980047
+    second: bg_lava_sea_10
+  - first:
+      213: -7484444737363128989
+    second: bg_lava_sea_11
+  - first:
+      213: -4859414177902732710
+    second: bg_lava_sea_12
+  - first:
+      213: -6702999621530521916
+    second: bg_lava_sea_13
+  - first:
+      213: -5127306719784293123
+    second: bg_lava_sea_14
+  - first:
+      213: -7744717762470539206
+    second: bg_lava_sea_15
+  - first:
+      213: 5810288184027197587
+    second: bg_lava_sea_16
+  - first:
+      213: 8484137383096376425
+    second: bg_lava_sea_17
+  - first:
+      213: 490235606496407248
+    second: bg_lava_sea_18
+  - first:
+      213: -2206633058367218102
+    second: bg_lava_sea_19
+  - first:
+      213: 6418977150512615208
+    second: bg_lava_sea_20
+  - first:
+      213: -708130722923987368
+    second: bg_lava_sea_21
+  - first:
+      213: -4142086774588846632
+    second: bg_lava_sea_22
+  - first:
+      213: 8281558234258832118
+    second: bg_lava_sea_23
+  - first:
+      213: -1828848823315353383
+    second: bg_lava_sea_24
+  - first:
+      213: -3140101116600970479
+    second: bg_lava_sea_25
+  - first:
+      213: -2878589205201062995
+    second: bg_lava_sea_26
+  - first:
+      213: 3507994497715553068
+    second: bg_lava_sea_27
+  - first:
+      213: -8330420544231357482
+    second: bg_lava_sea_28
+  - first:
+      213: 1306662391910844763
+    second: bg_lava_sea_29
+  - first:
+      213: -5927760929187212998
+    second: bg_lava_sea_30
+  - first:
+      213: -7299542659224174090
+    second: bg_lava_sea_31
+  - first:
+      213: 8728684922879773813
+    second: bg_lava_sea_32
+  - first:
+      213: -97495084413342054
+    second: bg_lava_sea_33
+  - first:
+      213: -4970943079839822625
+    second: bg_lava_sea_34
+  - first:
+      213: 8467833834007123627
+    second: bg_lava_sea_35
+  - first:
+      213: -2355882702422842636
+    second: bg_lava_sea_36
+  - first:
+      213: -8148744103621871848
+    second: bg_lava_sea_37
+  - first:
+      213: 4578747283769712593
+    second: bg_lava_sea_38
+  - first:
+      213: 2783839707544404315
+    second: bg_lava_sea_39
+  - first:
+      213: 3454491438667198319
+    second: bg_lava_sea_40
+  - first:
+      213: -4303479428332045008
+    second: bg_lava_sea_41
+  - first:
+      213: 2035806830575602025
+    second: bg_lava_sea_42
+  - first:
+      213: 5480632848768422398
+    second: bg_lava_sea_43
+  - first:
+      213: -158691460254549563
+    second: bg_lava_sea_44
+  - first:
+      213: -8255019219620394957
+    second: bg_lava_sea_45
+  - first:
+      213: -4326691447201673320
+    second: bg_lava_sea_46
+  - first:
+      213: 4216551652431370713
+    second: bg_lava_sea_47
+  - first:
+      213: -2968388246613690539
+    second: bg_lava_sea_48
+  - first:
+      213: 5854432514547263134
+    second: bg_lava_sea_49
+  - first:
+      213: -722858037893981522
+    second: bg_lava_sea_50
+  - first:
+      213: -7996473977704891728
+    second: bg_lava_sea_51
+  - first:
+      213: 6859524599283123886
+    second: bg_lava_sea_52
+  - first:
+      213: -6474146579067877565
+    second: bg_lava_sea_53
+  - first:
+      213: 8245190214750752842
+    second: bg_lava_sea_54
+  - first:
+      213: 7271583077734168619
+    second: bg_lava_sea_55
+  - first:
+      213: 5411769177360703338
+    second: bg_lava_sea_56
+  - first:
+      213: -4810206988053800870
+    second: bg_lava_sea_57
+  - first:
+      213: -7636157699603203656
+    second: bg_lava_sea_58
+  - first:
+      213: 8545597888103913539
+    second: bg_lava_sea_59
+  - first:
+      213: -1049916743092663680
+    second: bg_lava_sea_60
+  - first:
+      213: 90861596117760846
+    second: bg_lava_sea_61
+  - first:
+      213: 4455670777734931977
+    second: bg_lava_sea_62
+  - first:
+      213: -4371350531633100681
+    second: bg_lava_sea_63
+  - first:
+      213: -7451572594534287657
+    second: bg_lava_sea_64
+  - first:
+      213: 4221336103340244658
+    second: bg_lava_sea_65
+  - first:
+      213: 7217993761594031914
+    second: bg_lava_sea_66
+  - first:
+      213: -6082605368170784188
+    second: bg_lava_sea_67
+  - first:
+      213: -5409414325780248116
+    second: bg_lava_sea_68
+  - first:
+      213: -1700519965051583031
+    second: bg_lava_sea_69
+  - first:
+      213: -5168350260347051768
+    second: bg_lava_sea_70
+  - first:
+      213: 5171073726141198805
+    second: bg_lava_sea_71
+  - first:
+      213: -6544840857498632822
+    second: bg_lava_sea_72
+  - first:
+      213: 2357482485878633422
+    second: bg_lava_sea_73
+  - first:
+      213: -1487906399874208817
+    second: bg_lava_sea_74
+  - first:
+      213: 7872802007130311559
+    second: bg_lava_sea_75
+  - first:
+      213: -7300911710737975765
+    second: bg_lava_sea_76
+  - first:
+      213: -8029058811547166463
+    second: bg_lava_sea_77
+  - first:
+      213: 3317683309837932584
+    second: bg_lava_sea_78
+  - first:
+      213: 7791664036913516395
+    second: bg_lava_sea_79
+  - first:
+      213: 2676618243183070682
+    second: bg_lava_sea_80
+  - first:
+      213: 696217530372438163
+    second: bg_lava_sea_81
+  - first:
+      213: -5209522758596320733
+    second: bg_lava_sea_82
+  - first:
+      213: -6720008435907786580
+    second: bg_lava_sea_83
+  - first:
+      213: 6617418960551801701
+    second: bg_lava_sea_84
+  - first:
+      213: 4611586357760702687
+    second: bg_lava_sea_85
+  - first:
+      213: -840002043715741850
+    second: bg_lava_sea_86
+  - first:
+      213: 6462031133881562864
+    second: bg_lava_sea_87
+  - first:
+      213: 1066028532785017477
+    second: bg_lava_sea_88
+  - first:
+      213: -3024717269546669792
+    second: bg_lava_sea_89
+  - first:
+      213: -5996165984611480556
+    second: bg_lava_sea_90
+  - first:
+      213: 8890197728683028624
+    second: bg_lava_sea_91
+  - first:
+      213: -422932692612499595
+    second: bg_lava_sea_92
+  - first:
+      213: 3867929127612885642
+    second: bg_lava_sea_93
+  - first:
+      213: -3535823021937238004
+    second: bg_lava_sea_94
+  - first:
+      213: -6094710250221391995
+    second: bg_lava_sea_95
+  - first:
+      213: 4517845338552508289
+    second: bg_lava_sea_96
+  - first:
+      213: -6007885664330342731
+    second: bg_lava_sea_97
+  - first:
+      213: 6017284928332904422
+    second: bg_lava_sea_98
+  - first:
+      213: 2364361060798520441
+    second: bg_lava_sea_99
+  - first:
+      213: 4578236027057105165
+    second: bg_lava_sea_100
+  - first:
+      213: -9213254767615345202
+    second: bg_lava_sea_101
+  - first:
+      213: 3942849259587819781
+    second: bg_lava_sea_102
+  - first:
+      213: -2767670344360872114
+    second: bg_lava_sea_103
+  - first:
+      213: -6956429502220245247
+    second: bg_lava_sea_104
+  - first:
+      213: -2216040697689745781
+    second: bg_lava_sea_105
+  - first:
+      213: -3411524154904745878
+    second: bg_lava_sea_106
+  - first:
+      213: 8640409353334963105
+    second: bg_lava_sea_107
+  - first:
+      213: -6544276235317273676
+    second: bg_lava_sea_108
+  - first:
+      213: -4546034976659328553
+    second: bg_lava_sea_109
+  - first:
+      213: 8031326346996742282
+    second: bg_lava_sea_110
+  - first:
+      213: -6639848200224297193
+    second: bg_lava_sea_111
+  - first:
+      213: -4973997181155851909
+    second: bg_lava_sea_112
+  - first:
+      213: -3728499584106418297
+    second: bg_lava_sea_113
+  - first:
+      213: -5501841968004085648
+    second: bg_lava_sea_114
+  - first:
+      213: 7265627369986244845
+    second: bg_lava_sea_115
+  - first:
+      213: 2961647827766262399
+    second: bg_lava_sea_116
+  - first:
+      213: -1364531433956442825
+    second: bg_lava_sea_117
+  - first:
+      213: 8367458731981981809
+    second: bg_lava_sea_118
+  - first:
+      213: -480391660811096380
+    second: bg_lava_sea_119
+  - first:
+      213: -2119112805911509727
+    second: bg_lava_sea_120
+  - first:
+      213: -1883886911652391683
+    second: bg_lava_sea_121
+  - first:
+      213: 7652254535058624978
+    second: bg_lava_sea_122
+  - first:
+      213: 6563357910007996023
+    second: bg_lava_sea_123
+  - first:
+      213: 917447895177597925
+    second: bg_lava_sea_124
+  - first:
+      213: 1860536160217379570
+    second: bg_lava_sea_125
+  - first:
+      213: 5502834422206886194
+    second: bg_lava_sea_126
+  - first:
+      213: 6673976013661554336
+    second: bg_lava_sea_127
+  - first:
+      213: 4983629482910877460
+    second: bg_lava_sea_128
+  - first:
+      213: -7931007112211672926
+    second: bg_lava_sea_129
+  - first:
+      213: -3022378689068900000
+    second: bg_lava_sea_130
+  - first:
+      213: -618452386307450928
+    second: bg_lava_sea_131
+  - first:
+      213: 2265451761662520617
+    second: bg_lava_sea_132
+  - first:
+      213: -698780474411808779
+    second: bg_lava_sea_133
+  - first:
+      213: -2804877063238967009
+    second: bg_lava_sea_134
+  - first:
+      213: 1972585119814185852
+    second: bg_lava_sea_135
+  - first:
+      213: 8851673689490470190
+    second: bg_lava_sea_136
+  - first:
+      213: -7853765432519422420
+    second: bg_lava_sea_137
+  - first:
+      213: -903820450008342295
+    second: bg_lava_sea_138
+  - first:
+      213: -2737488079182822694
+    second: bg_lava_sea_139
+  - first:
+      213: 4740963659727189806
+    second: bg_lava_sea_140
+  - first:
+      213: -8236848217303862368
+    second: bg_lava_sea_141
+  - first:
+      213: 8842511030016977143
+    second: bg_lava_sea_142
+  - first:
+      213: 2354936643741429730
+    second: bg_lava_sea_143
+  - first:
+      213: 7402225759842957858
+    second: bg_lava_sea_144
+  - first:
+      213: -3302011448340094776
+    second: bg_lava_sea_145
+  - first:
+      213: -4459152565079202389
+    second: bg_lava_sea_146
+  - first:
+      213: 2059520198105192577
+    second: bg_lava_sea_147
+  - first:
+      213: -9220700608744357777
+    second: bg_lava_sea_148
+  - first:
+      213: 40664308287001981
+    second: bg_lava_sea_149
+  - first:
+      213: -5705924018694979095
+    second: bg_lava_sea_150
+  - first:
+      213: 4774928273803878318
+    second: bg_lava_sea_151
+  - first:
+      213: 1994462529961868141
+    second: bg_lava_sea_152
+  - first:
+      213: 6359141366845679568
+    second: bg_lava_sea_153
+  - first:
+      213: 3852245310597981685
+    second: bg_lava_sea_154
+  - first:
+      213: -7660607045595774364
+    second: bg_lava_sea_155
+  - first:
+      213: 5243843010621689298
+    second: bg_lava_sea_156
+  - first:
+      213: 1655507295400714136
+    second: bg_lava_sea_157
+  - first:
+      213: 7966427374340579952
+    second: bg_lava_sea_158
+  - first:
+      213: 6518117465098455868
+    second: bg_lava_sea_159
+  - first:
+      213: 6732623580818853595
+    second: bg_lava_sea_160
+  - first:
+      213: 8365394750476526517
+    second: bg_lava_sea_161
+  - first:
+      213: -1675206931160910769
+    second: bg_lava_sea_162
+  - first:
+      213: -1020751804493044027
+    second: bg_lava_sea_163
+  - first:
+      213: 1859728667796820137
+    second: bg_lava_sea_164
+  - first:
+      213: -3179671923060420048
+    second: bg_lava_sea_165
+  - first:
+      213: -3203072249112516941
+    second: bg_lava_sea_166
+  - first:
+      213: 6356361273084869656
+    second: bg_lava_sea_167
+  - first:
+      213: 5000674281580809077
+    second: bg_lava_sea_168
+  - first:
+      213: 1764706882993711613
+    second: bg_lava_sea_169
+  - first:
+      213: 759717114851317440
+    second: bg_lava_sea_170
+  - first:
+      213: -7222706273826661712
+    second: bg_lava_sea_171
+  - first:
+      213: -2597309739801424490
+    second: bg_lava_sea_172
+  - first:
+      213: 7354442177297633042
+    second: bg_lava_sea_173
+  - first:
+      213: 6068058661565543826
+    second: bg_lava_sea_174
+  - first:
+      213: 2678077535643555973
+    second: bg_lava_sea_175
+  - first:
+      213: -4447836661109243963
+    second: bg_lava_sea_176
+  - first:
+      213: -118890390345653635
+    second: bg_lava_sea_177
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 1
+  spriteExtrude: 1
+  spriteMeshType: 0
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationMethod: 0
+  spriteTessellationDetail: -1
+  spriteGeometrySubdivision: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: bg_lava_sea_0
+      rect:
+        serializedVersion: 2
+        x: 1022
+        y: 584
+        width: 61
+        height: 52
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 07b767cef3cdc2e80800000000000000
+      internalID: -8201938654240277648
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_1
+      rect:
+        serializedVersion: 2
+        x: 1694
+        y: 379
+        width: 40
+        height: 216
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5ca8b9730debb84b0800000000000000
+      internalID: -5437042323624326459
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_2
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 386
+        width: 65
+        height: 134
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 88229768a1d4b8950800000000000000
+      internalID: 6452335667458941576
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_3
+      rect:
+        serializedVersion: 2
+        x: 126
+        y: 414
+        width: 29
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 26eba879521918fc0800000000000000
+      internalID: -3494352245220524446
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_4
+      rect:
+        serializedVersion: 2
+        x: 154
+        y: 417
+        width: 25
+        height: 15
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: db6de422a23572890800000000000000
+      internalID: -7482920815423465795
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_5
+      rect:
+        serializedVersion: 2
+        x: 237
+        y: 384
+        width: 35
+        height: 33
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 372b8076a78fa9010800000000000000
+      internalID: 1196541855618609779
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_6
+      rect:
+        serializedVersion: 2
+        x: 285
+        y: 303
+        width: 101
+        height: 270
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0065c4c152d47f0a0800000000000000
+      internalID: -6847919886609656320
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_7
+      rect:
+        serializedVersion: 2
+        x: 398
+        y: 362
+        width: 40
+        height: 54
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9fb4fabbd55237570800000000000000
+      internalID: 8463149209270307833
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_8
+      rect:
+        serializedVersion: 2
+        x: 459
+        y: 391
+        width: 35
+        height: 80
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1883af73974f79340800000000000000
+      internalID: 4870630323491846273
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_9
+      rect:
+        serializedVersion: 2
+        x: 585
+        y: 369
+        width: 35
+        height: 45
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f99a66ceb4f40dcd0800000000000000
+      internalID: -2535439402702296673
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_10
+      rect:
+        serializedVersion: 2
+        x: 709
+        y: 398
+        width: 40
+        height: 172
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 177f42dd9e72d1bf0800000000000000
+      internalID: -352081310473980047
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_11
+      rect:
+        serializedVersion: 2
+        x: 954
+        y: 354
+        width: 36
+        height: 131
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 36dcd686a29e12890800000000000000
+      internalID: -7484444737363128989
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_12
+      rect:
+        serializedVersion: 2
+        x: 1333
+        y: 338
+        width: 120
+        height: 179
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a5a5c9d2d84ef8cb0800000000000000
+      internalID: -4859414177902732710
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_13
+      rect:
+        serializedVersion: 2
+        x: 1472
+        y: 349
+        width: 84
+        height: 68
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4ce6815bb592af2a0800000000000000
+      internalID: -6702999621530521916
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_14
+      rect:
+        serializedVersion: 2
+        x: 1903
+        y: 391
+        width: 56
+        height: 26
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: dfca8c834b528d8b0800000000000000
+      internalID: -5127306719784293123
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_15
+      rect:
+        serializedVersion: 2
+        x: 64
+        y: 347
+        width: 58
+        height: 57
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a3019427a3c358490800000000000000
+      internalID: -7744717762470539206
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_16
+      rect:
+        serializedVersion: 2
+        x: 117
+        y: 371
+        width: 21
+        height: 37
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3903793b15a42a050800000000000000
+      internalID: 5810288184027197587
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_17
+      rect:
+        serializedVersion: 2
+        x: 183
+        y: 368
+        width: 29
+        height: 26
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 96c5211cff5bdb570800000000000000
+      internalID: 8484137383096376425
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_18
+      rect:
+        serializedVersion: 2
+        x: 211
+        y: 373
+        width: 19
+        height: 21
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0de677dcfaaadc600800000000000000
+      internalID: 490235606496407248
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_19
+      rect:
+        serializedVersion: 2
+        x: 218
+        y: 390
+        width: 25
+        height: 15
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a4e5366bce67061e0800000000000000
+      internalID: -2206633058367218102
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_20
+      rect:
+        serializedVersion: 2
+        x: 387
+        y: 369
+        width: 12
+        height: 22
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 82f47ad85b9c41950800000000000000
+      internalID: 6418977150512615208
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_21
+      rect:
+        serializedVersion: 2
+        x: 437
+        y: 369
+        width: 22
+        height: 29
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 85e339dfbd63c26f0800000000000000
+      internalID: -708130722923987368
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_22
+      rect:
+        serializedVersion: 2
+        x: 456
+        y: 355
+        width: 58
+        height: 47
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8ddc9c3360a5486c0800000000000000
+      internalID: -4142086774588846632
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_23
+      rect:
+        serializedVersion: 2
+        x: 511
+        y: 372
+        width: 21
+        height: 28
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6fa75b326510ee270800000000000000
+      internalID: 8281558234258832118
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_24
+      rect:
+        serializedVersion: 2
+        x: 568
+        y: 380
+        width: 31
+        height: 28
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9d0b5625faf9e96e0800000000000000
+      internalID: -1828848823315353383
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_25
+      rect:
+        serializedVersion: 2
+        x: 622
+        y: 340
+        width: 66
+        height: 70
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1131132ebae1c64d0800000000000000
+      internalID: -3140101116600970479
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_26
+      rect:
+        serializedVersion: 2
+        x: 703
+        y: 379
+        width: 11
+        height: 17
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: da377b98e523d08d0800000000000000
+      internalID: -2878589205201062995
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_27
+      rect:
+        serializedVersion: 2
+        x: 733
+        y: 362
+        width: 50
+        height: 43
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c234c56d866eea030800000000000000
+      internalID: 3507994497715553068
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_28
+      rect:
+        serializedVersion: 2
+        x: 802
+        y: 390
+        width: 42
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6d34977c6a6646c80800000000000000
+      internalID: -8330420544231357482
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_29
+      rect:
+        serializedVersion: 2
+        x: 849
+        y: 318
+        width: 41
+        height: 72
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b59453fb582322210800000000000000
+      internalID: 1306662391910844763
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_30
+      rect:
+        serializedVersion: 2
+        x: 894
+        y: 375
+        width: 19
+        height: 35
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a315b5e67dc5cbda0800000000000000
+      internalID: -5927760929187212998
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_31
+      rect:
+        serializedVersion: 2
+        x: 900
+        y: 388
+        width: 14
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6f1022640a0d2ba90800000000000000
+      internalID: -7299542659224174090
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_32
+      rect:
+        serializedVersion: 2
+        x: 983
+        y: 369
+        width: 20
+        height: 23
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 57c8e88d0b4822970800000000000000
+      internalID: 8728684922879773813
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_33
+      rect:
+        serializedVersion: 2
+        x: 1016
+        y: 368
+        width: 24
+        height: 44
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a9e223ebcb0a5aef0800000000000000
+      internalID: -97495084413342054
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_34
+      rect:
+        serializedVersion: 2
+        x: 1074
+        y: 347
+        width: 53
+        height: 47
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fdc06772b99a30bb0800000000000000
+      internalID: -4970943079839822625
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_35
+      rect:
+        serializedVersion: 2
+        x: 1180
+        y: 369
+        width: 30
+        height: 37
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ba6570de10ac38570800000000000000
+      internalID: 8467833834007123627
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_36
+      rect:
+        serializedVersion: 2
+        x: 1235
+        y: 366
+        width: 28
+        height: 28
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4f269950a293e4fd0800000000000000
+      internalID: -2355882702422842636
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_37
+      rect:
+        serializedVersion: 2
+        x: 1309
+        y: 358
+        width: 33
+        height: 44
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8173f026968d9ee80800000000000000
+      internalID: -8148744103621871848
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_38
+      rect:
+        serializedVersion: 2
+        x: 1555
+        y: 356
+        width: 63
+        height: 44
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1dfd065356afa8f30800000000000000
+      internalID: 4578747283769712593
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_39
+      rect:
+        serializedVersion: 2
+        x: 1637
+        y: 355
+        width: 55
+        height: 40
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b51cfcfe67f22a620800000000000000
+      internalID: 2783839707544404315
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_40
+      rect:
+        serializedVersion: 2
+        x: 1707
+        y: 357
+        width: 29
+        height: 34
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f6fe26929a1d0ff20800000000000000
+      internalID: 3454491438667198319
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_41
+      rect:
+        serializedVersion: 2
+        x: 1815
+        y: 355
+        width: 38
+        height: 57
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 03d3110c248f644c0800000000000000
+      internalID: -4303479428332045008
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_42
+      rect:
+        serializedVersion: 2
+        x: 1962
+        y: 298
+        width: 38
+        height: 103
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 969c5c7b683a04c10800000000000000
+      internalID: 2035806830575602025
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_43
+      rect:
+        serializedVersion: 2
+        x: 20
+        y: 342
+        width: 16
+        height: 39
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ef1dd2fc98e1f0c40800000000000000
+      internalID: 5480632848768422398
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_44
+      rect:
+        serializedVersion: 2
+        x: 55
+        y: 369
+        width: 12
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5c9b3aa25f63ccdf0800000000000000
+      internalID: -158691460254549563
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_45
+      rect:
+        serializedVersion: 2
+        x: 139
+        y: 338
+        width: 27
+        height: 17
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3380188b1c7407d80800000000000000
+      internalID: -8255019219620394957
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_46
+      rect:
+        serializedVersion: 2
+        x: 150
+        y: 370
+        width: 34
+        height: 17
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 89fc2d47d0184f3c0800000000000000
+      internalID: -4326691447201673320
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_47
+      rect:
+        serializedVersion: 2
+        x: 183
+        y: 345
+        width: 9
+        height: 35
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9d9124c3363348a30800000000000000
+      internalID: 4216551652431370713
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_48
+      rect:
+        serializedVersion: 2
+        x: 216
+        y: 316
+        width: 61
+        height: 65
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 557752ded9a2ec6d0800000000000000
+      internalID: -2968388246613690539
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_49
+      rect:
+        serializedVersion: 2
+        x: 235
+        y: 377
+        width: 11
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e9626179a5f1f3150800000000000000
+      internalID: 5854432514547263134
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_50
+      rect:
+        serializedVersion: 2
+        x: 531
+        y: 312
+        width: 43
+        height: 75
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: eaa1b44c174e7f5f0800000000000000
+      internalID: -722858037893981522
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_51
+      rect:
+        serializedVersion: 2
+        x: 568
+        y: 368
+        width: 22
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0babe3fc841d60190800000000000000
+      internalID: -7996473977704891728
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_52
+      rect:
+        serializedVersion: 2
+        x: 584
+        y: 371
+        width: 12
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ea6035c974de13f50800000000000000
+      internalID: 6859524599283123886
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_53
+      rect:
+        serializedVersion: 2
+        x: 613
+        y: 340
+        width: 9
+        height: 18
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 34749d2ecf53726a0800000000000000
+      internalID: -6474146579067877565
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_54
+      rect:
+        serializedVersion: 2
+        x: 685
+        y: 353
+        width: 27
+        height: 34
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a40debfb0dccc6270800000000000000
+      internalID: 8245190214750752842
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_55
+      rect:
+        serializedVersion: 2
+        x: 709
+        y: 362
+        width: 16
+        height: 24
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b28361f584ad9e460800000000000000
+      internalID: 7271583077734168619
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_56
+      rect:
+        serializedVersion: 2
+        x: 791
+        y: 340
+        width: 25
+        height: 18
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a6f1efed4677a1b40800000000000000
+      internalID: 5411769177360703338
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_57
+      rect:
+        serializedVersion: 2
+        x: 824
+        y: 362
+        width: 27
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a5893fcda36be3db0800000000000000
+      internalID: -4810206988053800870
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_58
+      rect:
+        serializedVersion: 2
+        x: 914
+        y: 355
+        width: 11
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8b97942c70be60690800000000000000
+      internalID: -7636157699603203656
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_59
+      rect:
+        serializedVersion: 2
+        x: 924
+        y: 349
+        width: 14
+        height: 23
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 34813c1b000189670800000000000000
+      internalID: 8545597888103913539
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_60
+      rect:
+        serializedVersion: 2
+        x: 937
+        y: 360
+        width: 16
+        height: 20
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 08a0a3ce842fd61f0800000000000000
+      internalID: -1049916743092663680
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_61
+      rect:
+        serializedVersion: 2
+        x: 939
+        y: 345
+        width: 10
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e4bf258e32ec24100800000000000000
+      internalID: 90861596117760846
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_62
+      rect:
+        serializedVersion: 2
+        x: 947
+        y: 345
+        width: 12
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 906aaf617f8b5dd30800000000000000
+      internalID: 4455670777734931977
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_63
+      rect:
+        serializedVersion: 2
+        x: 956
+        y: 323
+        width: 19
+        height: 31
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7784b451ad7d553c0800000000000000
+      internalID: -4371350531633100681
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_64
+      rect:
+        serializedVersion: 2
+        x: 1002
+        y: 371
+        width: 6
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7d67fb49432b69890800000000000000
+      internalID: -7451572594534287657
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_65
+      rect:
+        serializedVersion: 2
+        x: 1031
+        y: 355
+        width: 23
+        height: 17
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2be702502d2359a30800000000000000
+      internalID: 4221336103340244658
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_66
+      rect:
+        serializedVersion: 2
+        x: 1054
+        y: 333
+        width: 29
+        height: 54
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a2f3cc665177b2460800000000000000
+      internalID: 7217993761594031914
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_67
+      rect:
+        serializedVersion: 2
+        x: 1130
+        y: 342
+        width: 28
+        height: 30
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 44adb4905ae369ba0800000000000000
+      internalID: -6082605368170784188
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_68
+      rect:
+        serializedVersion: 2
+        x: 1154
+        y: 369
+        width: 27
+        height: 18
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cc985fcb456ede4b0800000000000000
+      internalID: -5409414325780248116
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_69
+      rect:
+        serializedVersion: 2
+        x: 1157
+        y: 288
+        width: 51
+        height: 64
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9c504adf91a8668e0800000000000000
+      internalID: -1700519965051583031
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_70
+      rect:
+        serializedVersion: 2
+        x: 1231
+        y: 340
+        width: 17
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 801673142d45648b0800000000000000
+      internalID: -5168350260347051768
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_71
+      rect:
+        serializedVersion: 2
+        x: 1248
+        y: 329
+        width: 44
+        height: 53
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5d1700a082853c740800000000000000
+      internalID: 5171073726141198805
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_72
+      rect:
+        serializedVersion: 2
+        x: 1424
+        y: 357
+        width: 7
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a8db4598aed0c25a0800000000000000
+      internalID: -6544840857498632822
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_73
+      rect:
+        serializedVersion: 2
+        x: 1600
+        y: 355
+        width: 11
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ec3300794d577b020800000000000000
+      internalID: 2357482485878633422
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_74
+      rect:
+        serializedVersion: 2
+        x: 1692
+        y: 351
+        width: 18
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fcba7783305e95be0800000000000000
+      internalID: -1487906399874208817
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_75
+      rect:
+        serializedVersion: 2
+        x: 1696
+        y: 369
+        width: 8
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 78b0cfda6bfc14d60800000000000000
+      internalID: 7872802007130311559
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_76
+      rect:
+        serializedVersion: 2
+        x: 1735
+        y: 303
+        width: 56
+        height: 75
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b2639f02b73fdaa90800000000000000
+      internalID: -7300911710737975765
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_77
+      rect:
+        serializedVersion: 2
+        x: 1874
+        y: 349
+        width: 27
+        height: 37
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 109d209fc8d039090800000000000000
+      internalID: -8029058811547166463
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_78
+      rect:
+        serializedVersion: 2
+        x: 1901
+        y: 369
+        width: 17
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 828d1287467ca0e20800000000000000
+      internalID: 3317683309837932584
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_79
+      rect:
+        serializedVersion: 2
+        x: 1978
+        y: 372
+        width: 6
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b6f8a69d82d812c60800000000000000
+      internalID: 7791664036913516395
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_80
+      rect:
+        serializedVersion: 2
+        x: 92
+        y: 310
+        width: 43
+        height: 32
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: addc1406c12452520800000000000000
+      internalID: 2676618243183070682
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_81
+      rect:
+        serializedVersion: 2
+        x: 169
+        y: 303
+        width: 41
+        height: 40
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 398bf38b72679a900800000000000000
+      internalID: 696217530372438163
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_82
+      rect:
+        serializedVersion: 2
+        x: 1383
+        y: 337
+        width: 7
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 322ad8cf6ae04b7b0800000000000000
+      internalID: -5209522758596320733
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_83
+      rect:
+        serializedVersion: 2
+        x: 1427
+        y: 318
+        width: 13
+        height: 23
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ca886128eebbdb2a0800000000000000
+      internalID: -6720008435907786580
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_84
+      rect:
+        serializedVersion: 2
+        x: 1925
+        y: 333
+        width: 10
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 563ff99eb7bc5db50800000000000000
+      internalID: 6617418960551801701
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_85
+      rect:
+        serializedVersion: 2
+        x: 1948
+        y: 340
+        width: 9
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fd83d51fb55afff30800000000000000
+      internalID: 4611586357760702687
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_86
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 253
+        width: 98
+        height: 73
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 66798bd7796b754f0800000000000000
+      internalID: -840002043715741850
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_87
+      rect:
+        serializedVersion: 2
+        x: 135
+        y: 279
+        width: 22
+        height: 48
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0f67686341fbda950800000000000000
+      internalID: 6462031133881562864
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_88
+      rect:
+        serializedVersion: 2
+        x: 157
+        y: 302
+        width: 20
+        height: 15
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 582f4117d4b4bce00800000000000000
+      internalID: 1066028532785017477
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_89
+      rect:
+        serializedVersion: 2
+        x: 390
+        y: 312
+        width: 24
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0296ea24bab0606d0800000000000000
+      internalID: -3024717269546669792
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_90
+      rect:
+        serializedVersion: 2
+        x: 396
+        y: 294
+        width: 24
+        height: 23
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 41cc3f85ec659cca0800000000000000
+      internalID: -5996165984611480556
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_91
+      rect:
+        serializedVersion: 2
+        x: 445
+        y: 310
+        width: 41
+        height: 21
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 090f2216bb3506b70800000000000000
+      internalID: 8890197728683028624
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_92
+      rect:
+        serializedVersion: 2
+        x: 568
+        y: 318
+        width: 11
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 577bee4f4f0712af0800000000000000
+      internalID: -422932692612499595
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_93
+      rect:
+        serializedVersion: 2
+        x: 619
+        y: 298
+        width: 36
+        height: 23
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a8aa0c36c05ada530800000000000000
+      internalID: 3867929127612885642
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_94
+      rect:
+        serializedVersion: 2
+        x: 652
+        y: 301
+        width: 8
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c0068c4f1bb3eeec0800000000000000
+      internalID: -3535823021937238004
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_95
+      rect:
+        serializedVersion: 2
+        x: 659
+        y: 266
+        width: 55
+        height: 55
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 58f2f9e815d3b6ba0800000000000000
+      internalID: -6094710250221391995
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_96
+      rect:
+        serializedVersion: 2
+        x: 740
+        y: 312
+        width: 17
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 18f939a166c92be30800000000000000
+      internalID: 4517845338552508289
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_97
+      rect:
+        serializedVersion: 2
+        x: 761
+        y: 288
+        width: 22
+        height: 26
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5be9d66c1d3bf9ca0800000000000000
+      internalID: -6007885664330342731
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_98
+      rect:
+        serializedVersion: 2
+        x: 807
+        y: 266
+        width: 24
+        height: 47
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6e73899e2c0b18350800000000000000
+      internalID: 6017284928332904422
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_99
+      rect:
+        serializedVersion: 2
+        x: 917
+        y: 308
+        width: 27
+        height: 26
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 97c59ad9bd5efc020800000000000000
+      internalID: 2364361060798520441
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_100
+      rect:
+        serializedVersion: 2
+        x: 1015
+        y: 280
+        width: 38
+        height: 47
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d0962aaf869298f30800000000000000
+      internalID: 4578236027057105165
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_101
+      rect:
+        serializedVersion: 2
+        x: 1057
+        y: 281
+        width: 26
+        height: 46
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ecdfc1f4a91f32080800000000000000
+      internalID: -9213254767615345202
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_102
+      rect:
+        serializedVersion: 2
+        x: 1094
+        y: 298
+        width: 26
+        height: 30
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 509d4a0f280d7b630800000000000000
+      internalID: 3942849259587819781
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_103
+      rect:
+        serializedVersion: 2
+        x: 1115
+        y: 312
+        width: 23
+        height: 24
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e47bcfc4c724799d0800000000000000
+      internalID: -2767670344360872114
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_104
+      rect:
+        serializedVersion: 2
+        x: 1194
+        y: 312
+        width: 7
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1076d17793cc57f90800000000000000
+      internalID: -6956429502220245247
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_105
+      rect:
+        serializedVersion: 2
+        x: 1198
+        y: 279
+        width: 59
+        height: 42
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b86d46ef9ba0f31e0800000000000000
+      internalID: -2216040697689745781
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_106
+      rect:
+        serializedVersion: 2
+        x: 1265
+        y: 318
+        width: 16
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a68ec3c2bd4d7a0d0800000000000000
+      internalID: -3411524154904745878
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_107
+      rect:
+        serializedVersion: 2
+        x: 1271
+        y: 290
+        width: 34
+        height: 29
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1ab3e7b2786e8e770800000000000000
+      internalID: 8640409353334963105
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_108
+      rect:
+        serializedVersion: 2
+        x: 1340
+        y: 302
+        width: 11
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4bb12e1ef6f0e25a0800000000000000
+      internalID: -6544276235317273676
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_109
+      rect:
+        serializedVersion: 2
+        x: 1355
+        y: 288
+        width: 24
+        height: 24
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7d138bf464d39e0c0800000000000000
+      internalID: -4546034976659328553
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_110
+      rect:
+        serializedVersion: 2
+        x: 1392
+        y: 318
+        width: 17
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a88f9f3c2c0057f60800000000000000
+      internalID: 8031326346996742282
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_111
+      rect:
+        serializedVersion: 2
+        x: 1414
+        y: 318
+        width: 8
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 71f2d17cd358ad3a0800000000000000
+      internalID: -6639848200224297193
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_112
+      rect:
+        serializedVersion: 2
+        x: 1414
+        y: 320
+        width: 6
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b714967caefc8fab0800000000000000
+      internalID: -4973997181155851909
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_113
+      rect:
+        serializedVersion: 2
+        x: 1599
+        y: 316
+        width: 28
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 78f2528f165b14cc0800000000000000
+      internalID: -3728499584106418297
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_114
+      rect:
+        serializedVersion: 2
+        x: 1665
+        y: 266
+        width: 34
+        height: 55
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 078c7ce41e785a3b0800000000000000
+      internalID: -5501841968004085648
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_115
+      rect:
+        serializedVersion: 2
+        x: 1733
+        y: 301
+        width: 11
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: de0c26a1991b4d460800000000000000
+      internalID: 7265627369986244845
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_116
+      rect:
+        serializedVersion: 2
+        x: 1868
+        y: 317
+        width: 20
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f7ab0d30203e91920800000000000000
+      internalID: 2961647827766262399
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_117
+      rect:
+        serializedVersion: 2
+        x: 1887
+        y: 318
+        width: 10
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 73dfb22f3e5301de0800000000000000
+      internalID: -1364531433956442825
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_118
+      rect:
+        serializedVersion: 2
+        x: 1887
+        y: 294
+        width: 12
+        height: 21
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 178c680526f2f1470800000000000000
+      internalID: 8367458731981981809
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_119
+      rect:
+        serializedVersion: 2
+        x: 220
+        y: 288
+        width: 12
+        height: 18
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4ce6b48645e4559f0800000000000000
+      internalID: -480391660811096380
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_120
+      rect:
+        serializedVersion: 2
+        x: 282
+        y: 270
+        width: 36
+        height: 39
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 125c9ac61266792e0800000000000000
+      internalID: -2119112805911509727
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_121
+      rect:
+        serializedVersion: 2
+        x: 421
+        y: 303
+        width: 17
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: df493f9c5d61bd5e0800000000000000
+      internalID: -1883886911652391683
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_122
+      rect:
+        serializedVersion: 2
+        x: 467
+        y: 265
+        width: 27
+        height: 41
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2d19a0dc4f4423a60800000000000000
+      internalID: 7652254535058624978
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_123
+      rect:
+        serializedVersion: 2
+        x: 855
+        y: 268
+        width: 22
+        height: 43
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 77ed6c7be3bb51b50800000000000000
+      internalID: 6563357910007996023
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_124
+      rect:
+        serializedVersion: 2
+        x: 880
+        y: 251
+        width: 88
+        height: 55
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5e39df3fffd6bbc00800000000000000
+      internalID: 917447895177597925
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_125
+      rect:
+        serializedVersion: 2
+        x: 967
+        y: 276
+        width: 39
+        height: 35
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2f2b689b7c3f1d910800000000000000
+      internalID: 1860536160217379570
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_126
+      rect:
+        serializedVersion: 2
+        x: 1031
+        y: 291
+        width: 9
+        height: 15
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 231fe6170cefd5c40800000000000000
+      internalID: 5502834422206886194
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_127
+      rect:
+        serializedVersion: 2
+        x: 1487
+        y: 264
+        width: 39
+        height: 44
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0a646cdf2d9be9c50800000000000000
+      internalID: 6673976013661554336
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_128
+      rect:
+        serializedVersion: 2
+        x: 1807
+        y: 274
+        width: 42
+        height: 32
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 417011d3c98692540800000000000000
+      internalID: 4983629482910877460
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_129
+      rect:
+        serializedVersion: 2
+        x: 1874
+        y: 296
+        width: 14
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2a0d68d3d076fe190800000000000000
+      internalID: -7931007112211672926
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_130
+      rect:
+        serializedVersion: 2
+        x: 93
+        y: 286
+        width: 12
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0616655789a5e06d0800000000000000
+      internalID: -3022378689068900000
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_131
+      rect:
+        serializedVersion: 2
+        x: 396
+        y: 266
+        width: 37
+        height: 23
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0d7d6a3d4d0da67f0800000000000000
+      internalID: -618452386307450928
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_132
+      rect:
+        serializedVersion: 2
+        x: 507
+        y: 259
+        width: 40
+        height: 34
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 92d6da5df50807f10800000000000000
+      internalID: 2265451761662520617
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_133
+      rect:
+        serializedVersion: 2
+        x: 542
+        y: 262
+        width: 35
+        height: 33
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5f784be5cde6d46f0800000000000000
+      internalID: -698780474411808779
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_134
+      rect:
+        serializedVersion: 2
+        x: 592
+        y: 266
+        width: 19
+        height: 34
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f11200ffb231319d0800000000000000
+      internalID: -2804877063238967009
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_135
+      rect:
+        serializedVersion: 2
+        x: 628
+        y: 275
+        width: 19
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c73febb17b7006b10800000000000000
+      internalID: 1972585119814185852
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_136
+      rect:
+        serializedVersion: 2
+        x: 744
+        y: 275
+        width: 20
+        height: 18
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e2530c9825677da70800000000000000
+      internalID: 8851673689490470190
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_137
+      rect:
+        serializedVersion: 2
+        x: 784
+        y: 256
+        width: 28
+        height: 41
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c2e007d33f1d10390800000000000000
+      internalID: -7853765432519422420
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_138
+      rect:
+        serializedVersion: 2
+        x: 961
+        y: 288
+        width: 11
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9e0e480e61cf473f0800000000000000
+      internalID: -903820450008342295
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_139
+      rect:
+        serializedVersion: 2
+        x: 1080
+        y: 266
+        width: 18
+        height: 25
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ad20177881d720ad0800000000000000
+      internalID: -2737488079182822694
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_140
+      rect:
+        serializedVersion: 2
+        x: 1339
+        y: 279
+        width: 16
+        height: 19
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e27331f64594bc140800000000000000
+      internalID: 4740963659727189806
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_141
+      rect:
+        serializedVersion: 2
+        x: 1376
+        y: 252
+        width: 57
+        height: 39
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0a33bc2ef26d0bd80800000000000000
+      internalID: -8236848217303862368
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_142
+      rect:
+        serializedVersion: 2
+        x: 1450
+        y: 279
+        width: 23
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7f8a2a2aee8e6ba70800000000000000
+      internalID: 8842511030016977143
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_143
+      rect:
+        serializedVersion: 2
+        x: 1472
+        y: 278
+        width: 14
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2ef22c6866a6ea020800000000000000
+      internalID: 2354936643741429730
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_144
+      rect:
+        serializedVersion: 2
+        x: 1870
+        y: 266
+        width: 29
+        height: 27
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 22a7fa22c1df9b660800000000000000
+      internalID: 7402225759842957858
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_145
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 2000
+        height: 274
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8c06a612516ec22d0800000000000000
+      internalID: -3302011448340094776
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_146
+      rect:
+        serializedVersion: 2
+        x: 94
+        y: 268
+        width: 13
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ba5ae2f1e58ed12c0800000000000000
+      internalID: -4459152565079202389
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_147
+      rect:
+        serializedVersion: 2
+        x: 176
+        y: 266
+        width: 8
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1885dc755b2e49c10800000000000000
+      internalID: 2059520198105192577
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_148
+      rect:
+        serializedVersion: 2
+        x: 183
+        y: 266
+        width: 14
+        height: 20
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f60809356ad790080800000000000000
+      internalID: -9220700608744357777
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_149
+      rect:
+        serializedVersion: 2
+        x: 370
+        y: 272
+        width: 20
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d75db7219f7709000800000000000000
+      internalID: 40664308287001981
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_150
+      rect:
+        serializedVersion: 2
+        x: 537
+        y: 255
+        width: 12
+        height: 23
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9e10156165c70d0b0800000000000000
+      internalID: -5705924018694979095
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_151
+      rect:
+        serializedVersion: 2
+        x: 771
+        y: 266
+        width: 17
+        height: 18
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: eaf9c0467f3f34240800000000000000
+      internalID: 4774928273803878318
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_152
+      rect:
+        serializedVersion: 2
+        x: 876
+        y: 264
+        width: 8
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d6b34389a11cdab10800000000000000
+      internalID: 1994462529961868141
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_153
+      rect:
+        serializedVersion: 2
+        x: 883
+        y: 274
+        width: 7
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0d724578165304850800000000000000
+      internalID: 6359141366845679568
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_154
+      rect:
+        serializedVersion: 2
+        x: 956
+        y: 266
+        width: 6
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5f56bdd23bce57530800000000000000
+      internalID: 3852245310597981685
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_155
+      rect:
+        serializedVersion: 2
+        x: 1013
+        y: 265
+        width: 23
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 462c86bca7e00b590800000000000000
+      internalID: -7660607045595774364
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_156
+      rect:
+        serializedVersion: 2
+        x: 1257
+        y: 274
+        width: 18
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2dd45026f6fd5c840800000000000000
+      internalID: 5243843010621689298
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_157
+      rect:
+        serializedVersion: 2
+        x: 1296
+        y: 264
+        width: 35
+        height: 19
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 89f5d692d1b89f610800000000000000
+      internalID: 1655507295400714136
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_158
+      rect:
+        serializedVersion: 2
+        x: 1344
+        y: 266
+        width: 11
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 072a4803d7f6e8e60800000000000000
+      internalID: 7966427374340579952
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_159
+      rect:
+        serializedVersion: 2
+        x: 1435
+        y: 272
+        width: 25
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c3b867fcc41057a50800000000000000
+      internalID: 6518117465098455868
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_160
+      rect:
+        serializedVersion: 2
+        x: 1577
+        y: 264
+        width: 17
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: bde402dc9751f6d50800000000000000
+      internalID: 6732623580818853595
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_161
+      rect:
+        serializedVersion: 2
+        x: 1729
+        y: 272
+        width: 32
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5b3221c243ad71470800000000000000
+      internalID: 8365394750476526517
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_162
+      rect:
+        serializedVersion: 2
+        x: 1796
+        y: 264
+        width: 20
+        height: 19
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f44b1e6fb2870c8e0800000000000000
+      internalID: -1675206931160910769
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_163
+      rect:
+        serializedVersion: 2
+        x: 1896
+        y: 274
+        width: 27
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5c66a5954af85d1f0800000000000000
+      internalID: -1020751804493044027
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_164
+      rect:
+        serializedVersion: 2
+        x: 414
+        y: 253
+        width: 17
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9a0d3aebe551fc910800000000000000
+      internalID: 1859728667796820137
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_165
+      rect:
+        serializedVersion: 2
+        x: 435
+        y: 259
+        width: 9
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 03253bb8b398fd3d0800000000000000
+      internalID: -3179671923060420048
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_166
+      rect:
+        serializedVersion: 2
+        x: 458
+        y: 254
+        width: 14
+        height: 15
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3b6acb192c66c83d0800000000000000
+      internalID: -3203072249112516941
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_167
+      rect:
+        serializedVersion: 2
+        x: 546
+        y: 243
+        width: 8
+        height: 26
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 81cf54286e4563850800000000000000
+      internalID: 6356361273084869656
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_168
+      rect:
+        serializedVersion: 2
+        x: 556
+        y: 254
+        width: 8
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 57b4e0fa3c6f56540800000000000000
+      internalID: 5000674281580809077
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_169
+      rect:
+        serializedVersion: 2
+        x: 726
+        y: 260
+        width: 6
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: df9e68d6f8f7d7810800000000000000
+      internalID: 1764706882993711613
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_170
+      rect:
+        serializedVersion: 2
+        x: 842
+        y: 256
+        width: 7
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0c65f78d0be0b8a00800000000000000
+      internalID: 759717114851317440
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_171
+      rect:
+        serializedVersion: 2
+        x: 846
+        y: 263
+        width: 7
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0ba939759eac3cb90800000000000000
+      internalID: -7222706273826661712
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_172
+      rect:
+        serializedVersion: 2
+        x: 1184
+        y: 256
+        width: 17
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 69d49738d8084fbd0800000000000000
+      internalID: -2597309739801424490
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_173
+      rect:
+        serializedVersion: 2
+        x: 1337
+        y: 261
+        width: 12
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 21fc9fad13a301660800000000000000
+      internalID: 7354442177297633042
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_174
+      rect:
+        serializedVersion: 2
+        x: 1459
+        y: 228
+        width: 24
+        height: 41
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 295b8d6e333163450800000000000000
+      internalID: 6068058661565543826
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_175
+      rect:
+        serializedVersion: 2
+        x: 903
+        y: 253
+        width: 7
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 588dcf064517a2520800000000000000
+      internalID: 2678077535643555973
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_176
+      rect:
+        serializedVersion: 2
+        x: 1088
+        y: 254
+        width: 6
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5cfbf935f1c1642c0800000000000000
+      internalID: -4447836661109243963
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_lava_sea_177
+      rect:
+        serializedVersion: 2
+        x: 1756
+        y: 245
+        width: 8
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d726d34e1dd995ef0800000000000000
+      internalID: -118890390345653635
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 5e97eb03825dee720800000000000000
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable: {}
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
