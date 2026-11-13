@@ -30,7 +30,7 @@ namespace BalHanuman.Fight
         static MoveDef M(string id, string name, PuppetClip clip) => new MoveDef { id = id, name = name, clip = clip };
 
         // ======================================================================================= HANUMAN
-        public static Puppet.Dims HanumanDims() => HanumanSkin.Dims() ?? new Puppet.Dims();
+        public static Puppet.Dims HanumanDims() => new Puppet.Dims();
 
         public static Puppet.Style HanumanStyle() => new Puppet.Style
         {
@@ -115,7 +115,7 @@ namespace BalHanuman.Fight
             var m3s = S().Lean(38, 14).Hip(0.2f, -0.42f).Feet(0.75f, -0.35f).ArmF(70, 0).Wpn(50).ArmB(60, 10).Head(10);
             m["m3"] = M("m3", "Earth-Splitter Smash", C(false, 0.62f, K(0, m3w), K(0.16f, m3w.Copy().Hip(-0.12f, 0f), Ease.In), K(0.24f, m3s, Ease.Out), K(0.4f, m3s), K(0.62f, S())))
                 .Hit(H(0.2f, 0.28f, J.Weapon, tip, 0.7f, 80, new Vector2(3.5f, 6), 0.5f, HitLevel.Overhead, FxKind.Heavy, true, true, false, 0.12f, 0.16f))
-                .At(0.24f, f => { var p = f.puppet.WeaponTip; FightFx.Shockwave(new Vector3(p.x, 0, 0), 1.6f * f.scale, new Color(1f, 0.8f, 0.4f)); FightSfx.Play("slam", 1.1f, 0.8f); })
+                .At(0.24f, f => { var p = f.WeaponPoint; FightFx.Shockwave(new Vector3(p.x, 0, 0), 1.6f * f.scale, new Color(1f, 0.8f, 0.4f)); FightSfx.Play("slam", 1.1f, 0.8f); })
                 .Lunge(4f, 0.12f, 0.24f);
             m["m3"].sfx = "whoosh_heavy"; m["m3"].cancelFrom = 0.45f;
 
@@ -155,7 +155,7 @@ namespace BalHanuman.Fight
                 string id = "charge" + lvl;
                 m[id] = M(id, lvl == 2 ? "Mountain-Breaker (MAX)" : "Mountain-Breaker", C(false, 0.7f, K(0, charge, Ease.Out), K(0.12f, chs, Ease.Out), K(0.4f, chs), K(0.7f, S())))
                     .Hit(H(0.08f, 0.2f, J.Weapon, tip, 1.0f * big, 90 * big, new Vector2(5f, 8f), 0.6f, HitLevel.Overhead, FxKind.Gold, true, true, false, 0.14f, 0.22f * big))
-                    .At(0.12f, f => { var p = f.puppet.WeaponTip; FightFx.Shockwave(new Vector3(p.x, 0, 0), 2.6f * big * f.scale, new Color(1f, 0.85f, 0.35f)); FightSfx.Play("slam", 0.9f); Dir?.GroundPound(f, p.x, 2.2f * big * f.scale, 35 * big, false); })
+                    .At(0.12f, f => { var p = f.WeaponPoint; FightFx.Shockwave(new Vector3(p.x, 0, 0), 2.6f * big * f.scale, new Color(1f, 0.85f, 0.35f)); FightSfx.Play("slam", 0.9f); Dir?.GroundPound(f, p.x, 2.2f * big * f.scale, 35 * big, false); })
                     .Lunge(5f, 0f, 0.1f);
                 m[id].sfx = "whoosh_heavy"; m[id].expr = Expr.Roar;
             }
@@ -196,6 +196,7 @@ namespace BalHanuman.Fight
                     FightSfx.Play("slam", k > 1f ? 0.75f : 1f);
                     Dir?.GroundPound(f, x, 2.4f * k * f.scale, 45 * k, true);
                     Dir?.Shake(0.18f * k, 0.3f);
+                    f.StartMove(f.GetMove("diveland"));       // crouch-and-recover frames (no-op when that sheet is missing)
                 };
             }
 
@@ -282,7 +283,108 @@ namespace BalHanuman.Fight
                 .Lunge(14f, 0.3f, 0.48f);
             m["finalblow"].armor = true; m["finalblow"].expr = Expr.Roar; m["finalblow"].sfx = "whoosh_heavy";
 
+            ApplyFrameArt(m);
             return m;
+        }
+
+        // ======================================================================================= frame art
+        /// <summary>
+        /// Points a move at frames [from..to] of a painted clip: the hit windows open on the impact frames (measured weapon / foot / tail tip),
+        /// timed events fire when the window opens, and chaining opens right after it. If the clip is missing the move keeps its skeleton animation.
+        /// </summary>
+        static void FrameMove(MoveDef d, string clip, int from, int to, int hitFrom, int hitTo, float reach = 0f, float up = 0f, int eventFrame = -1, bool oneHit = true)
+        {
+            var c = HanumanFrames.Get(clip);
+            if (c == null || d == null) return;
+            d.frameClip = clip; d.frameFrom = from; d.frameTo = to;
+            if (oneHit && d.hits.Count > 1) d.hits.RemoveRange(1, d.hits.Count - 1);     // the painted move has one impact
+            float t0 = (hitFrom - from) / c.fps, t1 = (hitTo + 1 - from) / c.fps;
+            foreach (var h in d.hits) { h.t0 = t0; h.t1 = t1; h.frameTip = true; h.offset = new Vector2(reach, up); }
+            float te = eventFrame >= 0 ? (eventFrame - from) / c.fps : t0;
+            foreach (var e in d.events) e.t = te;
+            d.cancelFrom = t1;
+            if (d.lungeSpeed != 0f) { d.lungeSpeed *= 0.6f; d.lungeT0 = Mathf.Max(0f, t0 - 0.1f); d.lungeT1 = t0 + 0.03f; }
+        }
+
+        /// <summary>Visual only: loops frames [from..to] of a painted clip for the whole move; timing and hit windows stay as authored.</summary>
+        static void FrameLook(MoveDef d, string clip, int from, int to, bool hold = false, bool stretch = false, bool tipHits = false)
+        {
+            if (d == null || HanumanFrames.Get(clip) == null) return;
+            d.frameClip = clip; d.frameFrom = from; d.frameTo = to; d.frameLoop = true; d.frameHold = hold; d.frameStretch = stretch;
+            if (tipHits) foreach (var h in d.hits) { h.frameTip = true; h.offset = Vector2.zero; }       // hit circles follow the painted weapon / foot
+        }
+
+        static Vector3 HP(float t, float fwd, float up) => new Vector3(t, fwd, up);
+
+        static void ApplyFrameArt(Dictionary<string, MoveDef> m)
+        {
+            FrameMove(m["m1"], "gada1", 0, 7, 3, 4);
+            FrameMove(m["m2"], "gada2", 0, 7, 3, 4);
+            FrameMove(m["m3"], "overhead", 0, 15, 9, 11, 0f, 0f, 10);
+            FrameMove(m["thrust"], "thrust", 0, 7, 4, 6);
+            FrameMove(m["launcher"], "launcher", 0, 7, 3, 5, 0.45f);
+            FrameMove(m["sweep"], "sweep", 0, 7, 3, 4);
+            FrameMove(m["k1"], "kick", 0, 7, 3, 4, 0.45f);
+            m["k1"].hits[0].radius = 0.55f;
+            FrameMove(m["tailtrip"], "tailtrip", 0, 7, 3, 4);
+            FrameMove(m["firewhip"], "firewhip", 0, 11, 4, 6);
+
+            // whirlwind: two impacts while the gada spins (frames 7-11 and 12-16)
+            FrameMove(m["whirl"], "whirl", 0, 19, 6, 10, 0f, 0f, -1, false);
+            if (m["whirl"].frameClip == "whirl" && m["whirl"].hits.Count > 1)
+            {
+                float wf = 1f / HanumanFrames.Get("whirl").fps;
+                m["whirl"].hits[1].t0 = 11 * wf; m["whirl"].hits[1].t1 = 16 * wf; m["whirl"].cancelFrom = 16 * wf;
+            }
+            // leaping smashes: crouch, leap, gada comes down on frame 12
+            FrameMove(m["charge1"], "smashB", 0, 19, 11, 12, 0f, 0f, 11);
+            FrameMove(m["charge2"], "smashA", 0, 19, 11, 12, 0f, 0f, 11);
+            FrameMove(m["air1"], "airhoriz", 0, 9, 4, 6);
+            FrameMove(m["air2"], "airarc", 0, 9, 4, 6);
+            FrameMove(m["air3"], "airsmash", 0, 7, 4, 6);
+            FrameMove(m["stomp"], "stompsheet", 0, 11, 7, 8, 0f, 0f, 7);
+            FrameMove(m["finalblow"], "finalblow", 0, 23, 12, 14);
+            FrameLook(m["dive"], "dive", 0, 5, true, false, true);
+            FrameLook(m["meteor"], "dive", 0, 5, true, false, true);
+            FrameLook(m["flykick"], "flykick", 1, 5, true, false, true);
+            FrameLook(m["vayudash"], "dash", 0, 11, false, true);
+            FrameLook(m["roar"], "roar", 0, 9, false, true);
+
+            // landing from a dive: the crouch-and-recover frames of the dive sheet
+            var dl = new MoveDef { id = "diveland", name = "Landing", clip = m["dive"].clip };
+            m["diveland"] = dl;
+            FrameMove(dl, "diveland", 0, 5, 0, 1);
+
+            // still borrowed (no sheet yet): roundhouse uses the kick, the rising giant uppercut uses the launcher
+            FrameMove(m["k2"], "kick", 0, 7, 3, 4, 0.45f);
+            m["k2"].hits[0].radius = 0.55f;
+            FrameMove(m["rise"], "launcher", 0, 7, 3, 5, 0.45f);
+
+            // tail grab: frames 1-4 reach out, frames 5-8 curl the opponent up (the slam half is still to come)
+            FrameMove(m["tailgrab"], "tailgrab", 0, 3, 2, 3);
+            var tt = m["tailgrab"].throwMove; var tc = HanumanFrames.Get("tailgrab");
+            if (tt != null && tc != null && tc.frames.Length >= 8)
+            {
+                FrameMove(tt, "tailgrab", 4, 7, 4, 4);
+                float len = tt.Length;
+                foreach (var e in tt.events) e.t = len - 0.02f;
+                tt.holdPath = new[] { HP(0f, 1.3f, 1.3f), HP(len * 0.33f, 1.2f, 1.7f), HP(len * 0.66f, 0.8f, 2.5f), HP(len, 0.5f, 3.2f) };
+            }
+
+            // lift and body slam: frames 1-4 grab, 5-12 lift overhead and slam, 13-16 recover
+            FrameMove(m["bodyslam"], "liftslam", 0, 3, 2, 3);
+            var ls = m["bodyslam"].throwMove; var lc = HanumanFrames.Get("liftslam");
+            if (ls != null && lc != null && lc.frames.Length >= 16)
+            {
+                FrameMove(ls, "liftslam", 4, 15, 4, 4);
+                float f = 1f / lc.fps;
+                foreach (var e in ls.events) e.t = 7 * f;
+                ls.holdPath = new[]
+                {
+                    HP(0f, 0.7f, 1.1f), HP(1 * f, 0.5f, 1.9f), HP(2 * f, 0.25f, 3.0f), HP(3 * f, 0.15f, 3.4f), HP(4 * f, 0.15f, 3.4f),
+                    HP(5 * f, 0.9f, 2.5f), HP(6 * f, 1.3f, 1.2f), HP(7 * f, 1.5f, 0.45f)
+                };
+            }
         }
 
         // ======================================================================================= AHIRAVANA
@@ -367,7 +469,7 @@ namespace BalHanuman.Fight
             var os = S().Lean(35, 12).Hip(0.2f, -0.4f).Feet(0.75f, -0.35f).ArmF(70, 0).Wpn(20).ArmB(60, 0).Head(10);
             m["overhead"] = M("overhead", "Sky-Piercer Smash", C(false, 0.95f, K(0, S()), K(0.4f, ow, Ease.In), K(0.5f, os, Ease.Out), K(0.68f, os), K(0.95f, S())))
                 .Hit(H(0.46f, 0.57f, J.Weapon, tip, 0.8f, 85, new Vector2(3f, 7f), 0.5f, HitLevel.Overhead, FxKind.Dark, true, true, false, 0.13f, 0.18f))
-                .At(0.5f, f => { var p = f.puppet.WeaponTip; FightFx.Shockwave(new Vector3(p.x, 0, 0), 1.8f * f.scale, new Color(0.7f, 0.35f, 1f)); FightSfx.Play("slam", 0.9f, 0.8f); })
+                .At(0.5f, f => { var p = f.WeaponPoint; FightFx.Shockwave(new Vector3(p.x, 0, 0), 1.8f * f.scale, new Color(0.7f, 0.35f, 1f)); FightSfx.Play("slam", 0.9f, 0.8f); })
                 .Lunge(4f, 0.4f, 0.5f);
             m["overhead"].telegraph = true; m["overhead"].sfx = "whoosh_heavy"; m["overhead"].expr = Expr.Furious;
 
@@ -408,7 +510,7 @@ namespace BalHanuman.Fight
             // ---- titan form
             m["gslam"] = M("gslam", "Titan Trident Slam", C(false, 1.25f, K(0, S()), K(0.55f, ow, Ease.In), K(0.66f, os, Ease.Out), K(0.9f, os), K(1.25f, S())))
                 .Hit(H(0.62f, 0.72f, J.Weapon, tip, 0.9f, 80, new Vector2(3f, 7f), 0.5f, HitLevel.Overhead, FxKind.Dark, true, true, false, 0.13f, 0.2f))
-                .At(0.66f, f => { var p = f.puppet.WeaponTip; FightFx.Shockwave(new Vector3(p.x, 0, 0), 2.6f * f.scale, new Color(0.7f, 0.35f, 1f)); FightSfx.Play("slam", 0.7f); Dir?.Shake(0.3f, 0.4f); Dir?.SpawnGroundWave(f, p.x); });
+                .At(0.66f, f => { var p = f.WeaponPoint; FightFx.Shockwave(new Vector3(p.x, 0, 0), 2.6f * f.scale, new Color(0.7f, 0.35f, 1f)); FightSfx.Play("slam", 0.7f); Dir?.Shake(0.3f, 0.4f); Dir?.SpawnGroundWave(f, p.x); });
             m["gslam"].telegraph = true; m["gslam"].sfx = "whoosh_heavy"; m["gslam"].expr = Expr.Furious;
             m["gsweep"] = M("gsweep", "Titan Sweep", m["sweep"].clip)
                 .Hit(H(0.15f, 0.28f, J.Weapon, tip, 0.9f, 60, new Vector2(3f, 6f), 0.45f, HitLevel.Low, FxKind.Dark, true, true, false, 0.1f, 0.15f));

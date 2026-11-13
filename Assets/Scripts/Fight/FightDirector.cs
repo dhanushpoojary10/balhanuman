@@ -234,7 +234,15 @@ namespace BalHanuman.Fight
         public void Remove(Projectile p) { projectiles.Remove(p); }
 
         // =========================================================================================== hit feedback
-        public void Shake(float amp, float dur) { cam.Shake(amp, dur); }
+        /// <summary>Camera shake; the big ones (slams, stomps, throws) also buzz the phone.</summary>
+        public void Shake(float amp, float dur)
+        {
+            cam.Shake(amp, dur);
+            if (amp >= 0.26f) Haptics.Slam(Mathf.Clamp(amp * 2.5f, 0.6f, 1.4f));
+            else if (amp >= 0.14f) Haptics.Medium();
+        }
+        public void Kick(Vector2 dir, float amount) { cam.Kick(dir, amount); }
+        public void Rumble(float amp, float dur) { cam.Rumble(amp, dur); }
 
         public void SlowMo(float scale, float realSeconds)
         {
@@ -291,11 +299,16 @@ namespace BalHanuman.Fight
         {
             float stop = w.hitstop * (w.heavy ? 1.2f : 1f) * (attacker.scale > 1.5f ? 1.3f : 1f);
             attacker.hitstop = Mathf.Max(attacker.hitstop, stop); victim.hitstop = Mathf.Max(victim.hitstop, stop);
-            FightFx.Hit(point, w.fx, w.heavy || attacker.scale > 1.5f, attacker.facing);
+            float power = Mathf.Clamp01(dmg / 90f);                 // 0 = a jab, 1 = a crushing blow
+            bool big = w.heavy || attacker.scale > 1.5f;
+            bool onHanuman = victim is HanumanFighter;
+            FightFx.Hit(point, w.fx, big, attacker.facing, power);
             FightSfx.Play(w.heavy ? "hit_heavy" : "hit", attacker.scale > 1.5f ? 0.75f : 1f);
-            cam.Shake(w.shake * Mathf.Max(1f, attacker.scale * 0.8f), w.heavy ? 0.25f : 0.14f);
+            cam.Shake(w.shake * Mathf.Max(1f, attacker.scale * 0.8f) * (onHanuman ? 1.35f : 1f), w.heavy ? 0.25f : 0.14f);
             cam.Punch(w.heavy ? 0.32f : 0.1f, w.heavy ? 0.22f : 0.12f);
-            if (w.heavy) Haptics.Medium(); else Haptics.Light();
+            cam.Kick(new Vector2(attacker.facing, 0.15f), 0.12f + 0.4f * power + (big ? 0.15f : 0f));
+            victim.Squash(0.12f + 0.2f * power + (big ? 0.08f : 0f), 0.22f + 0.1f * power);
+            if (onHanuman) Haptics.Hurt(power); else Haptics.Hit(power, big);
             if (attacker is HanumanFighter)
             {
                 hanuman.AddMeter((attacker.Attacking ? attacker.move.meterGain : 0.05f) * (w.heavy ? 1.6f : 1f));
@@ -314,6 +327,8 @@ namespace BalHanuman.Fight
         {
             FightFx.Block(point, attacker.facing);
             FightSfx.Play("block");
+            victim.Squash(0.07f, 0.16f);
+            Haptics.Block();
             attacker.hitstop = victim.hitstop = 0.04f;
             cam.Shake(0.03f, 0.1f);
         }
@@ -326,7 +341,8 @@ namespace BalHanuman.Fight
             hud.Banner("PARRY!", attacker != null ? "Counter now!" : "", 0.8f, new Color(0.6f, 0.95f, 1f));
             hud.Flash(new Color(0.6f, 0.95f, 1f), 0.35f);
             cam.Punch(0.45f, 0.3f);
-            Haptics.Heavy();
+            cam.Kick(new Vector2(-defender.facing, 0.1f), 0.5f);
+            Haptics.Parry();
             if (defender is HanumanFighter) { parries++; defender.SetExpr(Expr.Smirk, 0.8f); }
         }
 
@@ -347,7 +363,9 @@ namespace BalHanuman.Fight
         {
             FightFx.Hit(victim.Center, attacker is HanumanFighter ? FxKind.Heavy : FxKind.Dark, true, attacker.facing);
             FightSfx.Play("hit_heavy");
-            cam.Shake(0.15f, 0.25f); cam.Punch(0.35f, 0.25f);
+            cam.Shake(0.15f, 0.25f); cam.Punch(0.35f, 0.25f); cam.Kick(new Vector2(attacker.facing, -0.3f), 0.6f);
+            victim.Squash(0.3f, 0.35f);
+            if (victim is HanumanFighter) Haptics.Hurt(1f); else Haptics.Slam(0.9f);
             if (attacker is HanumanFighter) { CountHit(attacker.Attacking ? attacker.move.id : null, dmg); hanuman.AddMeter(0.15f); }
             if (victim.hp <= 0f && !victim.immortal) OnKO(victim, attacker);
         }
@@ -509,6 +527,7 @@ namespace BalHanuman.Fight
             hud.ShowControls(false); hud.Dark(0.25f); arena.Mood(4); music.Fade(0.12f);
             cam.Focus(h.Center + Vector3.up * 0.9f, 3.2f, 1f);
             FightSfx.Play("ultimate"); FightSfx.Play("roar", 0.75f);
+            Haptics.Ultimate(); cam.Rumble(0.05f, 2.2f);
             yield return new WaitForSecondsRealtime(0.6f);
 
             h.puppet.ShowPanchmukhi(true);
@@ -765,7 +784,7 @@ namespace BalHanuman.Fight
                 case "charge":
                     Setup(2.1f); yield return Wait(0.25f);
                     h.Cinematic("charge", 0.1f); FightSfx.Play("power", 1.4f, 0.5f);
-                    for (float t = 0; t < 1f; t += 0.05f) { FightFx.Sparkle(h.puppet.WeaponTip, 2, 1.2f, new Color(1f, 0.85f, 0.4f), true); yield return Wait(0.05f); }
+                    for (float t = 0; t < 1f; t += 0.05f) { FightFx.Sparkle(h.WeaponPoint, 2, 1.2f, new Color(1f, 0.85f, 0.4f), true); yield return Wait(0.05f); }
                     h.EndCinematic(); h.Perform("charge2"); yield return Wait(1.5f); break;
                 case "aircombo":
                     Setup(1.7f); yield return Wait(0.25f);

@@ -12,6 +12,7 @@ namespace BalHanuman.Fight
         Vector3 basePos; float size;
         float shakeAmp, shakeT, shakeDur;
         float punch, punchT, punchDur;
+        Vector2 kick, kickVel; float roll, rollVel, rumbleAmp, rumbleT;
         Vector2 focus; float focusSize, focusW, focusTarget;
 
         void Awake() { cam = GetComponent<Camera>(); size = baseSize; basePos = transform.position; }
@@ -21,6 +22,16 @@ namespace BalHanuman.Fight
             if (shakeT > 0f && shakeAmp * (shakeT / shakeDur) > amp) return;
             shakeAmp = amp; shakeT = shakeDur = Mathf.Max(0.05f, dur);
         }
+
+        /// <summary>Directional shove: the view jolts along dir (the way the blow travels) and springs back, with a little tilt.</summary>
+        public void Kick(Vector2 dir, float amount)
+        {
+            kickVel += dir.normalized * amount * 14f;
+            rollVel += -Mathf.Sign(dir.x == 0f ? 1f : dir.x) * amount * 60f;
+        }
+
+        /// <summary>Steady low rumble (charging, giant footsteps): amp world units for dur seconds, refreshed by calling again.</summary>
+        public void Rumble(float amp, float dur) { rumbleAmp = Mathf.Max(amp, rumbleAmp); rumbleT = Mathf.Max(rumbleT, dur); }
 
         /// <summary>Quick zoom-in kick (negative size change), e.g. on a heavy hit.</summary>
         public void Punch(float amount, float dur) { punch = amount; punchT = punchDur = dur; }
@@ -72,7 +83,19 @@ namespace BalHanuman.Fight
                 float u = Mathf.Clamp01(shakeT / shakeDur);
                 sh = new Vector3(Mathf.PerlinNoise(Time.unscaledTime * 40f, 0.3f) - 0.5f, Mathf.PerlinNoise(0.7f, Time.unscaledTime * 40f) - 0.5f, 0) * 2f * shakeAmp * u;
             }
-            transform.position = basePos + sh;
+            if (rumbleT > 0f)
+            {
+                rumbleT -= dt;
+                sh += new Vector3(Mathf.Sin(Time.unscaledTime * 63f), Mathf.Sin(Time.unscaledTime * 51f + 1.3f), 0f) * rumbleAmp * Mathf.Clamp01(rumbleT * 4f);
+                if (rumbleT <= 0f) rumbleAmp = 0f;
+            }
+            // damped spring for the directional kick and the tilt
+            kickVel += -kick * 220f * dt; kickVel *= Mathf.Max(0f, 1f - 14f * dt); kick += kickVel * dt;
+            rollVel += -roll * 260f * dt; rollVel *= Mathf.Max(0f, 1f - 12f * dt); roll += rollVel * dt;
+            roll = Mathf.Clamp(roll, -2.5f, 2.5f);
+            float shakeRoll = shakeT > 0f ? (Mathf.PerlinNoise(Time.unscaledTime * 31f, 5.1f) - 0.5f) * 2f * Mathf.Min(1.2f, shakeAmp * 6f) * Mathf.Clamp01(shakeT / shakeDur) : 0f;
+            transform.position = basePos + sh + (Vector3)kick * 0.55f;
+            transform.rotation = Quaternion.Euler(0f, 0f, roll + shakeRoll);
         }
     }
 }

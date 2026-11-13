@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace BalHanuman
 {
-    /// <summary>Looping devotional background music (Assets/Resources/Audio/music_devotional.wav).
+    /// <summary>Looping background music for the menu and Level 1 (Assets/Resources/Audio/music_temple.mp3, "Beneath the Temple Gates").
     /// Starts automatically with the first scene and keeps playing across scene loads.</summary>
     public class Music : MonoBehaviour
     {
@@ -15,7 +15,7 @@ namespace BalHanuman
         static void Boot()
         {
             if (inst != null) return;
-            var clip = Resources.Load<AudioClip>("Audio/music_devotional");
+            var clip = Resources.Load<AudioClip>("Audio/music_temple");
             if (clip == null) return;
             var go = new GameObject("Music");
             DontDestroyOnLoad(go);

@@ -18,8 +18,13 @@ namespace BalHanuman.Fight
         readonly float[] powerEnd = new float[7];
         Dictionary<string, MoveDef> moves;
 
+        // frame-by-frame art (idle, walk, jump, fall, roll): shown instead of the skeleton while one of those clips is active
+        Transform frameRoot; SpriteRenderer frameSr;
+        HanumanFrames.Clip frameClip; float frameT; bool framesVisible;
+        HanumanFrames.Clip curVisual; int curIdx; float parryStart = -10f;
+
         string buffered; float bufferT;
-        bool maceArmed, charging; float chargeStart;
+        bool maceArmed, charging, chargeFull; float chargeStart, chargeBuzz;
         MoveDef chargeMove;
         float backPress = -10f, lastBackTap = -10f, lastFwdTap = -10f;
         bool wasBack, wasFwd, wasUp;
@@ -42,11 +47,16 @@ namespace BalHanuman.Fight
             director = d; displayName = "HANUMAN"; maxHp = hp = 1000f;
             walkSpeed = BaseWalk; jumpVel = 13f; mood = Expr.Focus;
             puppet = Puppet.Build(transform, MoveLib.HanumanDims(), MoveLib.HanumanStyle(), 20);
-            puppet.ApplySkin(HanumanSkin.Get());
+            puppet.HideBody();      // Hanuman is drawn only from his painted frames; the skeleton is an invisible anchor
+            frameRoot = new GameObject("FrameArt").transform; frameRoot.SetParent(transform, false);
+            var fgo = new GameObject("Sprite"); fgo.transform.SetParent(frameRoot, false);
+            frameSr = fgo.AddComponent<SpriteRenderer>(); frameSr.sortingOrder = 20; framesVisible = true;
             moves = MoveLib.Hanuman(clips);
             chargeMove = new MoveDef { id = "chargehold", name = "Charging", clip = clips["charge"], expr = Expr.Roar };
+            chargeMove.frameClip = "charge"; chargeMove.frameFrom = 0; chargeMove.frameTo = 7; chargeMove.frameLoop = true;
             hurtSize = new Vector2(0.95f, 2.75f);
         }
+
 
         public override MoveDef GetMove(string id) => moves != null && moves.TryGetValue(id, out var m) ? m : null;
         public IEnumerable<string> MoveIds => moves.Keys;
@@ -160,6 +170,95 @@ namespace BalHanuman.Fight
             return StartMove(m);
         }
 
+        // ================================================================== frame-by-frame art
+        protected override void OnPlayClip(string name)
+        {
+            frameClip = HanumanFrames.Get(name);
+            frameT = 0f;
+        }
+
+        /// <summary>Shows the frame art while a clip that has frames is active (otherwise the skeleton), and advances the frames.</summary>
+        protected override void AfterTick(float adt)
+        {
+            HanumanFrames.Clip c = null; int idx = 0;
+            if (state == FState.Attack && move != null && move.frameClip != null)
+            {
+                // a frame-art attack: the frame follows the move clock, so the hit windows line up with the art
+                c = HanumanFrames.Get(move.frameClip);
+                if (c != null)
+                {
+                    int to = move.frameTo >= 0 ? move.frameTo : c.frames.Length - 1;
+                    int cnt = to - move.frameFrom + 1;
+                    float clock = charging && move == chargeMove ? Time.time - chargeStart : moveT;      // the charge hold keeps moveT frozen
+                    int step = Mathf.FloorToInt(clock * c.fps);
+                    if (move.frameStretch) step = Mathf.FloorToInt(Mathf.Clamp01(moveT / Mathf.Max(0.01f, move.Length)) * cnt);
+                    idx = move.frameFrom + (move.frameLoop && !move.frameHold && !move.frameStretch ? step % cnt : Mathf.Min(step, cnt - 1));
+                }
+            }
+            else if (state == FState.Block && Time.time - parryStart < 0.35f && HanumanFrames.Get("parry") != null)
+            {
+                c = HanumanFrames.Get("parry");
+                idx = Mathf.Min(c.frames.Length - 1, Mathf.FloorToInt((Time.time - parryStart) * c.fps));
+            }
+            if (c == null)
+            {
+                // every other pose: the clip that is playing, or the idle if it has no painted frames
+                c = state != FState.Attack && CurClipName != null && frameClip != null ? frameClip : HanumanFrames.Get("idle");
+                frameT += adt;
+                int cnt = c.frames.Length;
+                idx = Mathf.FloorToInt(frameT * c.fps);
+                idx = c.loop ? idx % cnt : Mathf.Min(idx, cnt - 1);
+            }
+            curVisual = c; curIdx = idx;
+            var f = c.frames[idx];
+            frameSr.sprite = f.sprite;
+            ApplyVisualScale();
+            // place the sprite so the frame's pivot pixel lands on the fighter's root (the sprite's own pivot is its centre, 100 px per unit)
+            var t = frameSr.transform;
+            t.localScale = Vector3.one * (c.k * 100f);
+            t.localPosition = new Vector3(-(f.px - f.w * 0.5f) * c.k, (f.py - f.h * 0.5f) * c.k, 0f);
+            frameSr.color = puppet.VisualColor();
+        }
+
+        protected override void ApplyVisualScale()
+        {
+            base.ApplyVisualScale();
+            if (frameRoot != null) { var q = SquashFactor; frameRoot.localScale = new Vector3(facing * scale * q.x, scale * q.y, 1f); }
+        }
+
+        protected override Vector3 AttackPoint(HitWindow w)
+        {
+            if (w.frameTip && curVisual != null)
+            {
+                var f = curVisual.frames[curIdx]; float k = curVisual.k;
+                var o = new Vector2(f.tx * k + w.offset.x, f.ty * k + w.offset.y) * scale;
+                return transform.position + new Vector3(o.x * facing, o.y, 0f);
+            }
+            return base.AttackPoint(w);
+        }
+
+        public override Vector3 WeaponPoint
+        {
+            get
+            {
+                if (curVisual == null) return base.WeaponPoint;
+                var f = curVisual.frames[curIdx]; float k = curVisual.k;
+                return transform.position + new Vector3(f.tx * k * scale * facing, f.ty * k * scale, 0f);
+            }
+        }
+
+        protected override void SpawnAfterimage()
+        {
+            if (frameSr.sprite == null) return;
+            var go = new GameObject("ghost");
+            go.transform.SetPositionAndRotation(frameSr.transform.position, frameSr.transform.rotation);
+            go.transform.localScale = frameSr.transform.lossyScale;
+            var g = go.AddComponent<SpriteRenderer>();
+            g.sprite = frameSr.sprite; g.sortingOrder = frameSr.sortingOrder - 1; g.color = afterimageColor;
+            var a = go.AddComponent<FxAnim>(); a.life = 0.22f; a.c0 = afterimageColor; a.c1 = new Color(afterimageColor.r, afterimageColor.g, afterimageColor.b, 0f);
+            a.s0 = a.s1 = go.transform.localScale;
+        }
+
         // ================================================================== state additions (flight, charge glow)
         protected override void StepState(float dt, float adt)
         {
@@ -168,7 +267,11 @@ namespace BalHanuman.Fight
             {
                 moveT = 0.01f; vel.x = 0f;
                 float k = Mathf.Clamp01((Time.time - chargeStart) / 0.95f);
-                if (Random.value < dt * (10f + 30f * k)) FightFx.Sparkle(puppet.WeaponTip, 1, 1.2f, k >= 1f ? new Color(1f, 0.9f, 0.4f) : new Color(1f, 0.7f, 0.3f), true);
+                chargeBuzz -= dt;
+                if (chargeBuzz <= 0f) { Haptics.Tick(); chargeBuzz = Mathf.Lerp(0.22f, 0.07f, k); director?.Rumble(0.012f + 0.03f * k, 0.15f); }
+                if (k >= 1f && !chargeFull) { chargeFull = true; Haptics.Medium(); director?.Kick(Vector2.up, 0.25f); }
+                if (k < 1f) chargeFull = false;
+                if (Random.value < dt * (10f + 30f * k)) FightFx.Sparkle(WeaponPoint, 1, 1.2f, k >= 1f ? new Color(1f, 0.9f, 0.4f) : new Color(1f, 0.7f, 0.3f), true);
                 if (k >= 1f && Random.value < dt * 6f) puppet.Flash(new Color(1f, 0.9f, 0.5f, 0.6f), 0.1f);
                 stateT += dt;
                 return;
@@ -288,6 +391,6 @@ namespace BalHanuman.Fight
             flying = false; scaleTarget = 1f; charging = false; buffered = null;
         }
 
-        protected override void OnParried() { AddMeter(0.35f); }
+        protected override void OnParried() { AddMeter(0.35f); parryStart = Time.time; }
     }
 }

@@ -9,7 +9,8 @@ namespace BalHanuman.Fight
     public static class FightSfx
     {
         const int Rate = 22050;
-        static readonly Dictionary<string, AudioClip> clips = new Dictionary<string, AudioClip>();
+        // name -> variants. "hit.wav" plus optional "hit_2.wav", "hit_3.wav" are picked at random so repeated hits don't sound identical
+        static readonly Dictionary<string, AudioClip[]> clips = new Dictionary<string, AudioClip[]>();
         static AudioSource[] pool; static int next;
         public static float Volume = 0.7f;
 
@@ -21,11 +22,20 @@ namespace BalHanuman.Fight
                 pool = new AudioSource[10];
                 for (int i = 0; i < pool.Length; i++) { pool[i] = go.AddComponent<AudioSource>(); pool[i].playOnAwake = false; }
             }
-            if (!clips.TryGetValue(name, out var c) || c == null)
+            if (!clips.TryGetValue(name, out var set) || set == null || set.Length == 0 || set[0] == null)
             {
-                c = Resources.Load<AudioClip>("Audio/Level02/" + name) ?? Build(name);
-                clips[name] = c;
+                var list = new List<AudioClip>();
+                var first = Resources.Load<AudioClip>("Audio/Level02/" + name);
+                if (first != null)
+                {
+                    list.Add(first);
+                    for (int v = 2; v <= 4; v++) { var alt = Resources.Load<AudioClip>("Audio/Level02/" + name + "_" + v); if (alt != null) list.Add(alt); }
+                }
+                else list.Add(Build(name));
+                set = list.ToArray();
+                clips[name] = set;
             }
+            var c = set[UnityEngine.Random.Range(0, set.Length)];
             if (c == null) return;
             var src = pool[next]; next = (next + 1) % pool.Length;
             src.pitch = pitch * (1f + UnityEngine.Random.Range(-pitchJitter, pitchJitter)) * Mathf.Max(0.5f, Time.timeScale < 0.99f ? 0.8f : 1f);
@@ -149,7 +159,7 @@ namespace BalHanuman.Fight
     /// <summary>Placeholder battle drums: a synthesised dhol / tabla loop over a drone, intensity per round. Replace with M-02..M-05.</summary>
     public class FightMusic : MonoBehaviour
     {
-        AudioSource src; float targetVol = 0.42f;
+        AudioSource src; float targetVol = 0.4f;
         static AudioClip[] loops = new AudioClip[3];
 
         public static FightMusic Create()
@@ -163,8 +173,9 @@ namespace BalHanuman.Fight
         public void SetIntensity(int level)
         {
             level = Mathf.Clamp(level, 0, 2);
+            // a round-specific track wins if one exists; otherwise every round uses "Siege at the Altar"; the synth loop is the last resort
             string file = level == 0 ? "mus_duel" : level == 1 ? "mus_sorcery" : "mus_titans";
-            var clip = Resources.Load<AudioClip>("Audio/Level02/" + file);
+            var clip = Resources.Load<AudioClip>("Audio/Level02/" + file) ?? Resources.Load<AudioClip>("Audio/Level02/mus_siege");
             if (clip == null) { if (loops[level] == null) loops[level] = Build(level); clip = loops[level]; }
             if (src.clip == clip && src.isPlaying) return;
             src.clip = clip; src.Play();

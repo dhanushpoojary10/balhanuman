@@ -14,13 +14,13 @@ rng = np.random.default_rng(7)
 def midi(m): return 440.0 * 2 ** ((m - 69) / 12.0)
 
 
-def save(name, data, sr):
+def save(name, data, sr, peak=0.89, out=None):
     d = np.asarray(data, dtype=np.float64)
     if d.ndim == 1: d = d[:, None]
-    peak = np.max(np.abs(d)) or 1.0
-    d = d / peak * 0.89
+    p = np.max(np.abs(d)) or 1.0
+    d = d / p * peak
     pcm = (d * 32767).astype("<i2")
-    with wave.open(os.path.join(OUT, name + ".wav"), "wb") as w:
+    with wave.open(os.path.join(out or OUT, name + ".wav"), "wb") as w:
         w.setnchannels(d.shape[1]); w.setsampwidth(2); w.setframerate(sr)
         w.writeframes(pcm.tobytes())
     print(f"{name}.wav  {d.shape[0]/sr:.1f}s  {d.shape[1]}ch")

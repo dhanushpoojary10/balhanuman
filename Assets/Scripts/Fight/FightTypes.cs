@@ -33,6 +33,7 @@ namespace BalHanuman.Fight
         public bool heavy;
         public bool burn;                   // sets the target on fire for a moment
         public bool grab;                   // a grab: on contact the target is held instead of hit
+        public bool frameTip;               // frame-art moves: the hit circle sits on the weapon / foot / tail end measured from the current frame (+ offset.x forward, offset.y up)
     }
 
     public class MoveEvent
@@ -66,7 +67,25 @@ namespace BalHanuman.Fight
         public Puppet.J holdJoint = Puppet.J.HandF;     // where a grabbed opponent is carried during the throw
         public Vector2 holdOffset = new Vector2(0f, -0.1f);
 
-        public float Length => clip != null ? clip.Length : 0.4f;
+        // frame-by-frame art: this move plays frames [frameFrom..frameTo] of HanumanFrames clip `frameClip` (the skeleton is only a fallback)
+        public string frameClip; public int frameFrom, frameTo = -1;
+        public bool frameLoop;              // visual only: the move keeps its authored length instead of being timed by the frames. By default the frames cycle
+        public bool frameHold;              // (with frameLoop) play the frames once at the clip's fps, then hold the last one
+        public bool frameStretch;           // (with frameLoop) spread the frames over the move's whole authored length
+        public Vector3[] holdPath;          // frame-art throws: x = time into the move, (y, z) = held opponent's centre (forward, up) from the fighter's root
+
+        public float Length
+        {
+            get
+            {
+                if (frameClip != null && !frameLoop)
+                {
+                    var c = HanumanFrames.Get(frameClip);
+                    if (c != null) { int to = frameTo >= 0 ? frameTo : c.frames.Length - 1; return (to - frameFrom + 1) / c.fps; }
+                }
+                return clip != null ? clip.Length : 0.4f;
+            }
+        }
 
         public MoveDef Hit(HitWindow h) { hits.Add(h); return this; }
         public MoveDef At(float t, Action<Fighter> a) { events.Add(new MoveEvent(t, a)); events.Sort((x, y) => x.t.CompareTo(y.t)); return this; }

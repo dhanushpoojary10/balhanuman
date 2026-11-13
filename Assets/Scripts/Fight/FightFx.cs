@@ -83,17 +83,54 @@ namespace BalHanuman.Fight
             }
         }
 
-        /// <summary>The main impact: star flash, ring, sparks. Heavy = bigger and longer.</summary>
-        public static void Hit(Vector3 pos, FxKind kind, bool heavy, float dirX)
+        /// <summary>
+        /// The main impact: white flash, star pop, slash bars along the blow, radial rays, ring, sparks and debris.
+        /// Heavy = bigger and longer; power (0..1, from damage) scales it again so a jab and a crusher do not look alike.
+        /// </summary>
+        public static void Hit(Vector3 pos, FxKind kind, bool heavy, float dirX, float power = 0.5f)
         {
             var c = KindColor(kind);
-            float k = heavy ? 1.6f : 1f;
-            Spawn(FightArt.Star, pos, 0.16f * k, Vector2.one * 0.6f * k, Vector2.one * 1.9f * k, Color.white, A(c, 0f), Order + 4, Random.Range(0f, 45f));
-            Spawn(FightArt.Soft, pos, 0.22f * k, Vector2.one * 1.2f * k, Vector2.one * 2.6f * k, A(c, 0.9f), A(c, 0f), Order + 1);
-            Spawn(FightArt.Ring, pos, 0.25f * k, Vector2.one * 0.3f, Vector2.one * 2.2f * k, A(c, 0.9f), A(c, 0f), Order + 3);
-            Sparks(pos, heavy ? 14 : 7, heavy ? 11f : 8f, c, heavy ? 0.9f : 0.6f, 0.3f, dirX);
+            float pk = 0.85f + power * 0.9f;                  // 0.85 .. 1.75
+            float k = (heavy ? 1.5f : 1f) * pk;
+            float dir = dirX >= 0f ? 1f : -1f;
+            float ang = dir > 0f ? 0f : 180f;
+
+            // one-frame white flash plus the colour bloom
+            Spawn(FightArt.Soft, pos, 0.07f, Vector2.one * 0.9f * k, Vector2.one * 1.4f * k, A(Color.white, 0.8f), A(Color.white, 0f), Order + 6);
+            Spawn(FightArt.Soft, pos, 0.22f * k, Vector2.one * 0.9f * k, Vector2.one * 2.0f * k, A(c, 0.75f), A(c, 0f), Order + 1);
+            // star pop and ring
+            Spawn(FightArt.Star, pos, 0.17f * k, Vector2.one * 0.5f * k, Vector2.one * 2.0f * k, Color.white, A(c, 0f), Order + 4, Random.Range(0f, 45f));
+            Spawn(FightArt.Ring, pos, 0.26f, Vector2.one * 0.3f, Vector2.one * 2.3f * k, A(c, 0.9f), A(c, 0f), Order + 3);
+            // slash bars stretched along the blow (a cross for heavy hits)
+            Slash(pos, ang + Random.Range(-10f, 10f), 1.7f * k, c, Order + 5);
+            if (heavy) { Slash(pos, ang + 38f, 1.2f * k, c, Order + 5); Slash(pos, ang - 38f, 1.2f * k, c, Order + 5); }
+            // rays burst outward in every direction, longer ones forward
+            Rays(pos, heavy ? 10 : 6, 0.85f * Mathf.Sqrt(k), 9f * Mathf.Sqrt(k), c, dir);
+            Sparks(pos, Mathf.RoundToInt((heavy ? 14 : 7) * Mathf.Lerp(0.8f, 1.5f, power)), heavy ? 11f : 8f, c, heavy ? 0.9f : 0.6f, 0.3f, dirX);
+            if (heavy || power > 0.6f) Rocks(pos + Vector3.down * 0.2f, Mathf.RoundToInt(3 + power * 5f), 0.6f + power);
             if (kind == FxKind.Fire) Flames(pos, heavy ? 10 : 5, 1f);
             if (kind == FxKind.Dark) Smoke(pos, 4, new Color(0.45f, 0.2f, 0.7f, 0.7f), 1f);
+        }
+
+        /// <summary>A thin bright bar that streaks through the contact point and snaps shut.</summary>
+        public static void Slash(Vector3 pos, float angleDeg, float length, Color c, int order)
+        {
+            Spawn(FightArt.Spark, pos, 0.13f, new Vector2(length * 0.55f, 0.28f), new Vector2(length * 1.25f, 0.02f), Color.white, A(c, 0f), order, angleDeg);
+            Spawn(FightArt.Spark, pos, 0.17f, new Vector2(length * 0.45f, 0.5f), new Vector2(length, 0.04f), A(c, 0.7f), A(c, 0f), order - 1, angleDeg);
+        }
+
+        /// <summary>Evenly spread long thin rays flying outward from the impact (forward-biased).</summary>
+        public static void Rays(Vector3 pos, int n, float len, float speed, Color c, float dir)
+        {
+            float off = Random.Range(0f, 360f);
+            for (int i = 0; i < n; i++)
+            {
+                float a = (off + i * 360f / n) * Mathf.Deg2Rad;
+                var d = new Vector2(Mathf.Cos(a), Mathf.Sin(a));
+                float fwd = 0.7f + 0.5f * Mathf.Max(0f, d.x * dir);
+                var r = Spawn(FightArt.Spark, pos + (Vector3)d * 0.25f, 0.16f, new Vector2(len * fwd, len * 0.07f), new Vector2(len * 0.15f, len * 0.015f), Color.white, A(c, 0f), Order + 2);
+                r.vel = d * speed * fwd; r.alignToVelocity = true; r.drag = 6f;
+            }
         }
 
         public static void Block(Vector3 pos, float dirX)

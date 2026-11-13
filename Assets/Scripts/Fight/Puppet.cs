@@ -549,63 +549,32 @@ namespace BalHanuman.Fight
             }
         }
 
-        // ================================================================== real art (skin)
-        public bool Skinned { get; private set; }
-        readonly System.Collections.Generic.Dictionary<string, SpriteRenderer> skinParts = new System.Collections.Generic.Dictionary<string, SpriteRenderer>();
+        // ================================================================== frame-art characters
+        /// <summary>True for a character drawn from painted frames: the skeleton stays as an invisible hit and anchor rig (joint positions, Panchmukhi head anchor) and is never drawn.</summary>
+        public bool FramesOnly { get; private set; }
 
-        Transform JointByName(string n)
+        /// <summary>Hides every body shape of the skeleton for good. Shapes added later (the Panchmukhi heads) still show.</summary>
+        public void HideBody()
         {
-            if (n.StartsWith("Tail") && n.Length > 4 && int.TryParse(n.Substring(4), out int ti)) return ti < tail.Count ? tail[ti] : null;
-            if (n == "ClothFront") return clothFront;
-            if (n == "ClothBack") return clothBack;
-            return System.Enum.TryParse(n, out J j) ? Joint(j) : null;
-        }
-
-        /// <summary>Replace the placeholder shapes with the real part sprites (the weapon stays). Each sprite is placed so its
-        /// joint pixel sits exactly on its bone; hand variants other than the default are kept hidden for sprite swaps.</summary>
-        public void ApplySkin(HanumanSkin.Data data)
-        {
-            if (data == null || data.parts == null) return;
-            var weapon = Joint(J.Weapon);
-            foreach (var r in renderers) if (r != null && !r.transform.IsChildOf(weapon)) r.enabled = false;
-            foreach (var p in data.parts)
-            {
-                var j = JointByName(p.joint);
-                var sp = HanumanSkin.Sprite(p.name);
-                if (j == null || sp == null) { Debug.LogWarning("Skin part skipped: " + p.name); continue; }
-                var go = new GameObject("Skin_" + p.name);
-                go.transform.SetParent(j, false);
-                go.transform.localRotation = Quaternion.Euler(0, 0, p.rot);
-                float scale = data.k * sp.pixelsPerUnit;
-                go.transform.localScale = Vector3.one * scale;
-                // sprite pivot is its centre; move it so pixel (px, py) (y down from the top) lands on the joint
-                go.transform.localPosition = Quaternion.Euler(0, 0, p.rot) * new Vector3(-(p.px - p.w * 0.5f) * data.k, (p.py - p.h * 0.5f) * data.k, 0f);
-                var sr = go.AddComponent<SpriteRenderer>();
-                sr.sprite = sp; sr.sortingOrder = p.order;
-                Reg(sr);
-                skinParts[p.name] = sr;
-                bool variant = p.name.Contains("_hand_") && !(p.name.EndsWith("near_fist") || p.name.EndsWith("far_fist"));
-                if (variant) sr.enabled = false;
-            }
-            Skinned = true;
-        }
-
-        /// <summary>Show one hand variant (e.g. "near_fist") and hide the other variants on that hand.</summary>
-        public void SetHand(bool near, string variant)
-        {
-            string pre = near ? "han_hand_near_" : "han_hand_far_";
-            if (!skinParts.ContainsKey(pre + variant)) return;
-            foreach (var kv in skinParts) if (kv.Key.StartsWith(pre)) kv.Value.enabled = kv.Key == pre + variant;
+            FramesOnly = true;
+            foreach (var r in renderers) if (r != null) r.enabled = false;
         }
 
         // ================================================================== flash, tint, afterimages
         public void Flash(Color c, float dur)
         {
             // painted art can't be tinted brighter than itself: a white flash becomes a hot red-gold flash on the real sprites
-            if (Skinned && c.r > 0.9f && c.g > 0.9f && c.b > 0.9f) c = new Color(1f, 0.55f, 0.4f, c.a);
+            if (FramesOnly && c.r > 0.9f && c.g > 0.9f && c.b > 0.9f) c = new Color(1f, 0.55f, 0.4f, c.a);
             flashColor = c; flashT = dur; flashDur = dur;
         }
         public void SetTint(Color c) { tint = c; flashT = Mathf.Max(flashT, 0.0001f); }
+
+        /// <summary>Colour a plain sprite the same way the rig is tinted and flashed (used by frame-art clips).</summary>
+        public Color VisualColor()
+        {
+            float k = flashDur > 0f ? Mathf.Clamp01(flashT / flashDur) : 0f;
+            return Color.Lerp(tint, flashColor, k * flashColor.a);
+        }
 
         void FlashTick(float dt)
         {

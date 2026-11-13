@@ -31,6 +31,22 @@ namespace BalHanuman.Fight
         public bool superArmor, flying, immortal, isClone;
         public bool controlEnabled = true;
         public float hitstop;
+
+        // squash-and-stretch pop when struck: compresses along the blow, then wobbles back
+        float squashAmt, squashT, squashDur;
+        public void Squash(float amount, float dur) { squashAmt = amount; squashT = squashDur = Mathf.Max(0.05f, dur); }
+        protected Vector2 SquashFactor
+        {
+            get
+            {
+                if (squashT <= 0f) return Vector2.one;
+                float u = squashT / squashDur;
+                float k = u * Mathf.Cos((1f - u) * 7f) * squashAmt;
+                return new Vector2(1f - k * 0.6f, 1f + k * 0.5f);
+            }
+        }
+        /// <summary>Applies facing, size and the hit squash to the drawn body.</summary>
+        protected virtual void ApplyVisualScale() { var q = SquashFactor; puppet.transform.localScale = new Vector3(facing * scale * q.x, scale * q.y, 1f); }
         public float invulnUntil;
         public Vector2 hurtSize = new Vector2(0.95f, 2.6f);
         public float pushWidth = 0.9f;
@@ -51,6 +67,7 @@ namespace BalHanuman.Fight
         readonly List<(int w, Fighter t)> hitsDone = new List<(int, Fighter)>();
         public Fighter holding, heldBy;
         string curClip;
+        protected string CurClipName => curClip;
         SpriteRenderer shadow;
         protected float afterimageUntil, afterimageTimer; protected Color afterimageColor = new Color(0.5f, 0.9f, 1f, 0.5f);
 
@@ -93,9 +110,11 @@ namespace BalHanuman.Fight
         {
             float dt = Time.deltaTime;
             if (dt <= 0f || puppet == null) return;
+            if (squashT > 0f) squashT -= dt;
             if (hitstop > 0f)
             {
                 hitstop -= dt;
+                ApplyVisualScale();
                 // victims shiver during hit-stop
                 puppet.transform.localPosition = InHitReaction ? (Vector3)(Random.insideUnitCircle * 0.05f * scale) : Vector3.zero;
                 return;
@@ -112,9 +131,10 @@ namespace BalHanuman.Fight
             if (holding != null) CarryHeld();
 
             scale = Mathf.MoveTowards(scale, scaleTarget, dt * Mathf.Max(1.2f, Mathf.Abs(scaleTarget - scale) * 2.5f));
-            puppet.transform.localScale = new Vector3(facing * scale, scale, 1f);
+            ApplyVisualScale();
             puppet.velocity = vel; puppet.facing = facing;
             puppet.Tick(adt);
+            AfterTick(adt);
             if (state == FState.Attack && move != null) CheckHits();
             Timers(dt);
         }
@@ -131,7 +151,7 @@ namespace BalHanuman.Fight
             if (Time.time < afterimageUntil)
             {
                 afterimageTimer -= dt;
-                if (afterimageTimer <= 0f) { afterimageTimer = 0.045f; puppet.Afterimage(afterimageColor, 0.22f, puppet.SortingOrder - 1); }
+                if (afterimageTimer <= 0f) { afterimageTimer = 0.045f; SpawnAfterimage(); }
             }
             if (shadow != null)
             {
@@ -160,7 +180,13 @@ namespace BalHanuman.Fight
             if (!clips.TryGetValue(name, out var c)) return;
             curClip = name;
             puppet.Play(c, fade);
+            OnPlayClip(name);
         }
+
+        /// <summary>Hooks for subclasses that draw some clips from frame art instead of the skeleton.</summary>
+        protected virtual void OnPlayClip(string name) { }
+        protected virtual void AfterTick(float adt) { }
+        protected virtual void SpawnAfterimage() { puppet.Afterimage(afterimageColor, 0.22f, puppet.SortingOrder - 1); }
 
         protected void ForceClip(string name, float fade = 0.08f) { curClip = null; PlayClip(name, fade); }
 
@@ -346,7 +372,7 @@ namespace BalHanuman.Fight
             {
                 var w = move.hits[i];
                 if (moveT < w.t0 || moveT >= w.t1) continue;
-                Vector3 p = puppet.Point(w.joint, w.offset);
+                Vector3 p = AttackPoint(w);
                 float r = w.radius * scale;
                 director.CheckProjectiles(this, p, r);
                 foreach (var t in director.TargetsOf(this))
@@ -384,9 +410,31 @@ namespace BalHanuman.Fight
             holding = t;
         }
 
+        /// <summary>World position of a hit window this frame (the skeleton joint, or the measured weapon tip for frame art).</summary>
+        protected virtual Vector3 AttackPoint(HitWindow w) => puppet.Point(w.joint, w.offset);
+
+        /// <summary>World position of the weapon (for impact effects): the skeleton's, or the painted frame's measured tip.</summary>
+        public virtual Vector3 WeaponPoint => puppet.WeaponTip;
+
         void CarryHeld()
         {
             if (holding.state != FState.Grabbed) { holding = null; return; }
+            if (move != null && move.holdPath != null && move.holdPath.Length > 0)
+            {
+                var hp = move.holdPath; Vector2 q = new Vector2(hp[hp.Length - 1].y, hp[hp.Length - 1].z);
+                if (moveT <= hp[0].x) q = new Vector2(hp[0].y, hp[0].z);
+                else for (int i = 1; i < hp.Length; i++)
+                    if (moveT <= hp[i].x)
+                    {
+                        float u = Mathf.InverseLerp(hp[i - 1].x, hp[i].x, moveT);
+                        q = Vector2.Lerp(new Vector2(hp[i - 1].y, hp[i - 1].z), new Vector2(hp[i].y, hp[i].z), u);
+                        break;
+                    }
+                var c = transform.position + new Vector3(q.x * facing * scale, q.y * scale, 0f);
+                holding.transform.position = new Vector3(c.x, Mathf.Max(0f, c.y - holding.Height * 0.5f), 0);
+                holding.grounded = false;
+                return;
+            }
             var hand = move != null ? puppet.Point(move.holdJoint, move.holdOffset) : puppet.Point(Puppet.J.HandF, new Vector2(0, -0.1f));
             holding.transform.position = new Vector3(hand.x, Mathf.Max(0f, hand.y - holding.Height * 0.45f), 0);
             holding.grounded = false;
