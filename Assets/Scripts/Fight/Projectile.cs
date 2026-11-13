@@ -13,7 +13,7 @@ namespace BalHanuman.Fight
         public float radius = 0.42f, life = 3.5f;
         public HitWindow hit;
         SpriteRenderer core, glow;
-        float trailT;
+        float trailT, orbK;       // orbK > 0: painted orb art, scaled by this
 
         public static Projectile Make(Kind k, Fighter owner, Vector3 pos, Vector2 vel, float dmg, float radius)
         {
@@ -25,6 +25,13 @@ namespace BalHanuman.Fight
             var col = new Color(0.72f, 0.35f, 1f);
             p.glow = FightArt.Quad("Glow", go.transform, FightArt.Soft, Vector2.zero, Vector2.one * radius * 4f, new Color(col.r, col.g, col.b, 0.8f), FightFx.Order - 3);
             p.core = FightArt.Quad("Core", go.transform, FightArt.Circle, Vector2.zero, Vector2.one * radius * 1.4f, new Color(1f, 0.75f, 1f), FightFx.Order - 2);
+            var orbArt = k == Kind.Orb ? Resources.Load<Sprite>("Level02/Ahiravana/ahi_orb") : null;
+            if (orbArt != null && !p.playerSide)
+            {   // Ahiravana's painted dark orb (it spins; a reflected one turns gold)
+                p.core.sprite = orbArt; p.core.color = Color.white;
+                p.orbK = radius * 3.0f / orbArt.bounds.size.x;
+                p.core.transform.localScale = Vector3.one * p.orbK;
+            }
             if (k == Kind.GroundWave)
             {
                 p.glow.transform.localScale = new Vector3(radius * 3f, radius * 5f, 1f);
@@ -68,7 +75,8 @@ namespace BalHanuman.Fight
                 if (kind == Kind.GroundWave) { FightFx.Dust(transform.position + Vector3.down * radius, 1, 0.5f, 0, 0.6f); if (Random.value < 0.3f) FightFx.Rocks(transform.position, 1, 0.8f); }
             }
             float pulse = 1f + Mathf.Sin(Time.time * 30f) * 0.08f;
-            core.transform.localScale = kind == Kind.Orb ? Vector3.one * radius * 1.4f * pulse : core.transform.localScale;
+            if (kind == Kind.Orb && orbK > 0f) { core.transform.localScale = Vector3.one * orbK * pulse; core.transform.Rotate(0, 0, 140f * dt); }
+            else core.transform.localScale = kind == Kind.Orb ? Vector3.one * radius * 1.4f * pulse : core.transform.localScale;
 
             var dir = FightDirector.I;
             if (dir == null) return;

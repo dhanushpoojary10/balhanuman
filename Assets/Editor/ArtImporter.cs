@@ -92,6 +92,9 @@ public class ArtImporter : AssetPostprocessor
             ti.textureCompression = TextureImporterCompression.Uncompressed;
             ti.maxTextureSize = 2048;
         }
+        // stepping rocks: stretchable between the grass cap (top 70 px) and the plants at the base (bottom 60 px),
+        // so a rock can be any height and still rise out of the water (borders: left, bottom, right, top)
+        if (assetPath.EndsWith("Ground/stone.png")) ti.spriteBorder = new Vector4(0, 60, 0, 70);
         if (assetPath.Contains("/Backdrop/")) { ti.maxTextureSize = 4096; ti.textureCompression = TextureImporterCompression.CompressedHQ; ti.filterMode = FilterMode.Bilinear; }
         if (assetPath.Contains("/UI2/"))
         {

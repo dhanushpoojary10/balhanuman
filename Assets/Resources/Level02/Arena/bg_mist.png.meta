@@ -1,0 +1,1332 @@
+fileFormatVersion: 2
+guid: 64d2affc43c454882966f48ca1184a4c
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: 7810521590196346000
+    second: bg_mist_0
+  - first:
+      213: -2343113452339659687
+    second: bg_mist_1
+  - first:
+      213: -5438256868889882348
+    second: bg_mist_2
+  - first:
+      213: -5987201667317869526
+    second: bg_mist_3
+  - first:
+      213: 815591783317853974
+    second: bg_mist_4
+  - first:
+      213: 14939775715753121
+    second: bg_mist_5
+  - first:
+      213: -4819161812104812071
+    second: bg_mist_6
+  - first:
+      213: 6697406679624823071
+    second: bg_mist_7
+  - first:
+      213: 7704697466544281726
+    second: bg_mist_8
+  - first:
+      213: 4202558218678612283
+    second: bg_mist_9
+  - first:
+      213: -8282836409899981695
+    second: bg_mist_10
+  - first:
+      213: -4596027099523618528
+    second: bg_mist_11
+  - first:
+      213: -1802037936877683726
+    second: bg_mist_12
+  - first:
+      213: 1180948645076057099
+    second: bg_mist_13
+  - first:
+      213: -1585570458428286809
+    second: bg_mist_14
+  - first:
+      213: -1588170834441517279
+    second: bg_mist_15
+  - first:
+      213: -8252172459135486276
+    second: bg_mist_16
+  - first:
+      213: -450425873845765376
+    second: bg_mist_17
+  - first:
+      213: 4071719834679626410
+    second: bg_mist_18
+  - first:
+      213: -5574581005027057548
+    second: bg_mist_19
+  - first:
+      213: -2214782609802520614
+    second: bg_mist_20
+  - first:
+      213: -7582331968412472246
+    second: bg_mist_21
+  - first:
+      213: 1208906173918162317
+    second: bg_mist_22
+  - first:
+      213: -6949454976840721811
+    second: bg_mist_23
+  - first:
+      213: -5796471309035528910
+    second: bg_mist_24
+  - first:
+      213: 1522189436714619403
+    second: bg_mist_25
+  - first:
+      213: 1725233383507616209
+    second: bg_mist_26
+  - first:
+      213: -8633981593141407910
+    second: bg_mist_27
+  - first:
+      213: -6776818360864804670
+    second: bg_mist_28
+  - first:
+      213: 4292546916089467884
+    second: bg_mist_29
+  - first:
+      213: -2194890386839796569
+    second: bg_mist_30
+  - first:
+      213: -5061803270690226050
+    second: bg_mist_31
+  - first:
+      213: 5370597614295906052
+    second: bg_mist_32
+  - first:
+      213: 5832089312208689656
+    second: bg_mist_33
+  - first:
+      213: 77941829523397525
+    second: bg_mist_34
+  - first:
+      213: -1517074573665499502
+    second: bg_mist_35
+  - first:
+      213: 574128934203356485
+    second: bg_mist_36
+  - first:
+      213: -4933686081553784535
+    second: bg_mist_37
+  - first:
+      213: -1168401132802517879
+    second: bg_mist_38
+  - first:
+      213: -1188367039777076323
+    second: bg_mist_39
+  - first:
+      213: -7908432900382841475
+    second: bg_mist_40
+  - first:
+      213: -1991894141299117038
+    second: bg_mist_41
+  - first:
+      213: 1695519639505315715
+    second: bg_mist_42
+  - first:
+      213: -1188686015174459468
+    second: bg_mist_43
+  - first:
+      213: -8808715908732722353
+    second: bg_mist_44
+  - first:
+      213: 8097641071721975833
+    second: bg_mist_45
+  - first:
+      213: 1477127099342378732
+    second: bg_mist_46
+  - first:
+      213: -2108109859537048634
+    second: bg_mist_47
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 1
+  spriteExtrude: 1
+  spriteMeshType: 0
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationMethod: 0
+  spriteTessellationDetail: -1
+  spriteGeometrySubdivision: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: bg_mist_0
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 2000
+        height: 634
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 09c1c2e110c846c60800000000000000
+      internalID: 7810521590196346000
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_mist_1
+      rect:
+        serializedVersion: 2
+        x: 7
+        y: 576
+        width: 55
+        height: 62
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 95cfadcbab69b7fd0800000000000000
+      internalID: -2343113452339659687
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_mist_2
+      rect:
+        serializedVersion: 2
+        x: 84
+        y: 566
+        width: 100
+        height: 78
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4119d7cd03e6784b0800000000000000
+      internalID: -5438256868889882348
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_mist_3
+      rect:
+        serializedVersion: 2
+        x: 251
+        y: 625
+        width: 10
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a2454ec1ecf29eca0800000000000000
+      internalID: -5987201667317869526
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_mist_4
+      rect:
+        serializedVersion: 2
+        x: 407
+        y: 600
+        width: 37
+        height: 44
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 617536ed760915b00800000000000000
+      internalID: 815591783317853974
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_mist_5
+      rect:
+        serializedVersion: 2
+        x: 472
+        y: 592
+        width: 20
+        height: 42
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1acbf8895a3153000800000000000000
+      internalID: 14939775715753121
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_mist_6
+      rect:
+        serializedVersion: 2
+        x: 887
+        y: 590
+        width: 22
+        height: 42
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9d96d5a6dd5ee1db0800000000000000
+      internalID: -4819161812104812071
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_mist_7
+      rect:
+        serializedVersion: 2
+        x: 1078
+        y: 611
+        width: 15
+        height: 37
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f11bd5704e7f1fc50800000000000000
+      internalID: 6697406679624823071
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_mist_8
+      rect:
+        serializedVersion: 2
+        x: 1901
+        y: 587
+        width: 99
+        height: 72
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e78593b46859cea60800000000000000
+      internalID: 7704697466544281726
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_mist_9
+      rect:
+        serializedVersion: 2
+        x: 1050
+        y: 592
+        width: 8
+        height: 15
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b31bc3c0f6c725a30800000000000000
+      internalID: 4202558218678612283
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_mist_10
+      rect:
+        serializedVersion: 2
+        x: 1874
+        y: 590
+        width: 12
+        height: 19
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1846d376b247d0d80800000000000000
+      internalID: -8282836409899981695
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_mist_11
+      rect:
+        serializedVersion: 2
+        x: 1887
+        y: 588
+        width: 24
+        height: 20
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 02963da24b1a730c0800000000000000
+      internalID: -4596027099523618528
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_mist_12
+      rect:
+        serializedVersion: 2
+        x: 1900
+        y: 606
+        width: 11
+        height: 18
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2fbb0a44b00edf6e0800000000000000
+      internalID: -1802037936877683726
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_mist_13
+      rect:
+        serializedVersion: 2
+        x: 183
+        y: 532
+        width: 72
+        height: 66
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b0cbcb72982936010800000000000000
+      internalID: 1180948645076057099
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_mist_14
+      rect:
+        serializedVersion: 2
+        x: 185
+        y: 592
+        width: 8
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7a8570b911ceef9e0800000000000000
+      internalID: -1585570458428286809
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_mist_15
+      rect:
+        serializedVersion: 2
+        x: 1828
+        y: 585
+        width: 8
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1274a726a0fa5f9e0800000000000000
+      internalID: -1588170834441517279
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_mist_16
+      rect:
+        serializedVersion: 2
+        x: 1857
+        y: 591
+        width: 10
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cb6b7fbced46a7d80800000000000000
+      internalID: -8252172459135486276
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_mist_17
+      rect:
+        serializedVersion: 2
+        x: 74
+        y: 577
+        width: 11
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 00b37cfdd04cfb9f0800000000000000
+      internalID: -450425873845765376
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_mist_18
+      rect:
+        serializedVersion: 2
+        x: 376
+        y: 569
+        width: 8
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: aaacdf2ed97a18830800000000000000
+      internalID: 4071719834679626410
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_mist_19
+      rect:
+        serializedVersion: 2
+        x: 1807
+        y: 579
+        width: 7
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 470e8bf7c1c13a2b0800000000000000
+      internalID: -5574581005027057548
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_mist_20
+      rect:
+        serializedVersion: 2
+        x: 1857
+        y: 575
+        width: 9
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ad7120863f28341e0800000000000000
+      internalID: -2214782609802520614
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_mist_21
+      rect:
+        serializedVersion: 2
+        x: 79
+        y: 567
+        width: 6
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a4cafa56f3526c690800000000000000
+      internalID: -7582331968412472246
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_mist_22
+      rect:
+        serializedVersion: 2
+        x: 176
+        y: 562
+        width: 17
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d8d2b2792c5e6c010800000000000000
+      internalID: 1208906173918162317
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_mist_23
+      rect:
+        serializedVersion: 2
+        x: 1526
+        y: 571
+        width: 6
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d6a96d2b4839e8f90800000000000000
+      internalID: -6949454976840721811
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_mist_24
+      rect:
+        serializedVersion: 2
+        x: 1912
+        y: 564
+        width: 6
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 23d91323e0cce8fa0800000000000000
+      internalID: -5796471309035528910
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_mist_25
+      rect:
+        serializedVersion: 2
+        x: 1995
+        y: 562
+        width: 5
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b021a305a37ef1510800000000000000
+      internalID: 1522189436714619403
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_mist_26
+      rect:
+        serializedVersion: 2
+        x: 57
+        y: 490
+        width: 54
+        height: 79
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1d1ed922f9241f710800000000000000
+      internalID: 1725233383507616209
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_mist_27
+      rect:
+        serializedVersion: 2
+        x: 81
+        y: 556
+        width: 15
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a5f8b8f5c7fed2880800000000000000
+      internalID: -8633981593141407910
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_mist_28
+      rect:
+        serializedVersion: 2
+        x: 255
+        y: 511
+        width: 74
+        height: 58
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2c0fe4d1b97e3f1a0800000000000000
+      internalID: -6776818360864804670
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_mist_29
+      rect:
+        serializedVersion: 2
+        x: 901
+        y: 555
+        width: 10
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ce316336da0329b30800000000000000
+      internalID: 4292546916089467884
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_mist_30
+      rect:
+        serializedVersion: 2
+        x: 1746
+        y: 545
+        width: 24
+        height: 18
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7a48e7b72de2a81e0800000000000000
+      internalID: -2194890386839796569
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_mist_31
+      rect:
+        serializedVersion: 2
+        x: 1769
+        y: 547
+        width: 23
+        height: 21
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e70499f6ebcd0c9b0800000000000000
+      internalID: -5061803270690226050
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_mist_32
+      rect:
+        serializedVersion: 2
+        x: 39
+        y: 534
+        width: 14
+        height: 15
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 407faa75312388a40800000000000000
+      internalID: 5370597614295906052
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_mist_33
+      rect:
+        serializedVersion: 2
+        x: 210
+        y: 531
+        width: 15
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8f91d88645ebfe050800000000000000
+      internalID: 5832089312208689656
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_mist_34
+      rect:
+        serializedVersion: 2
+        x: 339
+        y: 531
+        width: 17
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 59bd2e55ea7e41100800000000000000
+      internalID: 77941829523397525
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_mist_35
+      rect:
+        serializedVersion: 2
+        x: 1718
+        y: 532
+        width: 44
+        height: 17
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 29604ea86b442fae0800000000000000
+      internalID: -1517074573665499502
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_mist_36
+      rect:
+        serializedVersion: 2
+        x: 1852
+        y: 533
+        width: 6
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 545f67a4937b7f700800000000000000
+      internalID: 574128934203356485
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_mist_37
+      rect:
+        serializedVersion: 2
+        x: 1857
+        y: 534
+        width: 6
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 921a2bb06a6088bb0800000000000000
+      internalID: -4933686081553784535
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_mist_38
+      rect:
+        serializedVersion: 2
+        x: 1866
+        y: 532
+        width: 14
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 98454243c5109cfe0800000000000000
+      internalID: -1168401132802517879
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_mist_39
+      rect:
+        serializedVersion: 2
+        x: 332
+        y: 507
+        width: 12
+        height: 21
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d9b0e4b3972128fe0800000000000000
+      internalID: -1188367039777076323
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_mist_40
+      rect:
+        serializedVersion: 2
+        x: 363
+        y: 520
+        width: 8
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d752ba28d2a9f3290800000000000000
+      internalID: -7908432900382841475
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_mist_41
+      rect:
+        serializedVersion: 2
+        x: 370
+        y: 498
+        width: 29
+        height: 32
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2143fadf4de5b54e0800000000000000
+      internalID: -1991894141299117038
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_mist_42
+      rect:
+        serializedVersion: 2
+        x: 1646
+        y: 496
+        width: 44
+        height: 37
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 387a96ef022b78710800000000000000
+      internalID: 1695519639505315715
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_mist_43
+      rect:
+        serializedVersion: 2
+        x: 1709
+        y: 517
+        width: 12
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4bf3d0cfd50f08fe0800000000000000
+      internalID: -1188686015174459468
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_mist_44
+      rect:
+        serializedVersion: 2
+        x: 133
+        y: 501
+        width: 16
+        height: 15
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f4367a43d8721c580800000000000000
+      internalID: -8808715908732722353
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_mist_45
+      rect:
+        serializedVersion: 2
+        x: 264
+        y: 505
+        width: 15
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9101a9ec6a9906070800000000000000
+      internalID: 8097641071721975833
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_mist_46
+      rect:
+        serializedVersion: 2
+        x: 400
+        y: 468
+        width: 73
+        height: 51
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ce6d76c454fcf7410800000000000000
+      internalID: 1477127099342378732
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bg_mist_47
+      rect:
+        serializedVersion: 2
+        x: 1784
+        y: 507
+        width: 10
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6cbabc2804d7eb2e0800000000000000
+      internalID: -2108109859537048634
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 5e97eb03825dee720800000000000000
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable: {}
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

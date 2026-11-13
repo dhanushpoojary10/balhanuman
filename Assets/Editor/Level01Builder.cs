@@ -383,18 +383,31 @@ namespace BalHanuman.EditorTools
         }
 
         /// <summary>Solid stepping stone / rock pillar rising out of the water.</summary>
+        /// <summary>Height of the water surface the rocks rise out of, and how far under it they end.</summary>
+        public const float WaterLine = -0.55f, RockFoot = -0.62f;
+
         static void Stone(float cx, float topY, float width, string unused)
         {
             var s = S("Ground/stone");
-            float h = width / s.bounds.size.x * s.bounds.size.y;
-            float d = 0.26f * h;
-            var go = SprW("Ground/stone", cx, topY + d - h / 2f, width, 2, envRoot);
-            go.name = "Stone_" + cx; go.layer = LayerMask.NameToLayer("Ground");
-            float sc = go.transform.localScale.x;
-            float colTop = s.bounds.size.y / 2f - d / sc, colBottom = -s.bounds.size.y / 2f + 0.05f / sc;
+            float hNat = width / s.bounds.size.x * s.bounds.size.y;       // natural height at this width
+            float d = 0.26f * hNat;                                        // grass cap above the standing surface
+            float top = topY + d;                                          // top of the picture
+            float H = top - RockFoot;                                      // it reaches down into the water: taller = higher top
+            var go = new GameObject("Stone_" + cx); go.transform.SetParent(envRoot, false);
+            go.layer = LayerMask.NameToLayer("Ground");
+            float sc = width / s.bounds.size.x;
+            go.transform.localScale = Vector3.one * sc;
+            go.transform.position = new Vector3(cx, (top + RockFoot) / 2f, 0f);
+            var sr = go.AddComponent<SpriteRenderer>();
+            sr.sprite = s; sr.sortingOrder = 2;
+            sr.drawMode = SpriteDrawMode.Sliced;                           // stretches between the grass cap and the base plants
+            sr.size = new Vector2(s.bounds.size.x, H / sc);
+            // standing surface stays exactly at topY; the collider runs down to the water
+            float colBottom = RockFoot + 0.05f;
+            float centerY = (top + RockFoot) / 2f;
             var bc = go.AddComponent<BoxCollider2D>();
-            bc.size = new Vector2(s.bounds.size.x * 0.7f, colTop - colBottom);
-            bc.offset = new Vector2(0, (colTop + colBottom) / 2f);
+            bc.size = new Vector2(s.bounds.size.x * 0.7f, (topY - colBottom) / sc);
+            bc.offset = new Vector2(0f, ((topY + colBottom) / 2f - centerY) / sc);
             bc.sharedMaterial = noFriction;
         }
 
@@ -787,14 +800,8 @@ namespace BalHanuman.EditorTools
             deep.transform.localScale = new Vector3(23f / 0.08f, 2.4f / 0.08f, 1);
             var dsr = deep.AddComponent<SpriteRenderer>(); dsr.sprite = S("UI/white"); dsr.color = new Color(0.03f, 0.12f, 0.26f, 0.0f); dsr.sortingOrder = 5;   // the new water art has its own depth gradient; kept (invisible) so old references stay valid
 
-            // waterfall decor
-            SprW("Water/waterfall", 64.0f, -0.75f, 3.1f, -10, propRoot).name = "Waterfall";
-            Spr("VFX/fx_17", 64.0f, -0.62f, 0.55f, 9, propRoot).name = "WaterfallSplash";
-
-            // mossy boulders half sunk in the stream (decoration only, nothing to stand on)
-            SprW("Water/stone_1", 47.7f, -0.52f, 1.5f, 9, propRoot).name = "BankBoulder";
-            SprW("Water/stone_2", 69.7f, -0.52f, 1.3f, 9, propRoot).name = "BankBoulder";
-            SprW("Water/stone_0", 61.2f, -0.55f, 1.1f, 3, propRoot).name = "StreamBoulder";
+            // (no waterfall and no half-sunk boulders: they looked like platforms but were only decoration,
+            //  so players could not tell what was safe to land on. Only real platforms stand in the stream.)
 
             // stepping stones + raised rocks
             Stone(49.6f, 0.7f, 1.5f, "Platforms/tile_14");
@@ -907,7 +914,8 @@ namespace BalHanuman.EditorTools
             // optional bonus: golden coins and hidden lotus flowers
             foreach (var p in new[] { new Vector3(31.2f, 5.2f, 0), new Vector3(34.6f, 6.0f, 0), new Vector3(75.2f, 4.9f, 0), new Vector3(92.5f, 8.5f, 0), new Vector3(135f, 1.3f, 0) })
                 Place("GoldCoin", p, pickupRoot);
-            Place("Lotus", new Vector3(47.9f, -0.05f, 0), pickupRoot).transform.position = new Vector3(48.0f, 0.9f, 0);
+            // at the stream's edge: held up in the path of a jump (a jump peaks near 2.9), so it is caught in mid-air
+            Place("Lotus", new Vector3(47.9f, -0.05f, 0), pickupRoot).transform.position = new Vector3(48.0f, 2.0f, 0);
             Place("Lotus", new Vector3(125.0f, 0.9f, 0), pickupRoot);
             Place("Lotus", new Vector3(81.0f, 0.9f, 0), pickupRoot);
         }
