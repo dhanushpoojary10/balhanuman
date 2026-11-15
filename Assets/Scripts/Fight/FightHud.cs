@@ -175,7 +175,12 @@ namespace BalHanuman.Fight
             if (painted) paintedBtns = true;
             var fb = img.gameObject.AddComponent<FightButton>(); fb.btn = b; fb.visual = img;
             if (painted) { fb.normal = spr; fb.pressed = spr2; }
-            T("Label", img.transform, painted ? "" : label, font, V(0.5f, 0.5f), Vector2.zero, V(size, size), UiKit.Cream);
+            if (painted)   // the icon is the picture, so a short caption sits just under the round button to say what it does
+            {
+                var cap = T("Label", img.transform, label.Replace("\n", " "), 21, V(0.5f, 0f), V(0, -30), V(size * 1.7f, 30), UiKit.Cream, false);
+                var sh = cap.gameObject.AddComponent<Shadow>(); sh.effectColor = new Color(0.05f, 0.02f, 0.1f, 0.95f); sh.effectDistance = new Vector2(2, -2);
+            }
+            else T("Label", img.transform, label, font, V(0.5f, 0.5f), Vector2.zero, V(size, size), UiKit.Cream);
             return img;
         }
 
@@ -192,11 +197,11 @@ namespace BalHanuman.Fight
             var js = zone.gameObject.AddComponent<VirtualJoystick>(); js.baseRect = bs.rectTransform; js.knob = knob.rectTransform;
 
             var c = controls;
-            RoundButton("Mace", c, "GADA", V(-220, 190), 210, FightInput.Btn.Mace, new Color(1f, 0.85f, 0.6f), 38, "btn_gada");
-            RoundButton("Kick", c, "TAIL\nKICK", V(-430, 120), 160, FightInput.Btn.Kick, Color.white, 28, "btn_tail");
+            RoundButton("Mace", c, "MACE", V(-220, 190), 210, FightInput.Btn.Mace, new Color(1f, 0.85f, 0.6f), 38, "btn_gada");
+            RoundButton("Kick", c, "KICK", V(-430, 152), 160, FightInput.Btn.Kick, Color.white, 28, Art("btn_kick") != null ? "btn_kick" : "btn_tail");   // btn_kick.png (+ _pressed) replaces the old tail picture when present
             RoundButton("Jump", c, "JUMP", V(-110, 390), 135, FightInput.Btn.Jump, Color.white, 26, "btn_jump");
-            RoundButton("Dodge", c, "DODGE", V(-600, 80), 130, FightInput.Btn.Dodge, new Color(0.8f, 0.9f, 1f), 24, "btn_dodge");
-            ultBtn = RoundButton("Ultimate", c, "PANCH\nMUKHI", V(-400, 330), 175, FightInput.Btn.Ultimate, new Color(1f, 0.9f, 0.55f), 26, "btn_ultimate");
+            RoundButton("Dodge", c, "DODGE", V(-600, 128), 130, FightInput.Btn.Dodge, new Color(0.8f, 0.9f, 1f), 24, "btn_dodge");
+            ultBtn = RoundButton("Ultimate", c, "ULTIMATE", V(-400, 400), 175, FightInput.Btn.Ultimate, new Color(1f, 0.9f, 0.55f), 26, "btn_ultimate");
             ultGlow = UiKit.Img("UltGlow", ultBtn.transform, S.softGlow != null ? S.softGlow : S.circle, V(0.5f, 0.5f), V(0.5f, 0.5f), V(0.5f, 0.5f), Vector2.zero, V(300, 300), new Color(1f, 0.8f, 0.3f, 0f));
             ultGlow.transform.SetAsFirstSibling();
 
@@ -205,12 +210,12 @@ namespace BalHanuman.Fight
             for (int i = 0; i < 6; i++)
             {
                 var p = HanumanFighter.Boons[i];
-                var bg = RoundButton("Power" + i, c, labels[i], V(-1390 + i * 118, 70), 108, FightInput.Btn.P1 + i, new Color(1f, 0.8f, 0.55f), 22, arts[i]);
+                var bg = RoundButton("Power" + i, c, labels[i], V(-1390 + i * 118, 112), 108, FightInput.Btn.P1 + i, new Color(1f, 0.8f, 0.55f), 22, arts[i]);
                 bg.rectTransform.anchorMin = bg.rectTransform.anchorMax = V(1, 0);
                 var ring = UiKit.Img("Active", bg.transform, S.circle, V(0.5f, 0.5f), V(0.5f, 0.5f), V(0.5f, 0.5f), Vector2.zero, V(118, 118), new Color(0.5f, 1f, 1f, 0.6f));
                 ring.type = Image.Type.Filled; ring.fillMethod = Image.FillMethod.Radial360; ring.transform.SetAsFirstSibling();
                 var lk = UiKit.Img("Lock", bg.transform, S.circle, V(0.5f, 0.5f), V(0.5f, 0.5f), V(0.5f, 0.5f), Vector2.zero, V(96, 96), new Color(0.05f, 0.03f, 0.08f, 0.75f));
-                var cost = T("Cost", bg.transform, HanumanFighter.Cost(p) == 2 ? "••" : "•", 30, V(0.5f, 0f), V(0, -4), V(100, 30), new Color(1f, 0.75f, 0.2f));
+                var cost = T("Cost", bg.transform, HanumanFighter.Cost(p) == 2 ? "••" : "•", 30, V(0.5f, 0f), V(0, 12), V(100, 30), new Color(1f, 0.75f, 0.2f));
                 var label = bg.transform.Find("Label").GetComponent<Text>();
                 T("Key", bg.transform, (i + 1).ToString(), 18, V(0.5f, 1f), V(0, -6), V(40, 24), UiKit.Muted, false);
                 powers.Add((bg, ring, lk, label, cost, p));
