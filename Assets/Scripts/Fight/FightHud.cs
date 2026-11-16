@@ -255,7 +255,8 @@ namespace BalHanuman.Fight
         public void BuildTraining(HanumanFighter h, AhiravanaFighter boss)
         {
             var S = UiKit.Skin;
-            var panel = UiKit.Img("Training", root, S.white, V(0, 0.5f), V(0, 0.5f), V(0, 0.5f), V(20, 80), V(360, 540), new Color(0.04f, 0.02f, 0.08f, 0.72f), true);
+            // top-left, above the joystick zone (which covers the lower-left 42% x 55% of the screen): the list must never swallow stick touches
+            var panel = UiKit.Img("Training", root, S.white, V(0, 1), V(0, 1), V(0, 1), V(20, -190), V(360, 330), new Color(0.04f, 0.02f, 0.08f, 0.72f), true);
             panel.preserveAspect = false;
             trainingPanel = panel.rectTransform;
             T("Title", panel.transform, "MOVE LIST", 32, V(0.5f, 1), V(0, -28), V(340, 44), UiKit.Gold);

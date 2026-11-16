@@ -19,7 +19,7 @@ namespace BalHanuman.EditorTools
             Directory.CreateDirectory(OutDir);
             File.WriteAllText(StatusFile, "RUNNING");
 
-            var scenes = new[] { "Assets/Scenes/MainMenu.unity", "Assets/Scenes/Level01_MissingFruitOffering.unity" };
+            var scenes = new[] { "Assets/Scenes/MainMenu.unity", "Assets/Scenes/Level01_MissingFruitOffering.unity", "Assets/Scenes/Level02_PatalaYuddha.unity" };
             PlayerSettings.SetScriptingBackend(NamedBuildTarget.Android, ScriptingImplementation.IL2CPP);
             PlayerSettings.Android.targetArchitectures = AndroidArchitecture.ARM64;
             PlayerSettings.Android.minSdkVersion = AndroidSdkVersions.AndroidApiLevel26;

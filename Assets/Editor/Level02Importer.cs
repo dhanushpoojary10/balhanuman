@@ -24,6 +24,16 @@ namespace BalHanuman.EditorTools
             s.spriteMeshType = SpriteMeshType.FullRect;
             s.spriteAlignment = (int)SpriteAlignment.Center;
             ti.SetTextureSettings(s);
+
+            // phones: ASTC keeps the 400+ painted frames at a fraction of the memory (uncompressed they would need hundreds of MB)
+            var android = ti.GetPlatformTextureSettings("Android");
+            android.overridden = true;
+            android.maxTextureSize = 2048;
+            android.format = TextureImporterFormat.ASTC_6x6;
+            android.compressionQuality = 50;
+            ti.SetPlatformTextureSettings(android);
         }
+
+        public override uint GetVersion() => 2;      // bump to re-import the Level 2 textures when these settings change
     }
 }

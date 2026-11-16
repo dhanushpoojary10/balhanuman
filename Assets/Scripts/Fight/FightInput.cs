@@ -134,8 +134,16 @@ namespace BalHanuman.Fight
         public void OnPointerDown(PointerEventData e)
         {
             if (baseRect == null) return;
-            RectTransformUtility.ScreenPointToLocalPointInRectangle((RectTransform)baseRect.parent, e.position, e.pressEventCamera, out var lp);
-            baseRect.anchoredPosition = lp;
+            // the touch point comes back relative to the zone's pivot (its centre), but the base is anchored to the zone's corner:
+            // convert, and keep the whole base inside the zone so it can never end up off-screen
+            var zone = (RectTransform)baseRect.parent;
+            RectTransformUtility.ScreenPointToLocalPointInRectangle(zone, e.position, e.pressEventCamera, out var lp);
+            var r = zone.rect;
+            float mx = Mathf.Min(baseRect.rect.width * 0.5f, r.width * 0.5f), my = Mathf.Min(baseRect.rect.height * 0.5f, r.height * 0.5f);
+            lp.x = Mathf.Clamp(lp.x, r.xMin + mx, r.xMax - mx);
+            lp.y = Mathf.Clamp(lp.y, r.yMin + my, r.yMax - my);
+            var anchorPoint = Vector2.Scale(baseRect.anchorMin - zone.pivot, r.size);
+            baseRect.anchoredPosition = lp - anchorPoint;
             OnDrag(e);
         }
 
@@ -149,9 +157,15 @@ namespace BalHanuman.Fight
             FightInput.Stick = s.magnitude < 0.25f ? Vector2.zero : new Vector2(Mathf.Abs(s.x) > 0.38f ? Mathf.Sign(s.x) : 0f, Mathf.Abs(s.y) > 0.5f ? Mathf.Sign(s.y) : 0f);
         }
 
-        public void OnPointerUp(PointerEventData e)
+        public void OnPointerUp(PointerEventData e) { Release(); }
+
+        // if the controls are hidden or the scene changes mid-touch there is no pointer-up: never leave the stick held
+        void OnDisable() { Release(); }
+
+        void Release()
         {
-            knob.anchoredPosition = Vector2.zero; FightInput.Stick = Vector2.zero;
+            if (knob != null) knob.anchoredPosition = Vector2.zero;
+            FightInput.Stick = Vector2.zero;
             if (baseRect != null) baseRect.anchoredPosition = home;
         }
     }
