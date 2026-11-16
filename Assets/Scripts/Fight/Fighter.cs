@@ -48,6 +48,18 @@ namespace BalHanuman.Fight
         /// <summary>Applies facing, size and the hit squash to the drawn body.</summary>
         protected virtual void ApplyVisualScale() { var q = SquashFactor; puppet.transform.localScale = new Vector3(facing * scale * q.x, scale * q.y, 1f); }
         public float invulnUntil;
+
+        // guard: blocking drains it, an empty guard is a guard break; it refills while not blocking
+        public float guard = 160f, guardMax = 160f; float guardIdle;
+        public float parryWindow = ParryWindow;          // widened by assists
+        public float counterUntil;                       // after a parry or perfect dodge: the next hit this fighter lands is a counter (+30%)
+        int armorLeft; float holdT; bool holdFired, moveConnected;
+
+        // jump feel and landing (design B4)
+        public const float JumpWindup = 0.05f, ApexHang = 0.6f, FallGravityK = 1.25f, JumpCutK = 0.65f;
+        float jumpWind, landLock; bool jumpCutOk;
+        public float pushV;                              // soft separation: a small push velocity applied by the director, fades out
+        protected virtual bool JumpHeld => true;         // the player lets go early for a short hop
         public Vector2 hurtSize = new Vector2(0.95f, 2.6f);
         public float pushWidth = 0.9f;
         public float burnT;
@@ -79,7 +91,7 @@ namespace BalHanuman.Fight
         public bool Blocking => state == FState.Block;
         public bool InHitReaction => state == FState.Hitstun || state == FState.Launched || state == FState.Knockdown || state == FState.Stunned || state == FState.Grabbed || state == FState.Blockstun;
         public bool Attacking => state == FState.Attack && move != null;
-        public bool CanAct => controlEnabled && (state == FState.Idle || state == FState.Walk || state == FState.Crouch || state == FState.Block || state == FState.Jump);
+        public bool CanAct => controlEnabled && landLock <= 0f && jumpWind <= 0f && (state == FState.Idle || state == FState.Walk || state == FState.Crouch || state == FState.Block || state == FState.Jump);
         public bool IsInvulnerable => Time.time < invulnUntil || state == FState.Getup || state == FState.Knockdown || state == FState.Cinematic || state == FState.Dead
                                       || (state == FState.Attack && move != null && move.invulnerable && moveT >= move.invulnT0 && (move.invulnT1 < 0f || moveT <= move.invulnT1));
 
@@ -111,6 +123,7 @@ namespace BalHanuman.Fight
             float dt = Time.deltaTime;
             if (dt <= 0f || puppet == null) return;
             if (squashT > 0f) squashT -= dt;
+            if (landLock > 0f) landLock -= dt;
             if (hitstop > 0f)
             {
                 hitstop -= dt;
@@ -121,7 +134,19 @@ namespace BalHanuman.Fight
             }
             puppet.transform.localPosition = Vector3.zero;
             float adt = dt * speedMul * (Attacking ? move.speedMul : 1f);
+            if (Attacking && move.holdLen > 0f && moveT >= move.holdAt && holdT < move.holdLen)
+            {
+                // the tell: the move waits on its wind-up picture
+                if (!holdFired) { holdFired = true; if (move.tele != TeleClass.None) OnTelegraph(move); }
+                holdT += dt; adt = 0f;
+            }
 
+            if (jumpWind > 0f && hitstop <= 0f)
+            {
+                jumpWind -= dt;
+                if (state != FState.Crouch) jumpWind = 0f;
+                else if (jumpWind <= 0f) { if (grounded) LaunchJump(); }
+            }
             inJump = inDodge = false;
             if (controlEnabled && director != null && director.ControlsLive) Think(dt);
             else { inX = 0; inBlock = inCrouch = false; }
@@ -142,6 +167,11 @@ namespace BalHanuman.Fight
         void Timers(float dt)
         {
             if (exprT > 0f) { exprT -= dt; if (exprT <= 0f) puppet.SetExpression(CurrentMood()); }
+            if (state != FState.Block && state != FState.Blockstun)
+            {
+                guardIdle += dt;
+                if (guardIdle > 0.8f && guard < guardMax) guard = Mathf.Min(guardMax, guard + 35f * dt);
+            }
             if (burnT > 0f)
             {
                 burnT -= dt;
@@ -260,6 +290,7 @@ namespace BalHanuman.Fight
         void GroundNeutral(float dt)
         {
             if (!grounded && !flying) { SetState(FState.Jump); return; }
+            if (jumpWind > 0f) { vel.x = Mathf.Lerp(vel.x, 0f, 1f - Mathf.Exp(-20f * dt)); return; }      // crouching for take-off
             FaceOpponent();
             if (inDodge) { StartDodge(inDodgeDir); return; }
             if (inJump && grounded && !flying) { DoJump(); return; }
@@ -300,6 +331,14 @@ namespace BalHanuman.Fight
 
         void DoJump()
         {
+            // a very short crouch before take-off (0.05 s) so the jump has weight
+            jumpWind = JumpWindup; SetState(FState.Crouch); crouching = false; PlayClip("crouch", 0.02f);
+            vel.x *= 0.5f;
+        }
+
+        void LaunchJump()
+        {
+            jumpWind = 0f; jumpCutOk = true;
             vel.y = jumpVel * Mathf.Sqrt(scale); vel.x = inX * walkSpeed * 1.1f * SpeedK;
             grounded = false; SetState(FState.Jump); ForceClip("jump", 0.06f);
             FightSfx.Play("jump", 1f, 0.6f);
@@ -311,6 +350,7 @@ namespace BalHanuman.Fight
             FightFx.Dust(transform.position, 5, 2f, 0, 0.7f * scale);
             FightSfx.Play("land", 1f, 0.6f);
             if (scale > 1.5f && director != null) director.Shake(0.12f, 0.2f);
+            landLock = scale > 1.5f ? 0.12f : 0.06f;     // a beat of recovery on landing
             ToIdle();
         }
 
@@ -331,6 +371,7 @@ namespace BalHanuman.Fight
         {
             if (m == null) return false;
             move = m; moveT = 0f; evIndex = 0; whooshed = false; hitsDone.Clear();
+            jumpWind = 0f; armorLeft = m.armorHits; holdT = 0f; holdFired = false; moveConnected = false;
             SetState(FState.Attack);
             crouching = false;
             if (m.air) grounded = false;
@@ -338,11 +379,71 @@ namespace BalHanuman.Fight
             puppet.Play(m.clip, 0.06f);
             curClip = null;
             if (m.expr != Expr.Neutral) SetExpr(m.expr, Mathf.Min(0.6f, m.Length));
-            if (m.telegraph) { puppet.Flash(new Color(1f, 0.25f, 0.2f, 0.85f), 0.3f); FightSfx.Play("tick", 0.6f, 0.8f); }
+            if (m.tele != TeleClass.None) { if (m.holdLen <= 0f) { holdFired = true; OnTelegraph(m); } }       // moves with a hold show their tell when the hold starts
+            else if (m.telegraph) { puppet.Flash(new Color(1f, 0.25f, 0.2f, 0.85f), 0.3f); FightSfx.Play("tick", 0.6f, 0.8f); }
             return true;
         }
 
-        public bool InCancelWindow => Attacking && moveT >= move.cancelFrom;
+        /// <summary>Cancels open at cancelFrom when the move connected (hit, block or parry); a whiff makes you wait a little longer.</summary>
+        public bool InCancelWindow => Attacking && moveT >= move.cancelFrom + (moveConnected ? 0f : move.whiffLag);
+
+        /// <summary>The boss's tell: coloured flash, a ring closing on his head, and a cue sound for the kind of attack.</summary>
+        protected virtual void OnTelegraph(MoveDef m) { FightFx.Telegraph(this, m.tele, Mathf.Max(0.25f, m.holdLen)); }
+
+        bool move_invuln() => Attacking && move.invulnerable;
+
+        /// <summary>The cancel window is open and the move connected: the next command chains (HUD ring on the Gada button).</summary>
+        public bool ChainOpen => Attacking && moveConnected && moveT >= move.cancelFrom;
+
+        /// <summary>Past its hit and with a long recovery still to go: a good moment to hit him.</summary>
+        public bool InRecovery
+        {
+            get
+            {
+                if (!Attacking || move.hits.Count == 0) return false;
+                float last = 0f; foreach (var w in move.hits) last = Mathf.Max(last, w.t1);
+                float recover = (move.Length + move.endLag - last) / Mathf.Max(0.01f, move.speedMul);
+                return moveT > last + 0.03f && recover > 0.2f;
+            }
+        }
+
+        /// <summary>Shown as OPEN over the boss: stunned (parry / guard break) or deep in recovery.</summary>
+        public bool IsOpen => state == FState.Stunned || InRecovery;
+
+        bool InActiveWindow(out int prio)
+        {
+            prio = 0;
+            if (!Attacking) return false;
+            bool any = false;
+            foreach (var w in move.hits) if (!w.grab && moveT >= w.t0 && moveT < w.t1) { any = true; prio = Mathf.Max(prio, w.Prio); }
+            return any;
+        }
+
+        /// <summary>Two equal attacks meeting: both fighters rock back for an instant, no damage.</summary>
+        public void Clash(Fighter other, Vector3 point)
+        {
+            Rock(other.transform.position.x < transform.position.x ? 1 : -1);
+            other.Rock(other.transform.position.x < transform.position.x ? -1 : 1);
+            director?.OnClash(this, other, point);
+        }
+
+        void Rock(int away)
+        {
+            move = null; holding = null; crouching = false;
+            stunTimer = 0.18f; vel.x = away * 3.2f; hitstop = Mathf.Max(hitstop, 0.07f);
+            SetState(FState.Hitstun); ForceClip("hit", 0.03f);
+            puppet.Flash(new Color(1f, 1f, 1f, 0.7f), 0.1f);
+        }
+
+        void GuardBreak(Fighter by)
+        {
+            guard = guardMax * 0.4f; guardIdle = 0f;
+            move = null; crouching = false;
+            stunTimer = 0.8f; vel.x = -facing * 3.5f;
+            SetState(FState.Stunned); ForceClip("stunned", 0.04f);
+            SetExpr(Expr.Shocked, 0.8f);
+            puppet.Flash(new Color(0.6f, 0.9f, 1f, 0.9f), 0.25f);
+        }
 
         void StepMove(float dt, float adt)
         {
@@ -370,7 +471,7 @@ namespace BalHanuman.Fight
                 if (move == m) ToIdle();
                 return;
             }
-            if (moveT >= move.Length) ToIdle();
+            if (moveT >= move.Length + move.endLag) ToIdle();
         }
 
         void CheckHits()
@@ -390,6 +491,8 @@ namespace BalHanuman.Fight
                     if (!t.Overlaps(p, r) && !(SweptHit(t, p, r, out hp))) continue;
                     hitsDone.Add((i, t));
                     var res = t.ReceiveHit(this, w, hp);
+                    if (res.connected || res.blocked || res.parried) moveConnected = true;
+                    if (res.clashed) return;
                     if (res.connected && w.grab && move.throwMove != null) { BeginThrow(t, move.throwMove); return; }
                     if (res.parried) return;
                     if (move == null) return;
@@ -508,22 +611,39 @@ namespace BalHanuman.Fight
                 res.connected = true; return res;
             }
 
+            // two swings in their active frames at once: the stronger one wins, equal ones clash
+            if (!projectile && attacker.Attacking && !attacker.move.invulnerable && !move_invuln() && InActiveWindow(out int myPrio))
+            {
+                int atk = w.Prio;
+                if (atk < myPrio) return res;
+                if (atk == myPrio && atk < 2) { Clash(attacker, point); res.clashed = true; return res; }
+            }
+
             if (state == FState.Block && facingAttacker && w.level != HitLevel.Unblockable)
             {
                 bool ok = crouching ? w.level != HitLevel.Overhead : w.level != HitLevel.Low;
                 if (ok)
                 {
-                    if (Time.time - BlockPressTime <= ParryWindow && (projectile || attacker.state == FState.Attack))
+                    if (Time.time - BlockPressTime <= parryWindow && (projectile || attacker.state == FState.Attack))
                     {
                         res.parried = true;
+                        counterUntil = Time.time + 0.7f;
                         if (!projectile) attacker.GetParried(this);
                         director?.OnParry(this, projectile ? null : attacker, point);
                         blockStart = -10f; OnParried();
                         return res;
                     }
                     res.blocked = true;
-                    float chip = w.damage * 0.08f * attacker.damageDealtMul * damageTakenMul;
+                    float chip = w.damage * 0.10f * attacker.damageDealtMul * damageTakenMul;
                     hp = Mathf.Max(1f, hp - chip);
+                    guardIdle = 0f;
+                    guard -= w.damage * (w.heavy ? 1.5f : 1f) * attacker.damageDealtMul * (w.Prio >= 3 ? 1.5f : 1f);
+                    if (guard <= 0f)
+                    {
+                        GuardBreak(attacker);
+                        director?.OnGuardBreak(this, attacker, point);
+                        return res;
+                    }
                     stunTimer = 0.14f + w.stun * 0.35f;
                     vel.x = dir * (w.knock.x * 0.7f + 1f);
                     SetState(FState.Blockstun); ForceClip(crouching ? "crouchblock" : "block", 0.03f);
@@ -534,14 +654,20 @@ namespace BalHanuman.Fight
             }
 
             res.connected = true;
-            float dmg = w.damage * attacker.damageDealtMul * damageTakenMul;
+            // armor: some moves soak up a few hits (half damage, no reaction) once their armor has started. Unblockable hits break through.
+            bool armored = Attacking && armorLeft > 0 && moveT >= move.armorStart && w.Prio < 3 && !projectile;      // a reflected orb is not soaked by armor
+            if (armored) armorLeft--;
+            bool counter = attacker.counterUntil > Time.time;
+            float dmg = w.damage * attacker.damageDealtMul * damageTakenMul * (armored ? 0.5f : 1f) * (counter ? 1.3f : 1f);
+            if (counter) attacker.counterUntil = 0f;
             hp -= dmg;
             if (immortal) hp = Mathf.Max(1f, hp);
             if (w.burn) burnT = 3f;
-            puppet.Flash(new Color(1f, 1f, 1f, 0.9f), 0.12f);
+            puppet.Flash(armored ? new Color(1f, 0.85f, 0.4f, 0.8f) : new Color(1f, 1f, 1f, 0.9f), 0.12f);
             director?.OnHit(attacker, this, w, point, dmg);
+            if (counter) director?.OnCounterHit(attacker, this, point);
 
-            if (superArmor && hp > 0f)
+            if ((superArmor || armored) && hp > 0f)
             {
                 vel.x = dir * w.knock.x * 0.25f;
                 SetExpr(Expr.Furious, 0.3f);
@@ -576,7 +702,7 @@ namespace BalHanuman.Fight
         public void GetParried(Fighter by)
         {
             move = null; holding = null;
-            stunTimer = 0.95f;
+            stunTimer = 1.0f;
             SetState(FState.Stunned); ForceClip("stunned", 0.06f);
             vel.x = -facing * 3f;
             SetExpr(Expr.Shocked, 0.95f);
@@ -611,7 +737,7 @@ namespace BalHanuman.Fight
             vel = Vector2.zero; grounded = true; facing = face; hp = maxHp; burnT = 0f; juggle = 0;
             move = null; holding = null; heldBy = null; crouching = false; flying = false;
             scale = scaleTarget = 1f; speedMul = 1f; superArmor = false; damageDealtMul = damageTakenMul = 1f;
-            invulnUntil = 0f; hitstop = 0f;
+            invulnUntil = 0f; hitstop = 0f; guard = guardMax; guardIdle = 0f; counterUntil = 0f;
             puppet.SetTint(Color.white);
             SetState(FState.Idle); ForceClip("idle", 0.05f);
             puppet.SetExpression(mood);
@@ -634,9 +760,18 @@ namespace BalHanuman.Fight
                 }
             }
             if (state == FState.Launched) g *= 0.82f;
+            if (state == FState.Jump && !flying)
+            {
+                float cut = jumpVel * JumpCutK * Mathf.Sqrt(scale);
+                if (jumpCutOk && vel.y > cut && !JumpHeld && stateT > 0.04f) { vel.y = cut; jumpCutOk = false; }     // let go early: a short hop
+                if (vel.y <= 0f) jumpCutOk = false;
+                if (Mathf.Abs(vel.y) < 2f) g *= ApexHang;                    // a beat of hang at the top
+                else if (vel.y < 0f) g *= FallGravityK;                      // then a snappier fall
+            }
             if (flying && state != FState.Launched) g = 0f;
             if (!grounded || vel.y > 0f) vel.y -= g * dt;
             p += vel * dt;
+            if (Mathf.Abs(pushV) > 0.01f) { p.x += pushV * dt; pushV *= Mathf.Exp(-12f * dt); } else pushV = 0f;
             // nobody climbs past a jump and a half (air attacks used to be able to stack lift without limit)
             float ceiling = 4.2f * Mathf.Max(1f, scale);
             if (!flying && p.y > ceiling && vel.y > 0f) vel.y = Mathf.MoveTowards(vel.y, 0f, 90f * dt);
@@ -644,6 +779,7 @@ namespace BalHanuman.Fight
             {
                 p.y = 0f;
                 if (vel.y < 0f) vel.y = 0f;
+                if (!grounded && state == FState.Jump && landLock <= 0f) landLock = scale > 1.5f ? 0.12f : 0.06f;     // recovery starts the frame he touches down
                 grounded = true;
             }
             else grounded = false;

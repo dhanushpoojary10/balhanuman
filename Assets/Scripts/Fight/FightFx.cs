@@ -236,8 +236,14 @@ namespace BalHanuman.Fight
         /// The main impact: white flash, star pop, slash bars along the blow, radial rays, ring, sparks and debris.
         /// Heavy = bigger and longer; power (0..1, from damage) scales it again so a jab and a crusher do not look alike.
         /// </summary>
-        public static void Hit(Vector3 pos, FxKind kind, bool heavy, float dirX, float power = 0.5f)
+        public static void Hit(Vector3 pos, FxKind kind, bool heavy, float dirX, float power = 0.5f, int tier = -1)
         {
+            if (tier >= 0)
+            {
+                // the tier fixes how big the burst is, so a jab and a crusher cannot look alike
+                heavy = tier >= 2;
+                power = tier == 0 ? Mathf.Min(power, 0.35f) : tier == 1 ? Mathf.Clamp(power, 0.35f, 0.65f) : tier == 2 ? Mathf.Max(power, 0.6f) : 1f;
+            }
             var c = KindColor(kind);
             float pk = 0.85f + power * 0.9f;                  // 0.85 .. 1.75
             float k = (heavy ? 1.5f : 1f) * pk;
@@ -257,7 +263,12 @@ namespace BalHanuman.Fight
             Spawn(FightArt.Soft, pos, 0.06f, Vector2.one * 0.5f * k, Vector2.one * 0.8f * k, A(Color.white, 0.7f), A(Color.white, 0f), Order + 6);
             if (painted)
             {
-                if (heavy && Live < 90) Sparks(pos, Mathf.RoundToInt(Mathf.Lerp(4f, 6f, power)), 10f, c, 0.7f, 0.25f, dirX);
+                if (tier >= 3 && Live < 90)
+                {
+                    Spawn(FightArt.Ring, pos, 0.3f, Vector2.one * 0.4f, Vector2.one * 3.2f, A(c, 0.9f), A(c, 0f), Order + 3);
+                    Sparks(pos, 10, 12f, c, 0.9f, 0.3f, dirX);
+                }
+                else if (heavy && Live < 90) Sparks(pos, Mathf.RoundToInt(Mathf.Lerp(4f, 6f, power)), 10f, c, 0.7f, 0.25f, dirX);
                 return;
             }
             // fallback without the sheets: the procedural burst
@@ -291,6 +302,47 @@ namespace BalHanuman.Fight
                 var r = Spawn(FightArt.Spark, pos + (Vector3)d * 0.25f, 0.16f, new Vector2(len * fwd, len * 0.07f), new Vector2(len * 0.15f, len * 0.015f), Color.white, A(c, 0f), Order + 2);
                 r.vel = d * speed * fwd; r.alignToVelocity = true; r.drag = 6f;
             }
+        }
+
+        public static Color TeleColor(TeleClass c)
+        {
+            switch (c)
+            {
+                case TeleClass.Grab: return new Color(1f, 0.25f, 0.2f);          // red: a grab, you cannot block it
+                case TeleClass.Projectile: return new Color(0.75f, 0.35f, 1f);   // purple: a spell or projectile
+                default: return new Color(1f, 0.85f, 0.25f);                     // yellow: a blockable strike
+            }
+        }
+
+        /// <summary>
+        /// A readable tell for a boss attack: his picture flashes in the colour of the attack, a bright mark sits over his head and a ring
+        /// closes on it (it closes at the moment the move resumes), plus a cue sound per kind.
+        /// </summary>
+        public static void Telegraph(Fighter f, TeleClass c, float dur)
+        {
+            var col = TeleColor(c);
+            f.puppet.Flash(new Color(col.r, col.g, col.b, 0.6f), Mathf.Min(0.4f, dur));
+            var head = f.HeadPos + Vector3.up * 0.55f * f.scale;
+            var off = head - f.transform.position;
+            var star = Spawn(FightArt.Star, head, dur + 0.05f, Vector2.one * 0.5f * f.scale, Vector2.one * 1.1f * f.scale, Color.white, A(col, 0.65f), Order + 8, 0f);
+            star.follow = f.transform; star.followOffset = off; star.easeOut = false;
+            var ring = Spawn(FightArt.Ring, head, dur, Vector2.one * 2.0f * f.scale, Vector2.one * 0.35f * f.scale, A(col, 0.15f), A(col, 1f), Order + 7, 0f);
+            ring.follow = f.transform; ring.followOffset = off; ring.easeOut = false;
+            switch (c)
+            {
+                case TeleClass.Grab: FightSfx.Play("bell", 0.8f, 1.1f); break;
+                case TeleClass.Projectile: FightSfx.Play("orb_cast", 0.6f, 1.2f); break;
+                default: FightSfx.Play("tick", 0.9f, 0.7f); break;
+            }
+        }
+
+        /// <summary>Two equal attacks meeting.</summary>
+        public static void Clash(Vector3 pos)
+        {
+            var c = new Color(1f, 0.92f, 0.7f);
+            Spawn(FightArt.Star, pos, 0.2f, Vector2.one * 0.6f, Vector2.one * 2.2f, Color.white, A(c, 0f), Order + 6, Random.Range(0f, 45f));
+            Spawn(FightArt.Ring, pos, 0.25f, Vector2.one * 0.4f, Vector2.one * 2.4f, A(c, 0.9f), A(c, 0f), Order + 5);
+            Sparks(pos, 8, 10f, c, 0.8f, 0.3f);
         }
 
         public static void Block(Vector3 pos, float dirX)

@@ -15,6 +15,9 @@ namespace BalHanuman.Fight
 
     public enum FxKind { Light, Heavy, Fire, Dark, Gold }
 
+    /// <summary>Boss tell colours: yellow = blockable, red = grab / unblockable, purple = projectile or spell.</summary>
+    public enum TeleClass { None, Blockable, Grab, Projectile }
+
     /// <summary>One damaging window inside a move: a circle that follows a puppet joint while t0 &lt;= t &lt; t1.</summary>
     public class HitWindow
     {
@@ -33,6 +36,10 @@ namespace BalHanuman.Fight
         public bool heavy;
         public bool burn;                   // sets the target on fire for a moment
         public bool grab;                   // a grab: on contact the target is held instead of hit
+        public int priority = -1;           // clash order: 0 normal, 1 heavy, 2 armored, 3 unblockable. -1 = derived from the window (unblockable 3, heavy 1, else 0)
+        public int Prio => priority >= 0 ? priority : (level == HitLevel.Unblockable ? 3 : heavy ? 1 : 0);
+        /// <summary>Impact tier from the window itself: 0 light, 1 medium, 2 heavy (launch / knockdown / big heavy), 3 ultimate. Drives hit-stop, shake, camera, flash, sound, haptics and effect size.</summary>
+        public int Tier => Prio >= 3 || damage >= 200f ? 3 : (launch || knockdown || (heavy && damage >= 60f)) ? 2 : (damage >= 40f || heavy || knock.x >= 3f) ? 1 : 0;
         public bool frameTip;               // frame-art moves: the hit circle sits on the weapon / foot / tail end measured from the current frame (+ offset.x forward, offset.y up)
     }
 
@@ -53,7 +60,13 @@ namespace BalHanuman.Fight
         public float lungeSpeed, lungeT0, lungeT1;      // forward root motion
         public float gravityMul = 1f;       // e.g. 0.15 = hang in the air during air combos
         public bool air;                    // starts and stays airborne
-        public bool armor;                  // cannot be interrupted
+        public int armorHits;               // absorbs this many hits (at half damage, no reaction) once armorStart has passed; 99 = cannot be interrupted
+        public float armorStart;
+        public bool armor { get => armorHits > 0; set => armorHits = value ? 99 : 0; }     // legacy flag: fully armored
+        public float endLag;                // extra recovery after the animation ends (the last picture holds): commitment without new art
+        public float whiffLag = 0.12f;      // extra wait before the next command may cancel this move when it connected with nothing
+        public float holdAt, holdLen;       // boss tells: the move clock pauses at holdAt for holdLen seconds (the wind-up picture holds)
+        public TeleClass tele;              // colour/sound of the tell shown when the hold starts
         public bool invulnerable;           // e.g. power activations
         public float invulnT0, invulnT1 = -1f;
         public float meterGain = 0.06f;
@@ -95,6 +108,6 @@ namespace BalHanuman.Fight
 
     public struct HitResult
     {
-        public bool connected, blocked, parried, dodged;
+        public bool connected, blocked, parried, dodged, clashed;
     }
 }

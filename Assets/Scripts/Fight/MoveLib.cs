@@ -284,6 +284,7 @@ namespace BalHanuman.Fight
             m["finalblow"].armor = true; m["finalblow"].expr = Expr.Roar; m["finalblow"].sfx = "whoosh_heavy";
 
             ApplyFrameArt(m);
+            CombatTuning.ApplyHanuman(m);
             return m;
         }
 
@@ -516,6 +517,7 @@ namespace BalHanuman.Fight
                 .Hit(H(0.15f, 0.28f, J.Weapon, tip, 0.9f, 60, new Vector2(3f, 6f), 0.45f, HitLevel.Low, FxKind.Dark, true, true, false, 0.1f, 0.15f));
             m["gsweep"].telegraph = true;
 
+            CombatTuning.ApplyBoss(m);
             return m;
         }
     }

@@ -18,6 +18,12 @@ namespace BalHanuman.Fight
         public static void RunInput() { skipDirect = true; Run(); }
         public static void RunDefence() { skipDirect = true; onlyDefence = true; Run(); }
         static bool onlyDefence;
+        public static void RunCombat() { onlyCombat = true; Run(); }
+        static bool onlyCombat;
+        public static void RunBrain() { onlyBrain = true; Run(); }
+        static bool onlyBrain, onlyBot, onlyStuck;
+        public static void RunStuck() { onlyStuck = true; Run(); }
+        public static void RunBot() { onlyBot = true; Run(); }
         static bool skipDirect;
 
         FightDirector d; HanumanFighter h; AhiravanaFighter b;
@@ -48,6 +54,40 @@ namespace BalHanuman.Fight
             Time.timeScale = 1f;
             Log("MOVE AUDIT  " + System.DateTime.Now);
             yield return StartCoroutine(Fresh(1.5f));
+            if (onlyStuck)
+            {
+                yield return StartCoroutine(StuckTests());
+                Log(""); Log("AUDIT DONE");
+                FightInput.Reset(); Destroy(gameObject);
+                yield break;
+            }
+            if (onlyBot)
+            {
+                yield return StartCoroutine(BotTests());
+                Log(""); Log("AUDIT DONE");
+                FightInput.Reset(); Destroy(gameObject);
+                yield break;
+            }
+            if (onlyBrain)
+            {
+                yield return StartCoroutine(JumpFeelTests());
+                yield return StartCoroutine(BrainTests());
+                Log(""); Log("AUDIT DONE");
+                FightInput.Reset(); Destroy(gameObject);
+                yield break;
+            }
+            if (onlyCombat)
+            {
+                FrameData();
+                yield return StartCoroutine(ArmorTests());
+                yield return StartCoroutine(ClashTests());
+                yield return StartCoroutine(WhiffChainTests());
+                yield return StartCoroutine(GuardTests());
+                yield return StartCoroutine(ReactionTests());
+                Log(""); Log("AUDIT DONE");
+                FightInput.Reset(); Destroy(gameObject);
+                yield break;
+            }
             var ids = new List<string>(h.MoveIds);
             ids.Sort();
             Log("");
@@ -105,6 +145,348 @@ namespace BalHanuman.Fight
             Log(""); Log("AUDIT DONE");
             FightInput.Reset();
             Destroy(gameObject);
+        }
+
+        // ---------------------------------------------------------------------------------------------------- combat design checks
+        void FrameDataRow(string who, string id, MoveDef m)
+        {
+            float sp = Mathf.Max(0.01f, m.speedMul);
+            float t0 = 99f, t1 = 0f; foreach (var w in m.hits) { t0 = Mathf.Min(t0, w.t0); t1 = Mathf.Max(t1, w.t1); }
+            float total = (m.Length + m.endLag) / sp + m.holdLen;
+            if (m.hits.Count == 0) { Log(who + " " + id.PadRight(9) + " total=" + total.ToString("0.00") + " (no hit window)  tele=" + m.tele + " armor=" + m.armorHits + (m.armorHits > 0 ? "@" + m.armorStart.ToString("0.00") : "")); return; }
+            float startup = t0 / sp + m.holdLen, active = (t1 - t0) / sp, recov = total - startup - active;
+            var w0 = m.hits[0];
+            Log(who + " " + id.PadRight(9) + " startup=" + startup.ToString("0.00") + " active=" + active.ToString("0.00") + " recovery=" + recov.ToString("0.00") + " total=" + total.ToString("0.00")
+                + " dmg=" + w0.damage.ToString("0") + " hitstop=" + w0.hitstop.ToString("0.00") + " shake=" + w0.shake.ToString("0.00") + " stun=" + w0.stun.ToString("0.00") + " prio=" + w0.Prio
+                + " cancel@" + (m.cancelFrom > 50f ? "-" : (m.cancelFrom / sp).ToString("0.00")) + " tele=" + m.tele + " armor=" + m.armorHits + (m.armorHits > 0 ? "@" + (m.armorStart / sp).ToString("0.00") : ""));
+        }
+
+        void FrameData()
+        {
+            Log(""); Log("== E. frame data (real seconds): startup includes the boss's tell hold");
+            var ids = new List<string>(h.MoveIds); ids.Sort();
+            foreach (var id in ids) { var m = h.GetMove(id); if (m != null && id != "tailthrow" && id != "liftslam" && id != "diveland") FrameDataRow("H", id, m); }
+            foreach (var id in new[] { "jab", "combo", "sweep", "overhead", "grab", "orb", "barrage", "summon", "gslam", "gsweep" }) { var m = b.GetMove(id); if (m != null) FrameDataRow("B", id, m); }
+        }
+
+        IEnumerator ArmorTests()
+        {
+            Log(""); Log("== F. armor: repeated jab hits on an armored move (state after each hit; Attack = absorbed, Hitstun = interrupted)");
+            var jabW = new HitWindow { damage = 45f, knock = new Vector2(2f, 0f), stun = 0.34f };
+            foreach (var id in new[] { "m3", "charge1", "charge2", "m1" })
+            {
+                yield return StartCoroutine(Fresh(1.4f));
+                h.Perform(id); var mv = h.GetMove(id);
+                yield return new WaitForSecondsRealtime(Mathf.Max(0.02f, mv.armorStart / Mathf.Max(0.01f, mv.speedMul) + 0.03f));
+                var sb = new StringBuilder(); float hp0 = h.hp;
+                for (int i = 0; i < 4; i++)
+                {
+                    if (h.state != FState.Attack) break;
+                    h.ReceiveHit(b, jabW, h.Center);
+                    yield return null; yield return null;
+                    sb.Append("hit" + (i + 1) + "->" + h.state + " ");
+                    if (h.state == FState.Attack && h.hitstop > 0f) yield return new WaitForSecondsRealtime(0.1f);
+                }
+                Log((id + " (armorHits=" + mv.armorHits + ")").PadRight(26) + sb + " hpLoss=" + (hp0 - h.hp).ToString("0"));
+            }
+            foreach (var id in new[] { "summon", "orb", "gslam" })
+            {
+                yield return StartCoroutine(Fresh(1.4f));
+                if (id == "gslam") { b.scaleTarget = b.scale = 2.2f; }
+                b.StartMove(b.GetMove(id)); var mv = b.GetMove(id);
+                yield return new WaitForSecondsRealtime(mv.armorStart + mv.holdLen + 0.05f);
+                var w = h.GetMove("m1").hits[0]; var sb = new StringBuilder();
+                for (int i = 0; i < 4; i++)
+                {
+                    if (b.state != FState.Attack) break;
+                    b.ReceiveHit(h, w, b.Center);
+                    yield return null; yield return null;
+                    sb.Append("hit" + (i + 1) + "->" + b.state + " ");
+                    if (b.state == FState.Attack) yield return new WaitForSecondsRealtime(0.12f);
+                }
+                Log(("boss " + id + " (armorHits=" + mv.armorHits + ")").PadRight(26) + sb);
+            }
+            yield return StartCoroutine(Fresh(1.4f));
+            h.Perform("charge2"); yield return new WaitForSecondsRealtime(0.25f);
+            h.ReceiveHit(b, new HitWindow { damage = 60f, level = HitLevel.Unblockable, knock = new Vector2(3f, 0f) }, h.Center); yield return null; yield return null;
+            Log("unblockable vs armor".PadRight(26) + "-> " + h.state + " (expect Hitstun / Launched)");
+        }
+
+        IEnumerator ClashTests()
+        {
+            Log(""); Log("== G. priority: simultaneous active attacks");
+            yield return StartCoroutine(Fresh(1.3f));
+            var jab = b.GetMove("jab"); var m1 = h.GetMove("m1");
+            b.StartMove(jab); h.StartMove(m1);
+            float hp0 = h.hp, bp0 = b.hp;
+            b.moveT = jab.hits[0].t0 + 0.005f; h.moveT = m1.hits[0].t0 + 0.005f;
+            yield return new WaitForSecondsRealtime(0.5f);
+            Log("jab vs gada jab (equal)".PadRight(30) + "hanumanHpLoss=" + (hp0 - h.hp).ToString("0") + " bossHpLoss=" + (bp0 - b.hp).ToString("0") + " (expect 0 / 0 = clash)");
+            yield return StartCoroutine(Fresh(1.3f));
+            var ov = b.GetMove("overhead");
+            b.StartMove(ov); h.StartMove(m1);
+            hp0 = h.hp; bp0 = b.hp;
+            b.moveT = ov.hits[0].t0 + 0.005f; h.moveT = m1.hits[0].t0 + 0.005f;
+            yield return new WaitForSecondsRealtime(0.5f);
+            Log("overhead vs gada jab (heavy)".PadRight(30) + "hanumanHpLoss=" + (hp0 - h.hp).ToString("0") + " bossHpLoss=" + (bp0 - b.hp).ToString("0") + " (expect Hanuman hit, boss not)");
+        }
+
+        IEnumerator WhiffChainTests()
+        {
+            Log(""); Log("== H. whiff vs hit chain (taps 0.2s apart): the second move's start time shows the whiff lag");
+            yield return StartCoroutine(Scenario("gada x2 on HIT (boss 1.4 m)", 1.4f, () => TapSeq(B.Mace, 2, 0.2f), 1.2f));
+            yield return StartCoroutine(Scenario("gada x2 on WHIFF (boss 5 m)", 5.0f, () => TapSeq(B.Mace, 2, 0.2f), 1.2f));
+            yield return StartCoroutine(Scenario("kick x2 on HIT", 1.4f, () => TapSeq(B.Kick, 2, 0.2f), 1.2f));
+            yield return StartCoroutine(Scenario("kick x2 on WHIFF", 5.0f, () => TapSeq(B.Kick, 2, 0.2f), 1.2f));
+        }
+
+        IEnumerator GuardTests()
+        {
+            Log(""); Log("== I. guard: holding back against repeated boss jabs");
+            yield return StartCoroutine(Fresh(1.6f));
+            var sb = new StringBuilder(); float hp0 = h.hp;
+            FightInput.Stick = new Vector2(-1, 0);
+            yield return new WaitForSecondsRealtime(0.3f);
+            for (int i = 0; i < 8; i++)
+            {
+                if (h.state == FState.Stunned) { sb.Append("[STUNNED] "); break; }
+                b.StartMove(b.GetMove("jab"));
+                yield return new WaitForSecondsRealtime(0.7f);
+                sb.Append("jab" + (i + 1) + ":guard=" + h.guard.ToString("0") + "," + h.state + " ");
+            }
+            FightInput.Stick = Vector2.zero;
+            Log("block spam".PadRight(14) + sb + " hpLoss=" + (hp0 - h.hp).ToString("0"));
+            yield return new WaitForSecondsRealtime(2.5f);
+            Log("guard after 2.5 s rest: " + h.guard.ToString("0") + " / " + h.guardMax.ToString("0"));
+        }
+
+        IEnumerator ReactionTests()
+        {
+            Log(""); Log("== J. boss reaction: set to block everything he can react to (blockChance 1), otherwise standing still");
+            foreach (var id in new[] { "m1", "k1", "m3", "thrust", "charge1" })
+            {
+                int hits = 0, blocked = 0;
+                for (int i = 0; i < 5; i++)
+                {
+                    yield return StartCoroutine(Fresh(1.4f));
+                    b.dummy = AhiravanaFighter.Dummy.Fight; b.blockChance = 1f; b.aggression = 0.001f;
+                    typeof(AhiravanaFighter).GetField("thinkT", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).SetValue(b, 1000f);      // no attacks of his own, only reactions
+                    float hp0 = b.hp;
+                    h.Perform(id);
+                    float s = Time.time; bool wasBlock = false;
+                    while (Time.time - s < 1.3f) { if (b.state == FState.Blockstun || b.state == FState.Block) wasBlock = true; yield return null; }
+                    if (b.hp < hp0 - 20f) hits++; else if (wasBlock) blocked++;
+                }
+                Log(id.PadRight(8) + " landed=" + hits + " blocked=" + blocked + " of 5");
+            }
+        }
+
+        // ---------------------------------------------------------------------------------------------------- prompts 5-8 checks
+        string Summarise(List<string> log)
+        {
+            var counts = new Dictionary<string, int>();
+            foreach (var e in log) { string k = e.StartsWith("step:") ? "step" : e; counts[k] = counts.TryGetValue(k, out var n) ? n + 1 : 1; }
+            var sb = new StringBuilder();
+            foreach (var kv in counts) sb.Append(kv.Key + " x" + kv.Value + "; ");
+            return sb.ToString();
+        }
+
+        IEnumerator BrainBot(string name, float dur, System.Func<IEnumerator> act)
+        {
+            yield return StartCoroutine(Fresh(1.8f));
+            h.maxHp = h.hp = 1000000f; b.maxHp = b.hp = 1000000f; b.dummy = AhiravanaFighter.Dummy.Fight; b.SetRound(2);
+            b.pickLog.Clear(); b.aggression = 1.6f;
+            StartCoroutine(act());
+            float t0 = Time.time; int hits = 0; float hp0 = h.hp;
+            while (Time.time - t0 < dur) { h.hp = Mathf.Max(h.hp, 999000f); yield return null; }
+            FightInput.Reset(); h.demoBlock = false;
+            Log(name.PadRight(22) + Summarise(b.pickLog));
+        }
+
+        IEnumerator SpamM1() { for (int i = 0; i < 30; i++) { h.Perform("m1"); yield return new WaitForSecondsRealtime(0.32f); } }
+        IEnumerator Turtle() { h.demoBlock = true; yield return new WaitForSecondsRealtime(20f); }
+        IEnumerator JumpAbout() { for (int i = 0; i < 10; i++) { h.ForceJump(0f); yield return new WaitForSecondsRealtime(0.9f); } }
+        IEnumerator BackAway() { float t = Time.time; while (Time.time - t < 20f) { FightInput.Stick = new Vector2(-h.facing, 0f); yield return null; } }
+
+        IEnumerator BrainTests()
+        {
+            Log(""); Log("== K. boss brain: what he chooses against different players (8 s each)");
+            yield return StartCoroutine(BrainBot("gada spam", 8f, SpamM1));
+            yield return StartCoroutine(BrainBot("turtle (hold block)", 14f, Turtle));
+            yield return StartCoroutine(BrainBot("jumping around", 8f, JumpAbout));
+            yield return StartCoroutine(BrainBot("backing away", 8f, BackAway));
+            yield return StartCoroutine(BrainBot("standing still", 8f, () => Idle()));
+
+            Log(""); Log("== L. phases: health thresholds inside a round (60 % and 30 %), no refill");
+            yield return StartCoroutine(Fresh(2.5f));
+            d.forcePhases = true; b.SetRound(2); b.dummy = AhiravanaFighter.Dummy.Fight; b.maxHp = 1000f; b.hp = 1000f; h.maxHp = h.hp = 1000000f;
+            var thinkF = typeof(AhiravanaFighter).GetField("thinkT", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            thinkF.SetValue(b, 1000f);
+            Log("start        phase=" + b.phase + " aggression=" + b.aggression.ToString("0.00") + " blockChance=" + b.blockChance.ToString("0.00"));
+            b.hp = 560f; yield return new WaitForSecondsRealtime(0.4f); string midState = b.state.ToString();
+            yield return new WaitForSecondsRealtime(1.8f);
+            Log("hp 56 %      during transition state=" + midState + "; after: phase=" + b.phase + " aggression=" + b.aggression.ToString("0.00") + " blockChance=" + b.blockChance.ToString("0.00") + " hp=" + b.hp.ToString("0"));
+            b.hp = 250f; yield return new WaitForSecondsRealtime(2.2f);
+            Log("hp 25 %      phase=" + b.phase + " aggression=" + b.aggression.ToString("0.00") + " blockChance=" + b.blockChance.ToString("0.00") + " hp=" + b.hp.ToString("0"));
+            d.forcePhases = false;
+        }
+
+        IEnumerator Idle() { yield return new WaitForSecondsRealtime(20f); }
+
+        IEnumerator JumpFeelTests()
+        {
+            Log(""); Log("== M. jump feel: height and air time, tap vs hold; landing recovery; fighter contact");
+            foreach (var hold in new[] { 0.06f, 0.5f })
+            {
+                yield return StartCoroutine(Fresh(6f));
+                float y0 = 0f, maxY = 0f, tLaunch = -1f, tLand = -1f; bool airborne = false;
+                FightInput.TouchDown(B.Jump); float t0 = Time.time;
+                while (Time.time - t0 < 1.4f)
+                {
+                    if (Time.time - t0 > hold) FightInput.TouchUp(B.Jump);
+                    float y = h.transform.position.y; maxY = Mathf.Max(maxY, y);
+                    if (!airborne && y > 0.02f) { airborne = true; tLaunch = Time.time - t0; }
+                    if (airborne && tLand < 0f && y <= 0.001f && h.grounded) tLand = Time.time - t0;
+                    yield return null;
+                }
+                FightInput.Reset();
+                Log("jump " + (hold < 0.2f ? "tap " : "hold") + "   take-off after " + tLaunch.ToString("0.00") + " s, peak " + maxY.ToString("0.00") + " m, air time " + (tLand - tLaunch).ToString("0.00") + " s");
+            }
+            // landing recovery: attack pressed the moment he lands
+            yield return StartCoroutine(Fresh(6f));
+            h.ForceJump(0f);
+            while (!h.grounded || h.transform.position.y > 0.01f) yield return null;
+            while (h.transform.position.y > 0.001f) yield return null;
+            float landT = Time.time; float actT = -1f;
+            FightInput.TouchDown(B.Kick);
+            while (Time.time - landT < 0.6f) { if (h.Attacking) { actT = Time.time - landT; break; } yield return null; }
+            FightInput.TouchUp(B.Kick);
+            Log("kick pressed on landing: starts " + (actT < 0 ? "never" : actT.ToString("0.00") + " s") + " after touchdown");
+            // walking into the boss
+            yield return StartCoroutine(Fresh(3.0f));
+            b.dummy = AhiravanaFighter.Dummy.Idle;
+            FightInput.Stick = new Vector2(1, 0);
+            float flips = 0f, lastDx = 0f, maxOverlap = 0f; float tt = Time.time; float lastX = h.transform.position.x;
+            while (Time.time - tt < 2.5f)
+            {
+                float x = h.transform.position.x; float dxm = x - lastX; if (Mathf.Sign(dxm) != Mathf.Sign(lastDx) && Mathf.Abs(dxm) > 0.0005f && Mathf.Abs(lastDx) > 0.0005f) flips++; if (Mathf.Abs(dxm) > 0.0005f) lastDx = dxm; lastX = x;
+                maxOverlap = Mathf.Max(maxOverlap, Mathf.Max(0f, (h.pushWidth * h.scale + b.pushWidth * b.scale) * 0.5f - Mathf.Abs(b.transform.position.x - x)));
+                yield return null;
+            }
+            FightInput.Reset();
+            Log("walk into the boss for 2.5 s: direction reversals=" + flips + " (jitter), max overlap=" + maxOverlap.ToString("0.00") + " m");
+            // thrust through the boss
+            yield return StartCoroutine(Fresh(1.6f));
+            b.dummy = AhiravanaFighter.Dummy.Idle;
+            h.Perform("vayudash"); flips = 0f; lastDx = 0f; lastX = h.transform.position.x; maxOverlap = 0f; tt = Time.time;
+            while (Time.time - tt < 1.0f)
+            {
+                float x = h.transform.position.x; float dxm = x - lastX; if (Mathf.Sign(dxm) != Mathf.Sign(lastDx) && Mathf.Abs(dxm) > 0.0005f && Mathf.Abs(lastDx) > 0.0005f) flips++; if (Mathf.Abs(dxm) > 0.0005f) lastDx = dxm; lastX = x;
+                maxOverlap = Mathf.Max(maxOverlap, Mathf.Max(0f, (h.pushWidth * h.scale + b.pushWidth * b.scale) * 0.5f - Mathf.Abs(b.transform.position.x - x)));
+                yield return null;
+            }
+            Log("wind dash into the boss: direction reversals=" + flips + ", max overlap=" + maxOverlap.ToString("0.00") + " m");
+        }
+
+        // ---------------------------------------------------------------------------------------------------- scripted player (prompt 12)
+        /// <summary>
+        /// A simple player: walks into range, chains gada, blocks what it can see coming after a 0.25 s reaction time, dodges grabs.
+        /// Runs whole fights at a given round/difficulty and reports time-to-win, damage taken and when the boss changed phase.
+        /// </summary>
+        IEnumerator BotFight(string name, int round, FightSetup.Difficulty level)
+        {
+            yield return StartCoroutine(Fresh(2.5f));
+            var oldLevel = FightSetup.Level; FightSetup.Level = level; FightSetup.Current = FightSetup.Mode.Story; d.ApplyDifficulty();
+            d.forcePhases = true; d.noTrainingHeal = true;
+            h.maxHp = h.hp = 1000f; b.maxHp = b.hp = 1000f; b.dummy = AhiravanaFighter.Dummy.Fight; b.SetRound(round); b.ApplyDifficulty();
+            var thinkF = typeof(AhiravanaFighter).GetField("thinkT", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            float t0 = Time.time; float seen = 0f; MoveDef seenMove = null; int lastPhase = 0; float p1 = -1f, p2 = -1f; int chain = 0; float nextAct = 0f; int parries = 0;
+            while (Time.time - t0 < 120f && h.Alive && b.hp > 1.5f && b.Alive)
+            {
+                if (b.phase != lastPhase) { lastPhase = b.phase; if (lastPhase == 1) p1 = Time.time - t0; else p2 = Time.time - t0; }
+                float dx = b.transform.position.x - h.transform.position.x, dist = Mathf.Abs(dx);
+                if (b.move != seenMove) { seenMove = b.move; seen = Time.time; }
+                bool threat = b.Attacking && Time.time - seen >= 0.25f && dist < 3.2f && b.move.hits.Count > 0 && b.moveT < b.move.hits[b.move.hits.Count - 1].t1;
+                bool grab = threat && b.move.tele == TeleClass.Grab;
+                h.demoBlock = threat && !grab;
+                if (grab && h.CanAct) { FightInput.TouchDown(B.Dodge); yield return null; FightInput.TouchUp(B.Dodge); }
+                else if (!threat && !b.IsOpen && b.state != FState.Hitstun) { }
+                if (!threat)
+                {
+                    if (dist > 1.9f) FightInput.Stick = new Vector2(Mathf.Sign(dx) * 0.9f, 0f); else FightInput.Stick = Vector2.zero;
+                    if (dist <= 2.1f && Time.time >= nextAct && (h.CanAct || h.InCancelWindow))
+                    {
+                        string[] seq = { "m1", "m2", "m3" };
+                        h.Perform(seq[chain % 3]); chain++; nextAct = Time.time + 0.12f;
+                        if (chain % 3 == 0) nextAct = Time.time + 0.5f;
+                    }
+                }
+                else FightInput.Stick = Vector2.zero;
+                yield return null;
+            }
+            FightInput.Reset(); h.demoBlock = false;
+            bool won = b.hp <= 1.5f || !b.Alive;
+            Log(name.PadRight(26) + (won ? "WON" : h.Alive ? "timeout" : "LOST") + " in " + (Time.time - t0).ToString("0.0") + " s, Hanuman lost " + (1000f - h.hp).ToString("0") + " hp, boss phases at " + (p1 < 0 ? "-" : p1.ToString("0.0") + "s") + " / " + (p2 < 0 ? "-" : p2.ToString("0.0") + "s") + ", picks: " + Summarise(b.pickLog));
+            FightSetup.Level = oldLevel; FightSetup.Current = FightSetup.Mode.Training; d.forcePhases = false; d.noTrainingHeal = false;
+        }
+
+        IEnumerator BotTests()
+        {
+            Log(""); Log("== N. scripted player vs boss (a simple bot: chains gada, blocks what it sees after 0.25 s, dodges grabs)");
+            yield return StartCoroutine(BotFight("round 1, Normal", 1, FightSetup.Difficulty.Normal));
+            yield return StartCoroutine(BotFight("round 2, Normal", 2, FightSetup.Difficulty.Normal));
+            yield return StartCoroutine(BotFight("round 1, Easy", 1, FightSetup.Difficulty.Easy));
+            yield return StartCoroutine(BotFight("round 1, Hard", 1, FightSetup.Difficulty.Hard));
+        }
+
+        // ---------------------------------------------------------------------------------------------------- stuck-in-air hunt
+        IEnumerator StuckHunt(string name, float dist, float dur, System.Func<IEnumerator> act, bool realBoss)
+        {
+            yield return StartCoroutine(Fresh(dist));
+            h.maxHp = h.hp = 1000000f; b.maxHp = b.hp = 1000000f;
+            if (realBoss) { b.dummy = AhiravanaFighter.Dummy.Fight; d.forcePhases = true; d.noTrainingHeal = true; b.SetRound(2); }
+            StartCoroutine(act());
+            float t0 = Time.time, airT = 0f, hAirT = 0f, worstB = 0f, worstH = 0f, lastLog = 0f; var sb = new StringBuilder();
+            while (Time.time - t0 < dur)
+            {
+                h.hp = Mathf.Max(h.hp, 999000f);
+                float by = b.transform.position.y, hy = h.transform.position.y;
+                bool bStuck = by > 0.05f && !b.flying && Mathf.Abs(b.vel.y) < 0.05f; airT = bStuck ? airT + Time.deltaTime : 0f; worstB = Mathf.Max(worstB, airT);
+                bool hStuck = hy > 0.05f && !h.flying && Mathf.Abs(h.vel.y) < 0.05f; hAirT = hStuck ? hAirT + Time.deltaTime : 0f; worstH = Mathf.Max(worstH, hAirT);
+                if ((bStuck && airT > 0.3f || hStuck && hAirT > 0.3f) && Time.time - lastLog > 0.5f)
+                { lastLog = Time.time; sb.Append("[t=" + (Time.time - t0).ToString("0.0") + " boss y=" + by.ToString("0.00") + " vy=" + b.vel.y.ToString("0.00") + " " + b.state + " grounded=" + b.grounded + " | hanuman y=" + hy.ToString("0.00") + " " + h.state + " grounded=" + h.grounded + "] "); }
+                yield return null;
+            }
+            FightInput.Reset(); d.forcePhases = false; d.noTrainingHeal = false;
+            Log(name.PadRight(30) + "longest boss hover=" + worstB.ToString("0.00") + "s, longest hanuman hover=" + worstH.ToString("0.00") + "s  " + sb);
+        }
+
+        IEnumerator StuckTests()
+        {
+            Log(""); Log("== S. stuck / hovering hunt (hover = airborne with no vertical speed)");
+            yield return StartCoroutine(StuckHunt("kick spam x15, dummy boss", 1.4f, 7f, () => TapSeq(B.Kick, 15, 0.22f), false));
+            yield return StartCoroutine(StuckHunt("kick spam x15, real boss", 1.4f, 14f, () => TapSeq(B.Kick, 15, 0.22f), true));
+            yield return StartCoroutine(StuckHunt("kick+tail mix, real boss", 1.4f, 14f, KickMix, true));
+            yield return StartCoroutine(StuckHunt("jump kick spam, real boss", 2.0f, 12f, JumpKick, true));
+            yield return StartCoroutine(StuckHunt("gada spam, real boss", 1.4f, 14f, () => TapSeq(B.Mace, 20, 0.25f), true));
+        }
+
+        IEnumerator KickMix()
+        {
+            for (int i = 0; i < 8; i++)
+            {
+                FightInput.Stick = new Vector2(0, -1); yield return StartCoroutine(Tap(B.Kick)); yield return new WaitForSecondsRealtime(0.5f); FightInput.Stick = Vector2.zero;
+                yield return StartCoroutine(Tap(B.Kick)); yield return new WaitForSecondsRealtime(0.3f); yield return StartCoroutine(Tap(B.Kick)); yield return new WaitForSecondsRealtime(0.6f);
+            }
+        }
+
+        IEnumerator JumpKick()
+        {
+            for (int i = 0; i < 6; i++)
+            {
+                yield return StartCoroutine(Tap(B.Jump, 0.3f)); yield return new WaitForSecondsRealtime(0.35f);
+                yield return StartCoroutine(Tap(B.Kick)); yield return new WaitForSecondsRealtime(1.2f);
+            }
         }
 
         // ---------------------------------------------------------------------------------------------------- input path

@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -33,6 +34,7 @@ namespace BalHanuman.Fight
             // the old cut-out rig art is gone: every move is drawn from the whole-body pose pictures (AhiravanaPoses)
             moves = MoveLib.Ahiravana(clips);
             SetupPoses();
+            ApplyDifficulty();
             hurtSize = new Vector2(0.95f, 2.85f);
             if (clone) { puppet.SetTint(new Color(0.8f, 0.6f, 1f, 0.7f)); damageDealtMul = 0.5f; aggression = 1.4f; }
         }
@@ -127,6 +129,14 @@ namespace BalHanuman.Fight
         protected override void Update()
         {
             base.Update();
+            // the barrage turns gravity off for its duration; if anything interrupts it (a hit, a parry, a phase roar) the flag must not stay on
+            if (flying && !(Attacking && move.id == "barrage")) flying = false;
+            if (!isClone && dummy == Dummy.Fight && director != null && director.PhasesActive && !phaseBusy && Alive && director.ControlsLive)
+            {
+                float f = hp / maxHp;
+                int np = f < 0.3f ? 2 : f < 0.6f ? 1 : 0;
+                if (np > phase) StartCoroutine(PhaseShift(np));
+            }
             if (puppet == null || !puppet.Skinned) return;
             // hands follow the move: casting moves glow, everything else grips the trident (near) with a clawed far hand
             string id = move != null ? move.id : null;
@@ -155,9 +165,10 @@ namespace BalHanuman.Fight
 
         public void SetRound(int r)
         {
-            round = r;
+            round = r; phase = 0; phaseBusy = false; patQueue.Clear(); obs.Reset();
             aggression = r == 1 ? 0.9f : r == 2 ? 1.1f : 1.25f;
             blockChance = r == 1 ? 0.3f : r == 2 ? 0.4f : 0.35f;
+            baseAggression = aggression; baseBlock = blockChance;
             cooldown.Clear();
         }
 
@@ -171,20 +182,24 @@ namespace BalHanuman.Fight
             inX = 0; inBlock = false; inCrouch = false;
             if (opponent == null || !opponent.Alive) return;
             if (dummy == Dummy.Idle) return;
+            obs.Tick(opponent, dt, opponent.transform.position.x >= transform.position.x ? 1 : -1);
             float dx = opponent.transform.position.x - transform.position.x;
             float dist = Mathf.Abs(dx); int toward = dx >= 0 ? 1 : -1;
             float reach = 2.4f * scale;
 
-            // reaction blocks: roll once for each new opponent attack that is close enough to matter
+            // reaction blocks. The training dummy in Block mode reacts instantly. In a real fight he only blocks what he can see coming:
+            // he notices a new attack, needs a reaction time, and then only blocks if that swing is still winding up. Quick jabs beat his reflexes.
             if (opponent.move != lastSeenOppMove)
             {
-                lastSeenOppMove = opponent.move;
-                if (opponent.Attacking && dist < 4.2f * Mathf.Max(1f, opponent.scale) && (dummy == Dummy.Block || Random.value < blockChance * (isClone ? 0.3f : 1f)))
-                {
-                    blockHoldT = Mathf.Min(0.9f, opponent.move.Length + 0.1f);
-                    crouchBlock = false;
-                    foreach (var h in opponent.move.hits) if (h.level == HitLevel.Low) crouchBlock = true;
-                }
+                lastSeenOppMove = opponent.move; oppSeenT = Time.time; reactRoll = Random.value;
+                reactPending = opponent.Attacking && opponent.move.hits.Count > 0 && dummy != Dummy.Block;
+                if (dummy == Dummy.Block && opponent.Attacking && dist < 4.2f * Mathf.Max(1f, opponent.scale)) BeginBlock();
+            }
+            if (reactPending && Time.time - oppSeenT >= 0.22f - 0.02f * (round - 1))
+            {
+                reactPending = false;
+                if (opponent.Attacking && opponent.move.hits.Count > 0 && opponent.moveT < opponent.move.hits[0].t0
+                    && dist < 4.2f * Mathf.Max(1f, opponent.scale) && reactRoll < blockChance * (isClone ? 0.3f : 1f)) BeginBlock();
             }
             if (dummy == Dummy.Block) { inBlock = blockHoldT > 0f; inCrouch = crouchBlock; blockHoldT -= dt; return; }
             if (blockHoldT > 0f && CanAct) { blockHoldT -= dt; inBlock = true; inCrouch = crouchBlock; return; }
@@ -197,7 +212,8 @@ namespace BalHanuman.Fight
             thinkT = Random.Range(0.25f, 0.65f) / aggression;
             if (opponent.InHitReaction && opponent.state == FState.Knockdown) { walkT = 0.3f; walkDir = -toward; return; }
 
-            string pick = Choose(dist, reach);
+            string pick = !isClone && scale <= 1.5f && dummy == Dummy.Fight ? BrainChoose(dist, reach, toward) : Choose(dist, reach);
+            if (lastPatternStep) thinkT = 0.08f / aggression;          // the rest of a string follows quickly
             if (pick == "walk") { walkT = Random.Range(0.3f, 0.7f); walkDir = toward; inX = toward; return; }
             if (pick == "back") { walkT = Random.Range(0.25f, 0.5f); walkDir = -toward; inX = -toward; return; }
             if (pick == "dodge") { inDodge = true; inDodgeDir = -toward; return; }
@@ -206,6 +222,112 @@ namespace BalHanuman.Fight
             FaceOpponent();
             StartMove(m);
             Cool(pick, CooldownOf(pick));
+        }
+
+        float oppSeenT, reactRoll; bool reactPending;
+
+        // ---- the brain (design B7): observer + named patterns + punish rules; the old weighted pick stays for clones and the titan
+        readonly BossObserver obs = new BossObserver();
+        readonly Queue<string> patQueue = new Queue<string>();
+        public int phase;                                   // 0 / 1 / 2 by health within the round (design B8)
+        float baseAggression = 1f, baseBlock = 0.3f; bool phaseBusy;
+        public readonly List<string> pickLog = new List<string>();     // for tests: what he chose and why
+        void LogPick(string s) { if (pickLog.Count > 60) pickLog.RemoveAt(0); pickLog.Add(s); }
+        bool lastPatternStep;
+
+        bool InRecoveryWindow(Fighter f) => f.InRecovery;
+
+        string BrainChoose(float dist, float reach, int toward)
+        {
+            lastPatternStep = false;
+            // 1) finish the string he started (the tell was the start of it)
+            if (patQueue.Count > 0)
+            {
+                string step = patQueue.Peek();
+                bool fine = step == "walk" || step == "back" || Ready(step);
+                if (!fine || dist > reach * 1.7f && step != "walk" && step != "vanish" && step != "orb" && step != "summon" && step != "barrage") patQueue.Clear();
+                else { lastPatternStep = true; LogPick("step:" + step); return patQueue.Dequeue(); }
+            }
+            // too close: make room first
+            if (dist < 1.35f * scale) { LogPick("backoff"); return "back"; }
+
+            // 2) punish rules
+            if (InRecoveryWindow(opponent) && dist < reach * 1.15f && Ready("jab")) { LogPick("punish:recovery"); return phase >= 1 && Ready("combo") ? "combo" : "jab"; }
+            if (obs.BlockStreak > 2.5f && dist < reach && Ready("grab")) { LogPick("punish:turtle"); return "grab"; }
+            string spam = obs.Spammed();
+            if (spam != null && dist < reach * 1.5f)
+            {
+                string ans = spam == "thrust" || spam == "tailgrab" ? "grab" : "sweep";
+                if (Ready(ans)) { LogPick("punish:spam " + spam); return ans; }
+            }
+            if (obs.JumpCount >= 2)
+            {
+                string ans = dist > 2.2f ? "orb" : "combo";
+                if (Ready(ans)) { LogPick("punish:jumping"); return ans; }
+            }
+            if (obs.Retreat > 0.8f && dist > 2.6f && Ready("orb")) { LogPick("punish:retreat"); return "orb"; }
+
+            // 3) a pattern that fits the distance, round and phase
+            float total = 0f; var fit = new List<BossPatterns.Pattern>();
+            foreach (var p in BossPatterns.All)
+            {
+                if (round < p.minRound || phase < p.minPhase || dist < p.minDist || dist > p.maxDist) continue;
+                if (!Ready(p.steps[0])) continue;
+                if (p.steps[0] == "summon" && director.CloneCount > 0) continue;
+                fit.Add(p); total += p.weight;
+            }
+            if (fit.Count == 0) { LogPick("approach"); return dist > reach ? "walk" : "jab"; }
+            float r = Random.value * total;
+            foreach (var p in fit)
+            {
+                r -= p.weight;
+                if (r > 0f) continue;
+                for (int i = 1; i < p.steps.Length; i++) patQueue.Enqueue(p.steps[i]);
+                LogPick("pattern:" + p.name);
+                return p.steps[0];
+            }
+            return fit[0].steps[0];
+        }
+
+        // ---- difficulty (design B9): tells hold longer on Easy, recoveries shrink on Hard. Training and demo always play at Normal.
+        readonly Dictionary<MoveDef, (float hold, float end)> baseTimes = new Dictionary<MoveDef, (float, float)>();
+
+        public void ApplyDifficulty()
+        {
+            if (moves == null) return;
+            float teleK = FightSetup.TelegraphK, lagK = FightSetup.RecoveryK;
+            foreach (var m in moves.Values)
+            {
+                if (m == null) continue;
+                if (!baseTimes.ContainsKey(m)) baseTimes[m] = (m.holdLen, m.endLag);
+                var b0 = baseTimes[m];
+                m.holdLen = b0.hold * teleK;
+                float last = 0f; foreach (var w in m.hits) last = Mathf.Max(last, w.t1);
+                float extra = m.hits.Count > 0 ? Mathf.Max(0f, m.Length - last) * (lagK - 1f) : 0f;
+                m.endLag = Mathf.Max(0f, b0.end + extra);
+            }
+        }
+
+        IEnumerator PhaseShift(int p)
+        {
+            phaseBusy = true;
+            move = null; holding = null;
+            flying = false;
+            Cinematic("roar", 0.1f); invulnUntil = Time.time + 0.95f;
+            director.OnBossPhase(round, p);
+            yield return new WaitForSecondsRealtime(0.85f);
+            EndCinematic();
+            phase = p;
+            aggression = baseAggression * (1f + 0.12f * p);          // a little faster each step ...
+            blockChance = baseBlock + 0.05f * p;                    // ... and a little harder to hit, but never a wall
+            phaseBusy = false;
+        }
+
+        void BeginBlock()
+        {
+            blockHoldT = Mathf.Min(0.9f, opponent.move.Length + 0.1f);
+            crouchBlock = false;
+            foreach (var h in opponent.move.hits) if (h.level == HitLevel.Low) crouchBlock = true;
         }
 
         float CooldownOf(string id)
@@ -235,7 +357,7 @@ namespace BalHanuman.Fight
             }
             else if (titan)
             {
-                if (dist < reach * 1.1f) { Add("gslam", 2.5f); Add("gsweep", 2f); Add("jab", 1.5f); Add("grab", 1f); }
+                if (dist < reach * 1.1f) { Add("gslam", 2.5f + phase); Add("gsweep", 2f + phase); Add("jab", 1.5f); Add("grab", 1f); }
                 else { Add("walk", 2.5f); Add("orb", 2f); Add("gslam", dist < 9f ? 1.2f : 0f); }
             }
             else if (dist < reach)

@@ -12,6 +12,19 @@ namespace BalHanuman.Fight
     {
         public enum Mode { Story, Training, Demo }
         public static Mode Current = Mode.Story;
+
+        public enum Difficulty { Easy, Normal, Hard }
+        public static Difficulty Level
+        {
+            get { try { return (Difficulty)Mathf.Clamp(PlayerPrefs.GetInt("fightDifficulty", 1), 0, 2); } catch { return Difficulty.Normal; } }
+            set { try { PlayerPrefs.SetInt("fightDifficulty", (int)value); } catch { } }
+        }
+        static bool Story => Current == Mode.Story;
+        // multipliers; Normal (and training / demo) are 1
+        public static float DamageTakenK => Story && Level == Difficulty.Easy ? 0.7f : 1f;
+        public static float ParryBonus => Story && Level == Difficulty.Easy ? 0.06f : 0f;
+        public static float TelegraphK => !Story ? 1f : Level == Difficulty.Easy ? 1.25f : Level == Difficulty.Hard ? 0.9f : 1f;
+        public static float RecoveryK => !Story ? 1f : Level == Difficulty.Easy ? 1.25f : Level == Difficulty.Hard ? 0.85f : 1f;
     }
 
     /// <summary>The move list shown in the training room and walked through by the demo reel.</summary>
@@ -161,7 +174,7 @@ namespace BalHanuman.Fight
 
             if (mode == FightSetup.Mode.Story && live && round == 3 && !finale && boss.hp <= 1.01f) StartCoroutine(Finale());
 
-            if (mode != FightSetup.Mode.Story)
+            if (mode != FightSetup.Mode.Story && !noTrainingHeal)
             {
                 // keep the training dummy alive
                 if (boss.InHitReaction || boss.Attacking) bossIdleSince = Time.time;
@@ -189,8 +202,18 @@ namespace BalHanuman.Fight
             float dx = pb.x - pa.x;
             if (Mathf.Abs(dx) >= min) return;
             float s = Mathf.Abs(dx) < 0.01f ? -a.facing : Mathf.Sign(dx);
-            float push = (min - Mathf.Abs(dx)) * 0.5f;
+            float overlap = min - Mathf.Abs(dx);
             float lim = arenaHalf;
+            if (overlap < 0.35f * min)
+            {
+                // shallow contact: a soft push velocity (no snapping, no jitter). Deep overlap from a lunge falls through to the hard correction.
+                if (overlap > 0.04f && a.hitstop <= 0f && b.hitstop <= 0f)
+                {
+                    a.pushV = -s * overlap * 9f; b.pushV = s * overlap * 9f;
+                }
+                if (Mathf.Abs(pa.x) < lim - 0.01f && Mathf.Abs(pb.x) < lim - 0.01f) return;
+            }
+            float push = (overlap - (overlap < 0.35f * min ? 0f : 0.35f * min)) * 0.5f;
             pa.x = Mathf.Clamp(pa.x - s * push, -lim, lim); pb.x = Mathf.Clamp(pb.x + s * push, -lim, lim);
             // against a wall: the other one takes the whole push
             if (Mathf.Abs(pa.x) >= lim - 0.01f) pb.x = Mathf.Clamp(pa.x + s * min, -lim, lim);
@@ -268,6 +291,9 @@ namespace BalHanuman.Fight
             new[] { "TITAN'S WRATH", "stomp", "m1" },
         };
 
+        static readonly float[] TierHitstop = { 0.04f, 0.07f, 0.12f, 0.22f };
+        static readonly float[] TierShake = { 0.02f, 0.06f, 0.14f, 0.30f };
+        static readonly float[] TierKick = { 0f, 0.12f, 0.30f, 0.60f };
         float lastStopT = -10f;
 
         void Chain(string id)
@@ -314,27 +340,35 @@ namespace BalHanuman.Fight
 
         public void OnHit(Fighter attacker, Fighter victim, HitWindow w, Vector3 point, float dmg)
         {
-            float stop = w.hitstop * (w.heavy ? 1.2f : 1f) * (attacker.scale > 1.5f ? 1.3f : 1f);
+            int tier = w.Tier;
+            // impact tiers (design B5): 0 light, 1 medium, 2 heavy, 3 ultimate
+            float stop = TierHitstop[tier] * (attacker.scale > 1.5f ? 1.3f : 1f);
             // rapid hits: freeze less each time, otherwise a spam run is mostly stop-start
-            if (!w.heavy && Time.time - lastStopT < 0.3f) stop *= 0.5f;
+            if (tier < 2 && Time.time - lastStopT < 0.3f) stop *= 0.5f;
             lastStopT = Time.time;
             attacker.hitstop = Mathf.Max(attacker.hitstop, stop); victim.hitstop = Mathf.Max(victim.hitstop, stop);
             float power = Mathf.Clamp01(dmg / 90f);                 // 0 = a jab, 1 = a crushing blow
-            bool big = w.heavy || attacker.scale > 1.5f;
+            bool big = tier >= 2 || attacker.scale > 1.5f;
             bool onHanuman = victim is HanumanFighter;
-            FightFx.Hit(point, w.fx, big, attacker.facing, power);
+            FightFx.Hit(point, w.fx, big, attacker.facing, power, attacker.scale > 1.5f ? Mathf.Max(2, tier) : tier);
             if (attacker is HanumanFighter boonHolder) boonHolder.OnBoonHit(point);
-            FightSfx.Play(w.heavy ? "hit_heavy" : "hit", attacker.scale > 1.5f ? 0.75f : 1f);
-            cam.Shake(w.shake * Mathf.Max(1f, attacker.scale * 0.8f) * (onHanuman ? 1.35f : 1f), w.heavy ? 0.25f : 0.14f);
-            if (big) cam.Punch(0.22f, 0.2f);                   // only heavy hits pulse the zoom
-            cam.Kick(new Vector2(attacker.facing, 0.15f), big ? 0.2f + 0.4f * power : 0.05f + 0.15f * power);
-            victim.Squash(0.12f + 0.2f * power + (big ? 0.08f : 0f), 0.22f + 0.1f * power);
-            if (onHanuman) Haptics.Hurt(power); else Haptics.Hit(power, big);
+            // sound per tier: light and medium use the small hit (medium a touch lower), heavy the heavy hit, ultimate adds the slam
+            FightSfx.Play(tier >= 2 ? "hit_heavy" : "hit", attacker.scale > 1.5f ? 0.75f : tier == 0 ? 1.12f : tier == 1 ? 0.95f : 1f, tier == 0 ? 0.8f : 1f);
+            if (tier >= 3) FightSfx.Play("slam", 0.8f, 0.8f);
+            cam.Shake(TierShake[tier] * Mathf.Max(1f, attacker.scale * 0.8f) * (onHanuman ? 1.35f : 1f), tier >= 2 ? 0.25f : 0.14f);
+            if (tier >= 2) cam.Punch(tier >= 3 ? 0.4f : 0.22f, tier >= 3 ? 0.3f : 0.2f);          // only heavy hits pulse the zoom
+            if (tier >= 1) cam.Kick(new Vector2(attacker.facing, 0.15f), TierKick[tier] + 0.15f * power);
+            if (tier >= 2) hud.Flash(Color.white, tier >= 3 ? 0.35f : 0.1f, tier >= 3 ? 2f : 5f);   // a brief screen flash on the big ones
+            victim.Squash(0.06f + 0.1f * tier + 0.1f * power, 0.2f + 0.04f * tier);
+            if (onHanuman) Haptics.Hurt(power);
+            else if (tier == 0) Haptics.Tick();
+            else if (tier == 1) Haptics.Hit(power, false);
+            else if (tier == 2) Haptics.Hit(power, true);
+            else Haptics.Slam(0.9f);
             if (attacker is HanumanFighter)
             {
                 hanuman.AddMeter((attacker.Attacking ? attacker.move.meterGain : 0.05f) * (w.heavy ? 1.6f : 1f));
                 CountHit(attacker.Attacking ? attacker.move.id : null, dmg);
-                if (w.heavy) hud.Flash(Color.white, 0.18f, 2.5f);
             }
             else if (victim is HanumanFighter)
             {
@@ -352,6 +386,66 @@ namespace BalHanuman.Fight
             Haptics.Block();
             attacker.hitstop = victim.hitstop = 0.04f;
             cam.Shake(0.03f, 0.1f);
+        }
+
+        public bool forcePhases, noTrainingHeal;                    // tests
+
+        /// <summary>Re-applies the difficulty to the fighters (pause menu button, or a new fight).</summary>
+        public void ApplyDifficulty()
+        {
+            if (hanuman != null) hanuman.parryWindow = Fighter.ParryWindow + FightSetup.ParryBonus;
+            if (boss != null) boss.ApplyDifficulty();
+            foreach (var c in clones) if (c != null) c.ApplyDifficulty();
+        }
+        public bool PhasesActive => mode == FightSetup.Mode.Story || forcePhases;
+
+        static readonly string[,] PhaseText =
+        {
+            { "", "HE QUICKENS", "HE UNLEASHES HIS FURY" },            // round 1: the duel
+            { "", "ILLUSIONS", "THE DARK BARRAGE" },                   // round 2: sorcery
+            { "", "THE TITAN STIRS", "TITAN'S WRATH" },                // round 3: titan
+        };
+
+        /// <summary>Ahiravana crosses a health threshold: a roar, slow-motion and a banner. His health is not restored.</summary>
+        public void OnBossPhase(int round, int p)
+        {
+            SlowMo(0.35f, 0.7f);
+            cam.Shake(0.15f, 0.5f); cam.Punch(0.3f, 0.4f);
+            hud.Flash(new Color(0.7f, 0.35f, 1f), 0.4f, 2f);
+            FightSfx.Play("roar", 0.75f); FightSfx.Play("thunder", 0.9f, 0.6f);
+            hud.Banner(PhaseText[Mathf.Clamp(round - 1, 0, 2), Mathf.Clamp(p, 1, 2)], "", 1.0f, new Color(0.8f, 0.45f, 1f), true);
+            Haptics.Heavy();
+        }
+
+        /// <summary>Two equal attacks met: a spark, a clang and a short shake, no damage.</summary>
+        public void OnClash(Fighter a, Fighter b, Vector3 point)
+        {
+            FightFx.Clash(point);
+            FightSfx.Play("clang", 0.9f, 0.9f);
+            cam.Shake(0.05f, 0.1f);
+            Haptics.Block();
+        }
+
+        /// <summary>Blocking too much: the guard shatters and the blocker is stunned.</summary>
+        public void OnGuardBreak(Fighter victim, Fighter attacker, Vector3 point)
+        {
+            FightFx.Hit(point, FxKind.Gold, true, attacker.facing, 0.7f);
+            FightFx.Block(point, attacker.facing);
+            FightSfx.Play("clang", 1.1f, 0.7f); FightSfx.Play("slam", 0.7f, 1.2f);
+            cam.Shake(0.12f, 0.25f); cam.Punch(0.2f, 0.2f);
+            attacker.hitstop = Mathf.Max(attacker.hitstop, 0.1f); victim.hitstop = Mathf.Max(victim.hitstop, 0.1f);
+            hud.Banner(victim is HanumanFighter ? "GUARD BROKEN" : "GUARD BREAK!", "", 0.8f, new Color(0.6f, 0.9f, 1f), true);
+            if (victim is HanumanFighter) Haptics.Heavy();
+        }
+
+        /// <summary>The first hit after a parry or perfect dodge: bonus damage, announced.</summary>
+        public void OnCounterHit(Fighter attacker, Fighter victim, Vector3 point)
+        {
+            if (!(attacker is HanumanFighter)) return;
+            hud.Banner("COUNTER!", "", 0.7f, new Color(1f, 0.85f, 0.3f), true);
+            FightSfx.Play("rank", 1.1f, 0.8f);
+            FightFx.Flip("aura", point, 2.2f, 0.3f, new Color(1f, 0.9f, 0.5f, 0.9f), FightFx.Order + 5);
+            Haptics.Medium();
         }
 
         public void OnParry(Fighter defender, Fighter attacker, Vector3 point)
@@ -372,6 +466,7 @@ namespace BalHanuman.Fight
             if (!(dodger is HanumanFighter) || attacker == null || attacker.move == lastDodgedMove && attacker.Attacking) return;
             lastDodgedMove = attacker.move;
             perfectDodges++;
+            dodger.counterUntil = Time.time + 0.6f;         // the counter window: your next hit does +30%
             hanuman.AddMeter(0.3f);
             SlowMo(0.35f, 0.5f);
             hud.Banner("PERFECT DODGE", "", 0.8f, new Color(0.6f, 0.95f, 1f));
@@ -700,7 +795,8 @@ namespace BalHanuman.Fight
             Unlock(PowerId.Vayu, PowerId.Panchmukhi);
             if (r >= 2) Unlock(PowerId.Flight, PowerId.FireTail, PowerId.Shrink);
             if (r >= 3) Unlock(PowerId.Vajra, PowerId.Growth);
-            if (r == 1) hud.Hint("Move: A/D or stick   MACE: J   KICK: K   DODGE: L   Jump: W   Hold back to block", 5f);
+            if (r == 1) hud.Hint(FightInput.IsTouch ? "Stick: move   MACE: tap to strike, hold to charge   KICK   DODGE   JUMP   Hold back to block"
+                : "Move: A/D or stick   MACE: J   KICK: K   DODGE: L   Jump: W   Hold back to block", 6f);
             if (r == 2)
             {
                 hud.Banner("BOONS AWAKENED", "FLIGHT  -  FIRE TAIL  -  ANIMA (shrink)   ·   boons 2, 3, 4", 2.4f, new Color(1f, 0.8f, 0.35f));
@@ -752,7 +848,7 @@ namespace BalHanuman.Fight
             Unlock(PowerId.Panchmukhi);
             hanuman.bhakti = 3f;
             hud.Banner("UNLEASH PANCHMUKHI!", "Weaken Ahiravana to earn the STAR, then solve the lamp puzzle", 3f, new Color(1f, 0.82f, 0.3f));
-            hud.Hint("PANCHMUKHI  -  U", 10f);
+            hud.Hint(FightInput.IsTouch ? "PANCHMUKHI  -  tap ULTIMATE" : "PANCHMUKHI  -  U", 10f);
             boss.EndCinematic(); hanuman.EndCinematic();
             hud.ShowControls(true);
             live = true;

@@ -39,6 +39,8 @@ namespace BalHanuman.Fight
         public bool panchGlow;                  // set by the director while the Panchmukhi form is shown
         public bool demoBlock;                  // demo reel: hold block
         const float BaseWalk = 2.8f;
+        float fwdEnter = -10f, backEnter = -10f;                         // when the stick last moved into forward / back
+        bool bufFwd, bufBack, bufFar;                                    // what the stick meant at the moment the buffered command was pressed
 
         public static int Cost(PowerId p) => p == PowerId.Growth ? 2 : p == PowerId.Panchmukhi ? 3 : 1;
         public static float Duration(PowerId p)
@@ -80,6 +82,7 @@ namespace BalHanuman.Fight
             chargeMove = new MoveDef { id = "chargehold", name = "Charging", clip = clips["charge"], expr = Expr.Roar };
             chargeMove.frameClip = "charge"; chargeMove.frameFrom = 0; chargeMove.frameTo = 7; chargeMove.frameLoop = true;
             hurtSize = new Vector2(0.95f, 2.75f);
+            parryWindow = ParryWindow + FightSetup.ParryBonus;
         }
 
 
@@ -91,6 +94,8 @@ namespace BalHanuman.Fight
 
         protected override float BlockPressTime => Mathf.Max(backPress, demoBlock ? Time.time - 0.05f : -10f);
 
+        protected override bool JumpHeld => FightInput.Held(B.Jump) || FightInput.Y > 0.5f;
+
         protected override Expr CurrentMood() => hp < maxHp * 0.3f ? Expr.Furious : Active(PowerId.Vajra) || Active(PowerId.Growth) ? Expr.Serene : mood;
 
         // ================================================================== input -> intent
@@ -99,8 +104,8 @@ namespace BalHanuman.Fight
             float x = FightInput.X, y = FightInput.Y;
             float rel = x * facing;
             bool back = rel < -0.4f, fwd = rel > 0.4f, upNow = y > 0.5f;
-            if (back && !wasBack) { backPress = Time.time; if (Time.time - lastBackTap < 0.28f) { inDodge = true; inDodgeDir = -facing; } lastBackTap = Time.time; }
-            if (fwd && !wasFwd) { if (Time.time - lastFwdTap < 0.28f) { inDodge = true; inDodgeDir = facing; } lastFwdTap = Time.time; }
+            if (back && !wasBack) { backPress = Time.time; backEnter = Time.time; if (Time.time - lastBackTap < 0.28f) { inDodge = true; inDodgeDir = -facing; } lastBackTap = Time.time; }
+            if (fwd && !wasFwd) { fwdEnter = Time.time; if (Time.time - lastFwdTap < 0.28f) { inDodge = true; inDodgeDir = facing; } lastFwdTap = Time.time; }
             wasBack = back; wasFwd = fwd;
 
             inX = x; inCrouch = y < -0.5f;
@@ -125,15 +130,15 @@ namespace BalHanuman.Fight
             inBlock = (back && Threatened()) || demoBlock;
             if (demoBlock) { inX = 0; }
 
-            // ---- mace: tap = attack on release, hold = charge (instant on press in the air or mid-combo)
+            // ---- mace: the swing starts the moment you press (no waiting for release). On a plain standing press, keeping the finger down
+            // after the swing turns into a charge once the swing ends.
             if (FightInput.Down(B.Mace))
             {
-                // swing on press whenever it cannot be a charge: in the air, mid-combo, just after a hit, or with a direction held.
-                // Only a plain standing tap waits for release (hold = charge).
                 bool directional = Mathf.Abs(rel) > 0.4f || Mathf.Abs(y) > 0.5f || Time.time - lastUpSeen < 0.15f;
                 bool chaining = lastAtkId != null && Time.time - lastAtkT < 0.3f;
-                if (!grounded || flying || Attacking || scaleTarget < 0.9f || directional || chaining) Command("M");
-                else { maceArmed = true; }
+                bool canCharge = grounded && !flying && !Attacking && scaleTarget >= 0.9f && !directional && !chaining;
+                Command("M");
+                if (canCharge) maceArmed = true;
             }
             if (maceArmed && FightInput.Held(B.Mace) && FightInput.HeldFor(B.Mace) > 0.26f && CanAct && grounded && !charging)
             {
@@ -147,7 +152,6 @@ namespace BalHanuman.Fight
                     charging = false;
                     if (move == chargeMove) StartMove(GetMove(Time.time - chargeStart >= 0.95f ? "charge2" : "charge1"));
                 }
-                else if (maceArmed) Command("M");
                 maceArmed = false;
             }
             if (FightInput.Down(B.Kick)) Command("K");
@@ -165,16 +169,37 @@ namespace BalHanuman.Fight
         {
             if (director == null) return false;
             foreach (var f in director.TargetsOf(this))
-                if (f.Attacking && Mathf.Abs(f.transform.position.x - transform.position.x) < 4.5f * Mathf.Max(1f, f.scale)) return true;
+                if (f.Attacking && Mathf.Abs(f.transform.position.x - transform.position.x) < 3.2f * Mathf.Max(1f, f.scale)) return true;
             return director.ProjectileNear(this, 5f);
         }
 
-        void Command(string b) { buffered = b; bufferT = 0.38f; }
+        float NearestFoeDist()
+        {
+            float best = 99f;
+            if (director == null) return best;
+            foreach (var f in director.TargetsOf(this))
+                if (f != null && f.Alive) best = Mathf.Min(best, Mathf.Abs(f.transform.position.x - transform.position.x));
+            return best;
+        }
+
+        /// <summary>
+        /// Forward / back + attack only means the special move when the stick was just flicked that way (within 0.3 s), so walking toward the boss and
+        /// tapping an attack gives the normal jab or kick. The gap-closing thrust also comes out from a held forward when he is out of reach.
+        /// What the stick meant is captured when the button is pressed, so a command waiting in the buffer cannot change meaning.
+        /// </summary>
+        void Command(string b)
+        {
+            buffered = b; bufferT = 0.38f;
+            float rel = FightInput.X * facing;
+            bufFwd = rel > 0.4f && Time.time - fwdEnter < 0.3f;
+            bufBack = rel < -0.4f && Time.time - backEnter < 0.3f;
+            bufFar = rel > 0.4f && NearestFoeDist() > 2.4f;
+        }
 
         MoveDef Resolve(string b)
         {
-            float rel = FightInput.X * facing, y = FightInput.Y;
-            bool fwd = rel > 0.4f, back = rel < -0.4f, up = y > 0.5f || Time.time - lastUpSeen < 0.15f, down = y < -0.5f;
+            float y = FightInput.Y;
+            bool fwd = bufFwd, back = bufBack, farFwd = bufFar, up = y > 0.5f || Time.time - lastUpSeen < 0.15f, down = y < -0.5f;
             bool air = !grounded || flying;
             string cur = Attacking ? move.id : (Time.time - lastAtkT < 0.3f ? lastAtkId : null);
             if (b == "M")
@@ -194,7 +219,7 @@ namespace BalHanuman.Fight
                 if (cur == "m2") return GetMove("m3");
                 if (up) return GetMove("launcher");
                 if (down) return GetMove("sweep");
-                if (fwd) return GetMove("thrust");
+                if (fwd || farFwd) return GetMove("thrust");
                 if (back) return GetMove("whirl");
                 return GetMove("m1");
             }
@@ -421,7 +446,7 @@ namespace BalHanuman.Fight
             bool vayu = Active(PowerId.Vayu), vajra = Active(PowerId.Vajra), growth = Active(PowerId.Growth), fire = Active(PowerId.FireTail);
             speedMul = vayu ? 1.45f : 1f;
             damageDealtMul = (vajra ? 1.3f : 1f) * (growth ? 1.8f : 1f) * (fire ? 1.15f : 1f);
-            damageTakenMul = (vajra ? 0.25f : 1f) * (growth ? 0.6f : 1f);
+            damageTakenMul = (vajra ? 0.25f : 1f) * (growth ? 0.6f : 1f) * FightSetup.DamageTakenK;
             superArmor = vajra || growth;
             walkSpeed = BaseWalk * (scaleTarget < 0.9f ? 1.8f : 1f);
             if (vayu) { afterimageUntil = Time.time + 0.05f; afterimageColor = new Color(0.55f, 0.95f, 1f, 0.45f); }

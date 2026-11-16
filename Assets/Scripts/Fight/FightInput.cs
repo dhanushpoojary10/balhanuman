@@ -22,6 +22,8 @@ namespace BalHanuman.Fight
         static readonly bool[] pendingUp = new bool[(int)Btn.Count];
         static readonly float[] pressTime = new float[(int)Btn.Count];
         public static Vector2 Stick;            // from the virtual joystick
+        /// <summary>True on a phone / tablet: on-screen text should name the buttons, not keyboard keys.</summary>
+        public static bool IsTouch => Application.isMobilePlatform;
         static int polledFrame = -1;
 
         public static void Reset()

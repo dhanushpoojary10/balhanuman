@@ -11,7 +11,8 @@ namespace BalHanuman.Fight
         FightDirector dir;
         RectTransform root;
         Image starBg, starFill, starMark; Text starText; float starShown;
-        Image hpL, hpR, trailL, trailR;
+        Image hpL, hpR, trailL, trailR, guardL, guardR, counterRing, cancelRing;
+        Text openMarker; Camera hudCam; Text diffLabel;
         readonly Image[] meter = new Image[3];
         readonly Image[] meterGlow = new Image[3];
         readonly List<(Image bg, Image ring, Image lockImg, Text label, Text cost, PowerId p)> powers = new List<(Image, Image, Image, Text, Text, PowerId)>();
@@ -59,6 +60,19 @@ namespace BalHanuman.Fight
             return img;
         }
 
+        /// <summary>A thin guard bar hanging under a health frame; hidden while the guard is full.</summary>
+        Image GuardBar(Transform frame, bool left, float x0, float x1)
+        {
+            var S = UiKit.Skin;
+            var back = UiKit.Img("GuardBack", frame, S.white, V(x0, 0), V(x1, 0), V(0.5f, 1f), V(0, -3), V(0, 11), new Color(0.03f, 0.05f, 0.08f, 0.75f));
+            back.preserveAspect = false;
+            var g = UiKit.Img("Guard", back.transform, S.white, Vector2.zero, Vector2.one, V(0.5f, 0.5f), Vector2.zero, Vector2.zero, new Color(0.5f, 0.88f, 1f, 0.95f));
+            g.preserveAspect = false; g.type = Image.Type.Filled; g.fillMethod = Image.FillMethod.Horizontal; g.fillOrigin = left ? 0 : 1;
+            g.rectTransform.offsetMin = V(1.5f, 1.5f); g.rectTransform.offsetMax = V(-1.5f, -1.5f);
+            back.gameObject.SetActive(false);
+            return g;
+        }
+
         void HealthBar(bool left, out Image fill, out Image trail)
         {
             var S = UiKit.Skin;
@@ -83,6 +97,7 @@ namespace BalHanuman.Fight
                 trail = Painted("Trail", new Color(1f, 0.95f, 0.85f, 0.85f));
                 fill = Painted("Fill", Color.white);
                 if (left) tintL = Color.white; else tintR = Color.white;
+                var gb = GuardBar(fr.transform, left, x0, x1); if (left) guardL = gb; else guardR = gb;
                 var bossArt = left ? null : Resources.Load<Sprite>("Level02/Ahiravana/ahi_portrait");
                 var ring2 = UiKit.Portrait(left ? "PortraitL" : "PortraitR", root, anchor, V(0.5f, 0.5f), V(sx * 100, -92), 160, left ? (Resources.Load<Sprite>("Level02/UI/hanuman_portrait") ?? S.heroPortrait) : bossArt);
                 if (!left && bossArt == null)
@@ -99,6 +114,7 @@ namespace BalHanuman.Fight
             frame.preserveAspect = false;
             UiKit.Img("Back", frame.transform, S.white, Vector2.zero, Vector2.one, V(0.5f, 0.5f), Vector2.zero, Vector2.zero, new Color(0.05f, 0.03f, 0.08f, 0.85f)).rectTransform.offsetMin = V(10, 9);
             frame.transform.GetChild(0).GetComponent<RectTransform>().offsetMax = V(-10, -9);
+            { var gb = GuardBar(frame.transform, left, 0.03f, 0.97f); if (left) guardL = gb; else guardR = gb; }
             trail = Fill("Trail", frame.transform, new Color(1f, 0.95f, 0.85f, 0.9f), !left);
             fill = Fill("Fill", frame.transform, left ? Saffron : Violet, !left);
             var shine = UiKit.Img("Shine", fill.transform, S.white, V(0, 0.55f), V(1, 1), V(0.5f, 1), Vector2.zero, Vector2.zero, new Color(1, 1, 1, 0.22f));
@@ -163,6 +179,9 @@ namespace BalHanuman.Fight
             captionSub = T("CaptionSub", captionBar.transform, "", 26, V(0.5f, 0.5f), V(0, -28), V(1080, 40), UiKit.Cream, false);
             captionBar.gameObject.SetActive(false);
 
+            openMarker = T("Open", root, "OPEN", 44, V(0.5f, 0.5f), Vector2.zero, V(260, 60), new Color(1f, 0.88f, 0.3f));
+            openMarker.gameObject.AddComponent<Outline>().effectColor = new Color(0.3f, 0.05f, 0.02f, 0.95f);
+            openMarker.gameObject.SetActive(false);
             BuildControls();
             BuildPause();
             BuildVictory();
@@ -177,6 +196,7 @@ namespace BalHanuman.Fight
             var img = UiKit.Img(name, p, painted ? spr : UiKit.Skin.btnBlank, V(1, 0), V(1, 0), V(0.5f, 0.5f), pos, V(size, size), painted ? Color.white : tint, true);
             if (painted) paintedBtns = true;
             var fb = img.gameObject.AddComponent<FightButton>(); fb.btn = b; fb.visual = img;
+            img.raycastPadding = new Vector4(-14f, -14f, -14f, -14f);      // a more forgiving touch area than the picture (thumbs are bigger than icons)
             if (painted) { fb.normal = spr; fb.pressed = spr2; }
             if (painted)   // the icon is the picture, so a short caption sits just under the round button to say what it does
             {
@@ -200,7 +220,9 @@ namespace BalHanuman.Fight
             var js = zone.gameObject.AddComponent<VirtualJoystick>(); js.baseRect = bs.rectTransform; js.knob = knob.rectTransform;
 
             var c = controls;
-            RoundButton("Mace", c, "MACE", V(-220, 190), 210, FightInput.Btn.Mace, new Color(1f, 0.85f, 0.6f), 38, "btn_gada");
+            var maceBtn = RoundButton("Mace", c, "MACE", V(-220, 190), 210, FightInput.Btn.Mace, new Color(1f, 0.85f, 0.6f), 38, "btn_gada");
+            cancelRing = UiKit.Img("CancelRing", maceBtn.transform, S.portraitRing != null ? S.portraitRing : S.circle, V(0.5f, 0.5f), V(0.5f, 0.5f), V(0.5f, 0.5f), Vector2.zero, V(250, 250), new Color(0.6f, 1f, 1f, 0f));
+            counterRing = UiKit.Img("CounterRing", maceBtn.transform, S.portraitRing != null ? S.portraitRing : S.circle, V(0.5f, 0.5f), V(0.5f, 0.5f), V(0.5f, 0.5f), Vector2.zero, V(290, 290), new Color(1f, 0.85f, 0.3f, 0f));
             RoundButton("Kick", c, "KICK", V(-430, 152), 160, FightInput.Btn.Kick, Color.white, 28, Art("btn_kick") != null ? "btn_kick" : "btn_tail");   // btn_kick.png (+ _pressed) replaces the old tail picture when present
             RoundButton("Jump", c, "JUMP", V(-110, 390), 135, FightInput.Btn.Jump, Color.white, 26, "btn_jump");
             RoundButton("Dodge", c, "DODGE", V(-600, 128), 130, FightInput.Btn.Dodge, new Color(0.8f, 0.9f, 1f), 24, "btn_dodge");
@@ -220,7 +242,7 @@ namespace BalHanuman.Fight
             for (int i = 0; i < 6; i++)
             {
                 var p = HanumanFighter.Boons[i];
-                var bg = RoundButton("Power" + i, c, labels[i], V(-1390 + i * 118, 112), 108, FightInput.Btn.P1 + i, new Color(1f, 0.8f, 0.55f), 22, arts[i]);
+                var bg = RoundButton("Power" + i, c, labels[i], V(-110 - (i % 2) * 115, 545 + (i / 2) * 130), 104, FightInput.Btn.P1 + i, new Color(1f, 0.8f, 0.55f), 22, arts[i]);
                 bg.rectTransform.anchorMin = bg.rectTransform.anchorMax = V(1, 0);
                 var ring = UiKit.Img("Active", bg.transform, S.circle, V(0.5f, 0.5f), V(0.5f, 0.5f), V(0.5f, 0.5f), Vector2.zero, V(118, 118), new Color(0.5f, 1f, 1f, 0.6f));
                 ring.type = Image.Type.Filled; ring.fillMethod = Image.FillMethod.Radial360; ring.transform.SetAsFirstSibling();
@@ -243,16 +265,25 @@ namespace BalHanuman.Fight
             return box.rectTransform;
         }
 
+        void RefreshDifficultyLabel() { if (diffLabel != null) diffLabel.text = "DIFFICULTY: " + FightSetup.Level.ToString().ToUpperInvariant(); }
+
         void BuildPause()
         {
-            pausePanel = Panel("Pause", V(720, 760));
+            pausePanel = Panel("Pause", V(720, 900));
             T("Title", pausePanel, "PAUSED", 70, V(0.5f, 1), V(0, -90), V(600, 90), UiKit.Gold);
-            float y = 150;
+            float y = 210;
             UiKit.PillButton("Resume", pausePanel, "RESUME", V(0.5f, 0.5f), V(0, y), V(460, 100), () => dir.TogglePause(), true, 40);
             UiKit.PillButton("Restart", pausePanel, "RESTART FIGHT", V(0.5f, 0.5f), V(0, y - 120), V(460, 100), () => dir.Restart(FightSetup.Mode.Story), false, 34);
             UiKit.PillButton("Training", pausePanel, "TRAINING ROOM", V(0.5f, 0.5f), V(0, y - 240), V(460, 100), () => dir.Restart(FightSetup.Mode.Training), false, 34);
             UiKit.PillButton("Demo", pausePanel, "DEMO REEL", V(0.5f, 0.5f), V(0, y - 360), V(460, 100), () => dir.Restart(FightSetup.Mode.Demo), false, 34);
             UiKit.PillButton("Menu", pausePanel, "MAIN MENU", V(0.5f, 0.5f), V(0, y - 480), V(460, 100), () => dir.ToMenu(), false, 34);
+            var diff = UiKit.PillButton("Difficulty", pausePanel, "", V(0.5f, 0.5f), V(0, y - 600), V(460, 90), () =>
+            {
+                FightSetup.Level = (FightSetup.Difficulty)(((int)FightSetup.Level + 1) % 3);
+                dir.ApplyDifficulty(); RefreshDifficultyLabel();
+            }, false, 30);
+            diffLabel = diff.GetComponentInChildren<Text>();
+            RefreshDifficultyLabel();
         }
 
         void BuildVictory()
@@ -405,6 +436,31 @@ namespace BalHanuman.Fight
 
         public void SetRoundVisible(bool on) { roundText.gameObject.SetActive(on); foreach (var m in roundMarks) m.gameObject.SetActive(on); }
 
+        /// <summary>OPEN floats over the boss while he is stunned or deep in a recovery: the moment to strike.</summary>
+        void UpdateOpenMarker(AhiravanaFighter b)
+        {
+            if (openMarker == null) return;
+            bool on = b != null && b.Alive && b.gameObject.activeInHierarchy && b.IsOpen && dir.ControlsLive;
+            if (openMarker.gameObject.activeSelf != on) openMarker.gameObject.SetActive(on);
+            if (!on) return;
+            if (hudCam == null) { var fc = Object.FindAnyObjectByType<FightCamera>(); hudCam = fc != null ? fc.GetComponent<Camera>() : Camera.main; }
+            if (hudCam == null) return;
+            var sp = hudCam.WorldToScreenPoint(b.HeadPos + Vector3.up * 0.9f * b.scale);
+            RectTransformUtility.ScreenPointToLocalPointInRectangle(root, sp, null, out var lp);
+            openMarker.rectTransform.anchoredPosition = lp;
+            openMarker.rectTransform.localScale = Vector3.one * (1f + 0.1f * Mathf.Sin(Time.unscaledTime * 14f));
+        }
+
+        void SetGuard(Image g, float frac)
+        {
+            if (g == null) return;
+            var back = g.transform.parent.gameObject;
+            bool show = frac < 0.995f;
+            if (back.activeSelf != show) back.SetActive(show);
+            g.fillAmount = frac;
+            g.color = frac < 0.25f ? new Color(1f, 0.45f, 0.35f, 0.95f) : new Color(0.5f, 0.88f, 1f, 0.95f);
+        }
+
         public void BossName(string n) { if (bossName != null) bossName.text = n; }
 
         void Update()
@@ -419,6 +475,18 @@ namespace BalHanuman.Fight
                 trailVR = r > trailVR ? r : Mathf.MoveTowards(trailVR, r, dt * 0.45f);
                 hpL.fillAmount = shownL; hpR.fillAmount = shownR; trailL.fillAmount = trailVL; trailR.fillAmount = trailVR;
                 hpL.color = l < 0.3f ? Color.Lerp(tintL, new Color(1f, 0.2f, 0.1f), 0.5f + 0.5f * Mathf.Sin(Time.unscaledTime * 8f)) : tintL;
+                SetGuard(guardL, h.guard / h.guardMax); SetGuard(guardR, b.guard / b.guardMax);
+                if (cancelRing != null)
+                {
+                    var rc2 = cancelRing.color; rc2.a = h.ChainOpen ? 0.4f + 0.35f * Mathf.Sin(Time.unscaledTime * 22f) : 0f; cancelRing.color = rc2;      // a chain is open: press now
+                }
+                UpdateOpenMarker(b);
+                if (counterRing != null)
+                {
+                    float cw = h.counterUntil - Time.time;       // the counter window after a parry or perfect dodge
+                    var rc = counterRing.color; rc.a = cw > 0f ? 0.55f + 0.4f * Mathf.Sin(Time.unscaledTime * 16f) : 0f; counterRing.color = rc;
+                    counterRing.rectTransform.localScale = Vector3.one * (cw > 0f ? 1f + 0.08f * Mathf.Sin(Time.unscaledTime * 12f) : 1f);
+                }
                 hpR.color = b.immortal && r < 0.02f ? Color.Lerp(tintR, new Color(1f, 0.85f, 1f), 0.5f + 0.5f * Mathf.Sin(Time.unscaledTime * 6f)) : tintR;
 
                 for (int i = 0; i < 3; i++)
