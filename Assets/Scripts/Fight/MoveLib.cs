@@ -139,7 +139,7 @@ namespace BalHanuman.Fight
             var lair = P().Lean(-5, 0).Head(-20).LegF(60, -90).LegB(10, -40).ArmF(170, 10).Wpn(10).ArmB(110, 40).Tail(-60);
             m["launcher"] = M("launcher", "Sky Launcher", C(false, 0.55f, K(0, lw), K(0.1f, lw.Copy().Hip(0, -0.5f), Ease.Out), K(0.18f, ls, Ease.Out), K(0.3f, lair), K(0.55f, lair)))
                 .Hit(H(0.12f, 0.24f, J.Weapon, tip, 0.75f, 50, new Vector2(1.2f, 15.5f), 0.5f, HitLevel.Mid, FxKind.Heavy, true, false, true, 0.09f, 0.08f))
-                .At(0.17f, f => { f.vel.y = 13.5f; f.grounded = false; FightFx.Dust(f.transform.position, 5, 2f); });
+                .At(0.17f, f => { f.vel.y = 15.5f; f.grounded = false; FightFx.Dust(f.transform.position, 5, 2f); });
             m["launcher"].cancelFrom = 0.3f;
 
             var sww = S().Lean(30, 10).Hip(-0.05f, -0.6f).Feet(0.5f, -0.45f).ArmF(-10, 20).Wpn(-80).ArmB(20, 60).Tail(-60);
@@ -166,18 +166,18 @@ namespace BalHanuman.Fight
             var a1w = A().Lean(5).ArmF(-40, 90).Wpn(-120).ArmB(40, 60);
             var a1s = A().Lean(18).ArmF(90, 10).Wpn(10).ArmB(-10, 40);
             m["air1"] = M("air1", "Air Swing", C(false, 0.32f, K(0, a1w), K(0.05f, a1w, Ease.Out), K(0.1f, a1s, Ease.Out), K(0.32f, a1s.Copy().ArmF(110, 0))))
-                .Hit(H(0.06f, 0.14f, J.Weapon, tip, 0.65f, 35, new Vector2(1.5f, 4.5f), 0.4f)).At(0f, f => { f.vel.y = Mathf.Max(f.vel.y, 2.5f); });
-            m["air1"].air = true; m["air1"].gravityMul = 0.12f; m["air1"].cancelFrom = 0.14f;
+                .Hit(H(0.06f, 0.14f, J.Weapon, tip, 0.65f, 35, new Vector2(1.5f, 4.5f), 0.4f));
+            m["air1"].air = true; m["air1"].airStall = true; m["air1"].gravityMul = 0.12f; m["air1"].cancelFrom = 0.14f;
             var a2w = A().Lean(20).ArmF(20, 10).Wpn(-160).ArmB(60, 40);
             var a2s = A().Lean(-8).ArmF(160, 0).Wpn(10).ArmB(10, 40);
             m["air2"] = M("air2", "Air Backhand", C(false, 0.34f, K(0, a2w), K(0.05f, a2w, Ease.Out), K(0.11f, a2s, Ease.Out), K(0.34f, a2s)))
-                .Hit(H(0.06f, 0.15f, J.Weapon, tip, 0.65f, 38, new Vector2(1.5f, 5.5f), 0.4f)).At(0f, f => { f.vel.y = Mathf.Max(f.vel.y, 2.5f); });
-            m["air2"].air = true; m["air2"].gravityMul = 0.12f; m["air2"].cancelFrom = 0.15f;
+                .Hit(H(0.06f, 0.15f, J.Weapon, tip, 0.65f, 38, new Vector2(1.5f, 5.5f), 0.4f));
+            m["air2"].air = true; m["air2"].airStall = true; m["air2"].gravityMul = 0.12f; m["air2"].cancelFrom = 0.15f;
             var a3w = A().Lean(-15).ArmF(180, 30).Wpn(60).ArmB(170, 20);
             var a3s = A().Lean(30).ArmF(60, 0).Wpn(40).ArmB(50, 10);
             m["air3"] = M("air3", "Meteor Spike", C(false, 0.45f, K(0, a3w), K(0.08f, a3w, Ease.In), K(0.14f, a3s, Ease.Out), K(0.45f, a3s)))
                 .Hit(H(0.1f, 0.2f, J.Weapon, tip, 0.75f, 60, new Vector2(2f, -12f), 0.5f, HitLevel.Overhead, FxKind.Heavy, true, false, true, 0.11f, 0.12f));
-            m["air3"].air = true; m["air3"].gravityMul = 0.2f; m["air3"].sfx = "whoosh_heavy"; m["air3"].cancelFrom = 0.3f;
+            m["air3"].air = true; m["air3"].airStall = true; m["air3"].gravityMul = 0.2f; m["air3"].sfx = "whoosh_heavy"; m["air3"].cancelFrom = 0.3f;
 
             var dvw = A().Lean(35, 10).ArmF(170, 20).Wpn(70).ArmB(160, 20);
             var dvs = P().Lean(45, 10).LegF(70, -110).LegB(40, -100).ArmF(90, 0).Wpn(80).ArmB(80, 10).Tail(-170);

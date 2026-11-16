@@ -262,6 +262,8 @@ namespace BalHanuman.Fight
             new[] { "TITAN'S WRATH", "stomp", "m1" },
         };
 
+        float lastStopT = -10f;
+
         void Chain(string id)
         {
             if (string.IsNullOrEmpty(id)) return;
@@ -298,6 +300,9 @@ namespace BalHanuman.Fight
         public void OnHit(Fighter attacker, Fighter victim, HitWindow w, Vector3 point, float dmg)
         {
             float stop = w.hitstop * (w.heavy ? 1.2f : 1f) * (attacker.scale > 1.5f ? 1.3f : 1f);
+            // rapid hits: freeze less each time, otherwise a spam run is mostly stop-start
+            if (!w.heavy && Time.time - lastStopT < 0.3f) stop *= 0.5f;
+            lastStopT = Time.time;
             attacker.hitstop = Mathf.Max(attacker.hitstop, stop); victim.hitstop = Mathf.Max(victim.hitstop, stop);
             float power = Mathf.Clamp01(dmg / 90f);                 // 0 = a jab, 1 = a crushing blow
             bool big = w.heavy || attacker.scale > 1.5f;
@@ -305,8 +310,8 @@ namespace BalHanuman.Fight
             FightFx.Hit(point, w.fx, big, attacker.facing, power);
             FightSfx.Play(w.heavy ? "hit_heavy" : "hit", attacker.scale > 1.5f ? 0.75f : 1f);
             cam.Shake(w.shake * Mathf.Max(1f, attacker.scale * 0.8f) * (onHanuman ? 1.35f : 1f), w.heavy ? 0.25f : 0.14f);
-            cam.Punch(w.heavy ? 0.32f : 0.1f, w.heavy ? 0.22f : 0.12f);
-            cam.Kick(new Vector2(attacker.facing, 0.15f), 0.12f + 0.4f * power + (big ? 0.15f : 0f));
+            if (big) cam.Punch(0.22f, 0.2f);                   // only heavy hits pulse the zoom
+            cam.Kick(new Vector2(attacker.facing, 0.15f), big ? 0.2f + 0.4f * power : 0.05f + 0.15f * power);
             victim.Squash(0.12f + 0.2f * power + (big ? 0.08f : 0f), 0.22f + 0.1f * power);
             if (onHanuman) Haptics.Hurt(power); else Haptics.Hit(power, big);
             if (attacker is HanumanFighter)

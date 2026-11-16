@@ -24,9 +24,13 @@ namespace BalHanuman.Fight
         }
 
         /// <summary>Directional shove: the view jolts along dir (the way the blow travels) and springs back, with a little tilt.</summary>
+        float lastKickT = -10f;
         public void Kick(Vector2 dir, float amount)
         {
+            if (Time.unscaledTime - lastKickT < 0.15f) return;       // a spam run must not stack kicks into a constant wobble
+            lastKickT = Time.unscaledTime;
             kickVel += dir.normalized * amount * 14f;
+            kickVel = Vector2.ClampMagnitude(kickVel, 6f);
             rollVel += -Mathf.Sign(dir.x == 0f ? 1f : dir.x) * amount * 60f;
         }
 
@@ -92,7 +96,7 @@ namespace BalHanuman.Fight
             // damped spring for the directional kick and the tilt
             kickVel += -kick * 220f * dt; kickVel *= Mathf.Max(0f, 1f - 14f * dt); kick += kickVel * dt;
             rollVel += -roll * 260f * dt; rollVel *= Mathf.Max(0f, 1f - 12f * dt); roll += rollVel * dt;
-            roll = Mathf.Clamp(roll, -2.5f, 2.5f);
+            roll = Mathf.Clamp(roll, -1.4f, 1.4f);
             float shakeRoll = shakeT > 0f ? (Mathf.PerlinNoise(Time.unscaledTime * 31f, 5.1f) - 0.5f) * 2f * Mathf.Min(1.2f, shakeAmp * 6f) * Mathf.Clamp01(shakeT / shakeDur) : 0f;
             transform.position = basePos + sh + (Vector3)kick * 0.55f;
             transform.rotation = Quaternion.Euler(0f, 0f, roll + shakeRoll);

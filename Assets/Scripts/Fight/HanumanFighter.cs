@@ -24,10 +24,12 @@ namespace BalHanuman.Fight
         HanumanFrames.Clip curVisual; int curIdx; float parryStart = -10f;
 
         string buffered; float bufferT;
-        bool maceArmed, charging, chargeFull; float chargeStart, chargeBuzz;
+        bool maceArmed, chargeFull; public bool charging; float chargeStart, chargeBuzz;
         MoveDef chargeMove;
         float backPress = -10f, lastBackTap = -10f, lastFwdTap = -10f;
         bool wasBack, wasFwd, wasUp;
+        int airUsed; MoveDef airCounted;
+        float jumpAt = -1f, lastUpSeen = -10f, lastAtkT = -10f; string lastAtkId;     // delayed stick-up jump, launcher input memory, combo chain memory
         float fireFxT;
         public bool demoBlock;                  // demo reel: hold block
         const float BaseWalk = 2.8f;
@@ -58,6 +60,9 @@ namespace BalHanuman.Fight
         }
 
 
+        /// <summary>For tests: the painted clip and frame currently shown, e.g. "gada1:3".</summary>
+        public string DebugFrame => curVisual != null ? curVisual.name + ":" + curIdx : "-";
+
         public override MoveDef GetMove(string id) => moves != null && moves.TryGetValue(id, out var m) ? m : null;
         public IEnumerable<string> MoveIds => moves.Keys;
 
@@ -76,8 +81,21 @@ namespace BalHanuman.Fight
             wasBack = back; wasFwd = fwd;
 
             inX = x; inCrouch = y < -0.5f;
-            if ((upNow && !wasUp) || FightInput.Down(B.Jump)) inJump = true;
+            // Pushing UP jumps, but a hair late: UP + GADA must be able to mean Sky Launcher instead of jump-then-air-swing.
+            // An attack pressed inside that short window cancels the jump. The JUMP button and keyboard Space jump instantly.
+            if (upNow) lastUpSeen = Time.time;
+            if (upNow && !wasUp) jumpAt = Time.time + 0.11f;
+            if (jumpAt > 0f && (FightInput.Down(B.Mace) || FightInput.Down(B.Kick))) jumpAt = -1f;
+            if (jumpAt > 0f && Time.time >= jumpAt) { inJump = true; jumpAt = -1f; }
+            if (FightInput.Down(B.Jump)) inJump = true;
             wasUp = upNow;
+            // combo memory: a chain can continue for a moment after the previous move ends
+            if (Attacking) { lastAtkId = move.id; lastAtkT = Time.time; }
+            else if (InHitReaction) lastAtkId = null;
+            // air attacks per jump: swing, backhand, spike, then one kick or dive. Landing resets it.
+            if (grounded) airUsed = 0;
+            if (!Attacking) airCounted = null;
+            else if (move.air && move != airCounted) { airCounted = move; airUsed++; }
             if (FightInput.Down(B.Dodge)) { inDodge = true; inDodgeDir = Mathf.Abs(x) > 0.3f ? Mathf.Sign(x) : -facing; }
 
             // smart block: holding back blocks only while something is coming
@@ -87,7 +105,11 @@ namespace BalHanuman.Fight
             // ---- mace: tap = attack on release, hold = charge (instant on press in the air or mid-combo)
             if (FightInput.Down(B.Mace))
             {
-                if (!grounded || flying || Attacking || scaleTarget < 0.9f) Command("M");
+                // swing on press whenever it cannot be a charge: in the air, mid-combo, just after a hit, or with a direction held.
+                // Only a plain standing tap waits for release (hold = charge).
+                bool directional = Mathf.Abs(rel) > 0.4f || Mathf.Abs(y) > 0.5f || Time.time - lastUpSeen < 0.15f;
+                bool chaining = lastAtkId != null && Time.time - lastAtkT < 0.3f;
+                if (!grounded || flying || Attacking || scaleTarget < 0.9f || directional || chaining) Command("M");
                 else { maceArmed = true; }
             }
             if (maceArmed && FightInput.Held(B.Mace) && FightInput.HeldFor(B.Mace) > 0.26f && CanAct && grounded && !charging)
@@ -124,22 +146,24 @@ namespace BalHanuman.Fight
             return director.ProjectileNear(this, 5f);
         }
 
-        void Command(string b) { buffered = b; bufferT = 0.3f; }
+        void Command(string b) { buffered = b; bufferT = 0.38f; }
 
         MoveDef Resolve(string b)
         {
             float rel = FightInput.X * facing, y = FightInput.Y;
-            bool fwd = rel > 0.4f, back = rel < -0.4f, up = y > 0.5f, down = y < -0.5f;
+            bool fwd = rel > 0.4f, back = rel < -0.4f, up = y > 0.5f || Time.time - lastUpSeen < 0.15f, down = y < -0.5f;
             bool air = !grounded || flying;
-            string cur = Attacking ? move.id : null;
+            string cur = Attacking ? move.id : (Time.time - lastAtkT < 0.3f ? lastAtkId : null);
             if (b == "M")
             {
                 if (scaleTarget < 0.9f) { powerEnd[(int)PowerId.Shrink] = 0f; return GetMove("rise"); }
                 if (air)
                 {
+                    if (!flying && airUsed >= 4) return null;
                     if (down) return GetMove(flying ? "meteor" : "dive");
                     if (cur == "air1") return GetMove("air2");
                     if (cur == "air2") return GetMove("air3");
+                    if (cur == "air3" && !flying) return null;          // the spike ends the air chain: no endless loop
                     return GetMove("air1");
                 }
                 if (scaleTarget > 1.5f && down) return GetMove("stomp");
@@ -152,7 +176,7 @@ namespace BalHanuman.Fight
                 return GetMove("m1");
             }
             // kick / tail
-            if (air) return GetMove("flykick");
+            if (air) return !flying && airUsed >= 4 ? null : GetMove("flykick");
             if (down) return GetMove("tailtrip");
             if (fwd) return GetMove("tailgrab");
             if (back) return GetMove("bodyslam");
@@ -208,6 +232,12 @@ namespace BalHanuman.Fight
                 int cnt = c.frames.Length;
                 idx = Mathf.FloorToInt(frameT * c.fps);
                 idx = c.loop ? idx % cnt : Mathf.Min(idx, cnt - 1);
+                if (c.name == "launched" && cnt >= 4)
+                {
+                    // the tumble follows the flight instead of looping on a clock: thrown back, spinning, head-first, feet-first to land
+                    float vy = vel.y;
+                    idx = vy > 4f ? 0 : vy > -1f ? 1 : vy > -5f ? 2 : 3;
+                }
             }
             curVisual = c; curIdx = idx;
             var f = c.frames[idx];
@@ -250,13 +280,9 @@ namespace BalHanuman.Fight
         protected override void SpawnAfterimage()
         {
             if (frameSr.sprite == null) return;
-            var go = new GameObject("ghost");
-            go.transform.SetPositionAndRotation(frameSr.transform.position, frameSr.transform.rotation);
-            go.transform.localScale = frameSr.transform.lossyScale;
-            var g = go.AddComponent<SpriteRenderer>();
-            g.sprite = frameSr.sprite; g.sortingOrder = frameSr.sortingOrder - 1; g.color = afterimageColor;
-            var a = go.AddComponent<FxAnim>(); a.life = 0.22f; a.c0 = afterimageColor; a.c1 = new Color(afterimageColor.r, afterimageColor.g, afterimageColor.b, 0f);
-            a.s0 = a.s1 = go.transform.localScale;
+            var ls = (Vector2)frameSr.transform.lossyScale;
+            var c1 = new Color(afterimageColor.r, afterimageColor.g, afterimageColor.b, 0f);
+            FightFx.Spawn(frameSr.sprite, frameSr.transform.position, 0.22f, ls, ls, afterimageColor, c1, frameSr.sortingOrder - 1, frameSr.transform.eulerAngles.z);
         }
 
         // ================================================================== state additions (flight, charge glow)

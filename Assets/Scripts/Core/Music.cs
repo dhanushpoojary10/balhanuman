@@ -6,7 +6,7 @@ namespace BalHanuman
     /// Starts automatically with the first scene and keeps playing across scene loads.</summary>
     public class Music : MonoBehaviour
     {
-        public static float Volume = 0.38f;
+        public static float Volume = 0.7f;
         static Music inst;
         AudioSource src;
         float duckLevel = 1f, duckUntil;

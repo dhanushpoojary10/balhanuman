@@ -89,6 +89,7 @@ namespace BalHanuman.Fight
             float u = clip.loop ? Mathf.Repeat(t, len) / len : Mathf.Clamp01(t / len);
             int cur = 0;
             for (int i = 0; i < frames.Length; i++) if (frames[i].t <= u + 1e-4f) cur = i;
+            if (key == "launched" && frames.Length >= 4) cur = LaunchedPicture();       // follows the flight, never loops or restarts
             Place(poseSr, frames[cur].name, ref shownPose);
             var tint = puppet.Tinted(Color.white);
             poseSr.color = tint;
@@ -109,6 +110,17 @@ namespace BalHanuman.Fight
                 poseSr2.enabled = true; tint.a *= blend; poseSr2.color = tint;
             }
             else poseSr2.enabled = false;
+        }
+
+        /// <summary>Which of the four flight pictures to show: thrown back, still rising, flat at the top, head-first on the way down.</summary>
+        int launchPic = -1; float launchPicT;
+        int LaunchedPicture()
+        {
+            float vy = vel.y, y = transform.position.y;
+            int want = vy > 6f ? 0 : vy > 1.5f ? 1 : (vy > -3f || y < 0.6f) ? 2 : 3;
+            // hold each picture a moment so rapid re-hits do not make him flicker between two poses
+            if (launchPic < 0 || Time.time - launchPicT > 0.14f || want == 0 && launchPic != 0) { if (want != launchPic) launchPicT = Time.time; launchPic = want; }
+            return launchPic;
         }
 
         string handPose;

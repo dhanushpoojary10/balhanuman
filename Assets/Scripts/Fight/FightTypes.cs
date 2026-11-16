@@ -70,6 +70,7 @@ namespace BalHanuman.Fight
         // frame-by-frame art: this move plays frames [frameFrom..frameTo] of HanumanFrames clip `frameClip` (the skeleton is only a fallback)
         public string frameClip; public int frameFrom, frameTo = -1;
         public bool frameLoop;              // visual only: the move keeps its authored length instead of being timed by the frames. By default the frames cycle
+        public bool airStall;               // air attacks: starting the move tames the vertical speed (no free lift, no dive-bomb) so it floats, then falls
         public bool frameHold;              // (with frameLoop) play the frames once at the clip's fps, then hold the last one
         public bool frameStretch;           // (with frameLoop) spread the frames over the move's whole authored length
         public Vector3[] holdPath;          // frame-art throws: x = time into the move, (y, z) = held opponent's centre (forward, up) from the fighter's root

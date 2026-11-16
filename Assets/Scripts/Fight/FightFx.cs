@@ -13,9 +13,19 @@ namespace BalHanuman.Fight
         public Transform follow; public Vector3 followOffset;
         SpriteRenderer sr;
 
+        bool started;
+
         void Awake() { sr = GetComponent<SpriteRenderer>(); }
 
-        void Start() { Apply(0f); if (delay > 0f && sr != null) sr.enabled = false; }
+        /// <summary>Back to a clean state so a pooled object can be reused.</summary>
+        public void ResetFx()
+        {
+            life = 0.3f; age = 0f; delay = 0f; s0 = s1 = Vector2.one; c0 = Color.white; c1 = new Color(1, 1, 1, 0);
+            vel = Vector2.zero; gravity = drag = spin = 0f; easeOut = true; alignToVelocity = unscaled = false; follow = null; followOffset = Vector3.zero;
+            started = false;
+            if (sr == null) sr = GetComponent<SpriteRenderer>();
+            if (sr != null) sr.enabled = true;
+        }
 
         void Apply(float k)
         {
@@ -27,9 +37,10 @@ namespace BalHanuman.Fight
         void Update()
         {
             float dt = unscaled ? Time.unscaledDeltaTime : Time.deltaTime;
+            if (!started) { started = true; Apply(0f); if (delay > 0f && sr != null) sr.enabled = false; }
             if (delay > 0f) { delay -= dt; if (delay <= 0f && sr != null) sr.enabled = true; return; }
             age += dt;
-            if (age >= life) { Destroy(gameObject); return; }
+            if (age >= life) { FightFx.Recycle(this); return; }
             vel.y -= gravity * dt;
             vel *= Mathf.Max(0f, 1f - drag * dt);
             if (follow != null) transform.position = follow.position + followOffset;
@@ -45,13 +56,34 @@ namespace BalHanuman.Fight
     {
         public const int Order = 120;
 
+        // effects are pooled: a hit used to create dozens of fresh objects, which stutters phones
+        static readonly System.Collections.Generic.Stack<FxAnim> pool = new System.Collections.Generic.Stack<FxAnim>();
+        public static int Live;
+
+        public static void Recycle(FxAnim a)
+        {
+            if (a == null) return;
+            Live = Mathf.Max(0, Live - 1);
+            a.gameObject.SetActive(false);
+            if (pool.Count < 400) pool.Push(a); else Object.Destroy(a.gameObject);
+        }
+
         public static FxAnim Spawn(Sprite s, Vector3 pos, float life, Vector2 s0, Vector2 s1, Color c0, Color c1, int order = Order, float rot = 0f)
         {
-            var go = new GameObject("fx");
-            go.transform.position = pos;
-            go.transform.rotation = Quaternion.Euler(0, 0, rot);
-            var sr = go.AddComponent<SpriteRenderer>(); sr.sprite = s; sr.sortingOrder = order; sr.color = c0;
-            var a = go.AddComponent<FxAnim>();
+            FxAnim a = null;
+            while (pool.Count > 0 && a == null) a = pool.Pop();      // objects from an unloaded scene come back null: skip them
+            SpriteRenderer sr;
+            if (a == null)
+            {
+                var go = new GameObject("fx");
+                sr = go.AddComponent<SpriteRenderer>();
+                a = go.AddComponent<FxAnim>();
+            }
+            else { a.gameObject.SetActive(true); sr = a.GetComponent<SpriteRenderer>(); }
+            a.ResetFx();
+            Live++;
+            a.transform.SetPositionAndRotation(pos, Quaternion.Euler(0, 0, rot));
+            sr.sprite = s; sr.sortingOrder = order; sr.color = c0;
             a.life = life; a.s0 = s0; a.s1 = s1; a.c0 = c0; a.c1 = c1;
             return a;
         }
@@ -105,9 +137,10 @@ namespace BalHanuman.Fight
             Slash(pos, ang + Random.Range(-10f, 10f), 1.7f * k, c, Order + 5);
             if (heavy) { Slash(pos, ang + 38f, 1.2f * k, c, Order + 5); Slash(pos, ang - 38f, 1.2f * k, c, Order + 5); }
             // rays burst outward in every direction, longer ones forward
-            Rays(pos, heavy ? 10 : 6, 0.85f * Mathf.Sqrt(k), 9f * Mathf.Sqrt(k), c, dir);
-            Sparks(pos, Mathf.RoundToInt((heavy ? 14 : 7) * Mathf.Lerp(0.8f, 1.5f, power)), heavy ? 11f : 8f, c, heavy ? 0.9f : 0.6f, 0.3f, dirX);
-            if (heavy || power > 0.6f) Rocks(pos + Vector3.down * 0.2f, Mathf.RoundToInt(3 + power * 5f), 0.6f + power);
+            float th = Live > 110 ? 0.5f : 1f;          // a long spam run: thin the extras out, the core flash and burst always show
+            Rays(pos, Mathf.Max(2, Mathf.RoundToInt((heavy ? 8 : 4) * th)), 0.85f * Mathf.Sqrt(k), 9f * Mathf.Sqrt(k), c, dir);
+            Sparks(pos, Mathf.Max(2, Mathf.RoundToInt((heavy ? 10 : 4) * Mathf.Lerp(0.8f, 1.4f, power) * th)), heavy ? 11f : 8f, c, heavy ? 0.9f : 0.6f, 0.3f, dirX);
+            if (heavy && th > 0.9f) Rocks(pos + Vector3.down * 0.2f, 2 + Mathf.RoundToInt(power * 3f), 0.6f + power);
             if (kind == FxKind.Fire) Flames(pos, heavy ? 10 : 5, 1f);
             if (kind == FxKind.Dark) Smoke(pos, 4, new Color(0.45f, 0.2f, 0.7f, 0.7f), 1f);
         }
@@ -115,8 +148,7 @@ namespace BalHanuman.Fight
         /// <summary>A thin bright bar that streaks through the contact point and snaps shut.</summary>
         public static void Slash(Vector3 pos, float angleDeg, float length, Color c, int order)
         {
-            Spawn(FightArt.Spark, pos, 0.13f, new Vector2(length * 0.55f, 0.28f), new Vector2(length * 1.25f, 0.02f), Color.white, A(c, 0f), order, angleDeg);
-            Spawn(FightArt.Spark, pos, 0.17f, new Vector2(length * 0.45f, 0.5f), new Vector2(length, 0.04f), A(c, 0.7f), A(c, 0f), order - 1, angleDeg);
+            Spawn(FightArt.Spark, pos, 0.14f, new Vector2(length * 0.5f, 0.34f), new Vector2(length * 1.2f, 0.03f), Color.Lerp(Color.white, c, 0.25f), A(c, 0f), order, angleDeg);
         }
 
         /// <summary>Evenly spread long thin rays flying outward from the impact (forward-biased).</summary>

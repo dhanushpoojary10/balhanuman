@@ -334,6 +334,7 @@ namespace BalHanuman.Fight
             SetState(FState.Attack);
             crouching = false;
             if (m.air) grounded = false;
+            if (m.airStall && !flying) vel.y = Mathf.Clamp(vel.y, -1.5f, 2.5f);
             puppet.Play(m.clip, 0.06f);
             curClip = null;
             if (m.expr != Expr.Neutral) SetExpr(m.expr, Mathf.Min(0.6f, m.Length));
@@ -349,8 +350,14 @@ namespace BalHanuman.Fight
             moveT += adt;
             while (evIndex < move.events.Count && moveT >= move.events[evIndex].t) { var e = move.events[evIndex++]; e.act?.Invoke(this); if (move == null || state != FState.Attack) return; }
             float k = Mathf.Sqrt(scale) * (speedMul > 1f ? 1.3f : 1f);
-            if (move.lungeSpeed != 0f && moveT >= move.lungeT0 && moveT < move.lungeT1) vel.x = facing * move.lungeSpeed * k;
-            else if (grounded) vel.x = Mathf.MoveTowards(vel.x, 0f, 45f * dt);
+            if (move.lungeSpeed != 0f && moveT >= move.lungeT0 && moveT < move.lungeT1)
+            {
+                // eased lunge: speeds up, peaks mid-window, tapers off (same distance as the old flat speed within ~10%)
+                float u = Mathf.InverseLerp(move.lungeT0, move.lungeT1, moveT);
+                float shape = 1.25f * (0.25f + 0.75f * Mathf.Sin(u * Mathf.PI));
+                vel.x = Mathf.Lerp(vel.x, facing * move.lungeSpeed * k * shape, 1f - Mathf.Exp(-40f * dt));
+            }
+            else if (grounded) vel.x = Mathf.Lerp(vel.x, 0f, 1f - Mathf.Exp(-10f * dt));          // glide to a stop instead of braking dead
             if (!whooshed && move.hits.Count > 0 && moveT >= move.hits[0].t0 - 0.04f)
             {
                 whooshed = true;
@@ -548,7 +555,7 @@ namespace BalHanuman.Fight
                 juggle++;
                 vel = new Vector2(dir * Mathf.Max(w.knock.x, dying ? 6f : 0f), vy);
                 grounded = false;
-                SetState(FState.Launched); ForceClip("launched", 0.04f);
+                SetState(FState.Launched); if (curClip != "launched") ForceClip("launched", 0.04f);       // a re-hit mid-air must not restart the tumble
             }
             else
             {
@@ -612,11 +619,23 @@ namespace BalHanuman.Fight
             if (state == FState.Grabbed) return;
             var p = (Vector2)transform.position;
             float g = gravity;
-            if (state == FState.Attack && move != null) g *= move.gravityMul;
+            if (state == FState.Attack && move != null)
+            {
+                if (move.gravityMul >= 1f) g *= move.gravityMul;
+                else
+                {
+                    // light moves float, but the float fades into a normal fall over the move instead of lasting for all of it
+                    float ramp = Mathf.Clamp01(moveT / Mathf.Max(0.25f, move.Length * 2.2f));      // stays floaty through a 3-swing air chain, but never turns into hovering
+                    g *= Mathf.Lerp(move.gravityMul, 1f, ramp * ramp);
+                }
+            }
             if (state == FState.Launched) g *= 0.82f;
             if (flying && state != FState.Launched) g = 0f;
             if (!grounded || vel.y > 0f) vel.y -= g * dt;
             p += vel * dt;
+            // nobody climbs past a jump and a half (air attacks used to be able to stack lift without limit)
+            float ceiling = 4.2f * Mathf.Max(1f, scale);
+            if (!flying && p.y > ceiling && vel.y > 0f) vel.y = Mathf.MoveTowards(vel.y, 0f, 90f * dt);
             if (p.y <= 0f)
             {
                 p.y = 0f;

@@ -121,19 +121,19 @@ def whoosh_heavy(i=0):
 
 def hit(i=0):
     d = 0.4; t = T(d); k = 1 + .12 * i
-    thump = chirp(t, 150 * k, 55, 40) * dec(t, 14)
-    crack = bp(noise(len(t)), 1200 * k, 5200) * atk(t, .0006) * dec(t, 60) * 0.9
-    body = lpf(noise(len(t)), 900) * dec(t, 28) * 0.8
-    return sat(thump + crack + body, 1.4)
+    thump = chirp(t, 140 * k, 55, 40) * dec(t, 14)
+    crack = bp(noise(len(t)), 500 * k, 2200) * atk(t, .002) * dec(t, 45) * 0.4     # softer, lower "slap" instead of a sharp crack
+    body = lpf(noise(len(t)), 700) * dec(t, 26) * 0.7
+    return lpf(sat(thump + crack + body, 1.2), 4500)
 
 
 def hit_heavy(i=0):
     d = 1.1; t = T(d); k = 1 + .05 * i
     boom = chirp(t, 95, 38, 18) * dec(t, 4.2) * 1.2
-    metal = partials(t, 640 * k, (1, 2.31, 3.87, 5.6, 7.9), (1, .7, .5, .35, .25), (5, 7, 9, 12, 15), 0.003) * 0.35
-    crack = bp(noise(len(t)), 1000, 6000) * dec(t, 45) * atk(t, .0005)
-    low = lpf(noise(len(t)), 500) * dec(t, 12)
-    return wet(sat(boom + metal + crack + low, 1.6), 0.5, 0.15)
+    metal = partials(t, 520 * k, (1, 2.31, 3.87), (1, .6, .35), (7, 10, 14), 0.003) * 0.12   # much less ring
+    crack = bp(noise(len(t)), 500, 3000) * dec(t, 40) * atk(t, .002) * 0.45
+    low = lpf(noise(len(t)), 450) * dec(t, 12)
+    return wet(lpf(sat(boom + metal + crack + low, 1.3), 5000), 0.5, 0.15)
 
 
 def slam():
@@ -380,7 +380,7 @@ def laugh():
 # ---------------------------------------------------------------- render (name, builder, peak, variants)
 PLAN = [
     ("whoosh", whoosh, .62, 3), ("whoosh_heavy", whoosh_heavy, .8, 2),
-    ("hit", hit, .85, 3), ("hit_heavy", hit_heavy, .95, 2),
+    ("hit", hit, .62, 3), ("hit_heavy", hit_heavy, .78, 2),
     ("slam", slam, .95, 1), ("clang", clang, .8, 2), ("block", block, .6, 1), ("kick", kick, .8, 2),
     ("dodge", dodge, .5, 1), ("jump", jump, .45, 1), ("land", land, .6, 1), ("wind", wind, .6, 1),
     ("fire", fire, .8, 1), ("shrink", shrink, .6, 1), ("grow", grow, .85, 1), ("step_giant", step_giant, .9, 1),

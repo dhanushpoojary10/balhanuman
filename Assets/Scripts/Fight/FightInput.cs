@@ -147,14 +147,22 @@ namespace BalHanuman.Fight
             OnDrag(e);
         }
 
+        static float Axis(float a, float dead, float full)
+        {
+            float m = Mathf.Abs(a);
+            if (m < dead) return 0f;
+            return Mathf.Sign(a) * Mathf.Clamp01((m - dead) / (full - dead));
+        }
+
         public void OnDrag(PointerEventData e)
         {
             RectTransformUtility.ScreenPointToLocalPointInRectangle(baseRect, e.position, e.pressEventCamera, out var lp);
             var v = Vector2.ClampMagnitude(lp, radius);
             knob.anchoredPosition = v;
             var s = v / radius;
-            // small dead zone; snap to 8 directions feels crisper for fighting inputs
-            FightInput.Stick = s.magnitude < 0.25f ? Vector2.zero : new Vector2(Mathf.Abs(s.x) > 0.38f ? Mathf.Sign(s.x) : 0f, Mathf.Abs(s.y) > 0.5f ? Mathf.Sign(s.y) : 0f);
+            // analog: a gentle push walks slowly, about two-thirds of the way out is full speed (and counts as forward / back for moves);
+            // up and down need a clearer push so crouch and jump stay deliberate
+            FightInput.Stick = new Vector2(Axis(s.x, 0.2f, 0.65f), Axis(s.y, 0.3f, 0.7f));
         }
 
         public void OnPointerUp(PointerEventData e) { Release(); }
