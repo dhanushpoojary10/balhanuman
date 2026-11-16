@@ -10,6 +10,7 @@ namespace BalHanuman.Fight
     {
         FightDirector dir;
         RectTransform root;
+        Image starBg, starFill, starMark; Text starText; float starShown;
         Image hpL, hpR, trailL, trailR;
         readonly Image[] meter = new Image[3];
         readonly Image[] meterGlow = new Image[3];
@@ -122,6 +123,8 @@ namespace BalHanuman.Fight
 
             HealthBar(true, out hpL, out trailL);
             HealthBar(false, out hpR, out trailR);
+            // the star's trigger point, marked on Ahiravana's health bar: when his health falls to here, the star appears
+            starMark = UiKit.Img("StarMark", hpR.transform, StarSprite(), V(0.75f, 0.5f), V(0.75f, 0.5f), V(0.5f, 0.5f), Vector2.zero, V(46, 46), new Color(1f, 0.93f, 0.65f, 0.95f));
 
             // Bhakti meter: three segments under Hanuman's bar
             T("MeterLabel", root, "BHAKTI", 22, V(0, 1), V(200, -156), V(160, 30), new Color(1f, 0.85f, 0.5f), false, TextAnchor.MiddleLeft);
@@ -204,6 +207,13 @@ namespace BalHanuman.Fight
             ultBtn = RoundButton("Ultimate", c, "ULTIMATE", V(-400, 400), 175, FightInput.Btn.Ultimate, new Color(1f, 0.9f, 0.55f), 26, "btn_ultimate");
             ultGlow = UiKit.Img("UltGlow", ultBtn.transform, S.softGlow != null ? S.softGlow : S.circle, V(0.5f, 0.5f), V(0.5f, 0.5f), V(0.5f, 0.5f), Vector2.zero, V(300, 300), new Color(1f, 0.8f, 0.3f, 0f));
             ultGlow.transform.SetAsFirstSibling();
+
+            // the STAR: fills as a combo builds toward the target and glows once earned; PANCHMUKHI needs it
+            var starSpr = StarSprite();
+            starBg = UiKit.Img("Star", ultBtn.transform, starSpr, V(0.5f, 1f), V(0.5f, 1f), V(0.5f, 0f), V(0, 4), V(86, 86), new Color(0.62f, 0.5f, 0.72f, 0.95f));
+            starFill = UiKit.Img("StarFill", starBg.transform, starSpr, V(0, 0), V(1, 1), V(0.5f, 0.5f), Vector2.zero, Vector2.zero, new Color(1f, 0.82f, 0.3f, 1f));
+            starFill.type = Image.Type.Filled; starFill.fillMethod = Image.FillMethod.Vertical; starFill.fillOrigin = 0; starFill.fillAmount = 0f; starFill.preserveAspect = false;
+            starText = T("StarText", starBg.transform, "", 22, V(0.5f, 0.5f), V(0, -2), V(120, 30), UiKit.Cream, false);
 
             string[] labels = { "VAYU", "FLY", "FIRE", "TINY", "VAJRA", "GIANT" };
             string[] arts = { "icon_vayu", "icon_fly", "icon_fire", "icon_tiny", "icon_vajra", "icon_giant" };
@@ -295,6 +305,55 @@ namespace BalHanuman.Fight
             });
         }
 
+        // ------------------------------------------------------------------ ultimate puzzle + star
+        static Sprite starSprite;
+        /// <summary>A five-point star drawn once into a texture (no art file needed).</summary>
+        static Sprite StarSprite()
+        {
+            if (starSprite != null) return starSprite;
+            const int N = 128;
+            var tex = new Texture2D(N, N, TextureFormat.RGBA32, false) { filterMode = FilterMode.Bilinear, wrapMode = TextureWrapMode.Clamp };
+            var pts = new Vector2[10];
+            for (int i = 0; i < 10; i++)
+            {
+                float a = Mathf.PI / 2f + i * Mathf.PI / 5f, r = (i % 2 == 0 ? 60f : 25f);
+                pts[i] = new Vector2(N / 2f + Mathf.Cos(a) * r, N / 2f + 3f + Mathf.Sin(a) * r);
+            }
+            bool Inside(Vector2 q)
+            {
+                bool c = false;
+                for (int i = 0, j = 9; i < 10; j = i++)
+                    if ((pts[i].y > q.y) != (pts[j].y > q.y) && q.x < (pts[j].x - pts[i].x) * (q.y - pts[i].y) / (pts[j].y - pts[i].y) + pts[i].x) c = !c;
+                return c;
+            }
+            var px = new Color32[N * N];
+            for (int y = 0; y < N; y++) for (int x = 0; x < N; x++)
+            {
+                int hit = 0;
+                for (int sy = 0; sy < 3; sy++) for (int sx = 0; sx < 3; sx++) if (Inside(new Vector2(x + (sx + 0.5f) / 3f, y + (sy + 0.5f) / 3f))) hit++;
+                px[y * N + x] = new Color32(255, 255, 255, (byte)(hit * 255 / 9));
+            }
+            tex.SetPixels32(px); tex.Apply();
+            starSprite = Sprite.Create(tex, new Rect(0, 0, N, N), new Vector2(0.5f, 0.5f), 100f);
+            return starSprite;
+        }
+
+        /// <summary>Freeze-frame puzzle panel: dims the fight, runs the puzzle, then reports solved / failed.</summary>
+        public void RunPuzzle(UltimatePuzzle puzzle, System.Action<bool> done) { StartCoroutine(PuzzleRoutine(puzzle, done)); }
+
+        System.Collections.IEnumerator PuzzleRoutine(UltimatePuzzle puzzle, System.Action<bool> done)
+        {
+            var veil = UiKit.Img("PuzzleVeil", root, UiKit.Skin.white, Vector2.zero, Vector2.one, V(0.5f, 0.5f), Vector2.zero, Vector2.zero, new Color(0.02f, 0.01f, 0.06f, 0f), true);
+            veil.preserveAspect = false;
+            for (float t = 0; t < 0.35f; t += Time.unscaledDeltaTime) { veil.color = new Color(0.02f, 0.01f, 0.06f, Mathf.Lerp(0f, 0.97f, t / 0.35f)); yield return null; }
+            veil.color = new Color(0.02f, 0.01f, 0.06f, 0.97f);
+            var panel = UiKit.Stretch("PuzzlePanel", veil.transform);
+            bool ok = false;
+            yield return StartCoroutine(puzzle.Run(panel, r => ok = r));
+            Destroy(veil.gameObject);
+            done(ok);
+        }
+
         // ------------------------------------------------------------------ API
         public void ShowPause(bool on) { pausePanel.parent.gameObject.SetActive(on); }
         public void ShowControls(bool on) { controls.gameObject.SetActive(on); if (trainingPanel != null) trainingPanel.gameObject.SetActive(on); }
@@ -378,7 +437,23 @@ namespace BalHanuman.Fight
                     p.label.color = un ? UiKit.Cream : new Color(1, 1, 1, 0.3f);
                     p.cost.gameObject.SetActive(un);
                 }
-                bool ult = h.unlocked[(int)PowerId.Panchmukhi] && (h.bhakti >= 2.999f || h.infiniteMeter);
+                bool ult = h.unlocked[(int)PowerId.Panchmukhi] && (h.star || h.infiniteMeter);
+                if (starBg != null)
+                {
+                    float want = h.star || h.infiniteMeter ? 1f : Mathf.Clamp01((1f - dir.BossHpFrac) / Mathf.Max(0.01f, 1f - dir.StarAtHp));
+                    starShown = Mathf.MoveTowards(starShown, want, dt * (want > starShown ? 4f : 2.5f));
+                    starFill.fillAmount = starShown;
+                    float pulse = ult ? 1f + 0.12f * Mathf.Sin(Time.unscaledTime * 7f) : 1f;
+                    starBg.rectTransform.localScale = Vector3.one * pulse;
+                    starBg.color = ult ? new Color(1f, 0.9f, 0.5f, 1f) : new Color(0.62f, 0.5f, 0.72f, 0.95f);
+                    starText.text = "";
+                    if (starMark != null)
+                    {
+                        starMark.rectTransform.anchorMin = starMark.rectTransform.anchorMax = V(1f - dir.StarAtHp, 0.5f);
+                        starMark.color = ult ? new Color(1f, 0.85f, 0.3f, 1f) : new Color(1f, 0.93f, 0.65f, 0.95f);
+                        starMark.rectTransform.localScale = Vector3.one * (ult ? 1f + 0.15f * Mathf.Sin(Time.unscaledTime * 7f) : 1f);
+                    }
+                }
                 var ug = ultGlow.color; ug.a = ult ? 0.55f + 0.35f * Mathf.Sin(Time.unscaledTime * 6f) : 0f; ultGlow.color = ug;
                 ultBtn.color = h.unlocked[(int)PowerId.Panchmukhi] ? (paintedBtns ? new Color(1f, 1f, 1f, ult ? 1f : 0.6f) : new Color(1f, 0.9f, 0.55f, ult ? 1f : 0.55f)) : new Color(1, 1, 1, 0.25f);
             }
