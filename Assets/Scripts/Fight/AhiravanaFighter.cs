@@ -30,7 +30,7 @@ namespace BalHanuman.Fight
             maxHp = hp = clone ? 1f : 1000f;
             walkSpeed = 2.4f; jumpVel = 12f; mood = Expr.Smirk;
             puppet = Puppet.Build(transform, MoveLib.AhiravanaDims(), MoveLib.AhiravanaStyle(), clone ? 8 : 10);
-            puppet.ApplySkin(AhiravanaSkin.Get(), AhiravanaSkin.Sprite);      // painted art when present
+            // the old cut-out rig art is gone: every move is drawn from the whole-body pose pictures (AhiravanaPoses)
             moves = MoveLib.Ahiravana(clips);
             SetupPoses();
             hurtSize = new Vector2(0.95f, 2.85f);
@@ -51,6 +51,8 @@ namespace BalHanuman.Fight
             foreach (var p in poseData.poses) poseInfo[p.name] = p;
             foreach (var kv in clips) if (kv.Value != null) clipNames[kv.Value] = kv.Key;
             foreach (var kv in moves) if (kv.Value != null && kv.Value.clip != null) clipNames[kv.Value.clip] = kv.Key;
+            // the throw that follows a grab is a move of its own (not in the move list): give it its pictures too, or the rig shows
+            foreach (var kv in moves) if (kv.Value != null && kv.Value.throwMove != null && kv.Value.throwMove.clip != null) clipNames[kv.Value.throwMove.clip] = kv.Value.throwMove.id;
             var go = new GameObject("PoseSprite"); go.transform.SetParent(puppet.transform, false);
             poseSr = go.AddComponent<SpriteRenderer>(); poseSr.sortingOrder = 5; poseSr.enabled = false;
             puppet.poseSprite = poseSr;
@@ -226,6 +228,8 @@ namespace BalHanuman.Fight
             }
             else if (dist < reach)
             {
+                // too close (side by side): step back first so the swing has room and he faces Hanuman again
+                if (dist < 1.35f * scale) { Add("back", 5f); Add("jab", 1.5f); Add("grab", 0.6f); Add("sweep", 0.6f); }
                 Add("jab", 3f); Add("combo", round >= 1 ? 2.5f : 0f); Add("sweep", 2f); Add("overhead", 1.2f);
                 Add("grab", 1f + Mathf.Min(3f, oppBlocks * 0.02f));
                 if (round >= 2) { Add("vanish", 0.6f); Add("dodge", 0.4f); }

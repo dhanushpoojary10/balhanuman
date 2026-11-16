@@ -378,14 +378,32 @@ namespace BalHanuman.Fight
                 foreach (var t in director.TargetsOf(this))
                 {
                     if (t == null || !t.gameObject.activeInHierarchy || Done(i, t)) continue;
-                    if (!t.Overlaps(p, r)) continue;
+                    Vector3 hp = p;
+                    if (!t.Overlaps(p, r) && !(SweptHit(t, p, r, out hp))) continue;
                     hitsDone.Add((i, t));
-                    var res = t.ReceiveHit(this, w, p);
+                    var res = t.ReceiveHit(this, w, hp);
                     if (res.connected && w.grab && move.throwMove != null) { BeginThrow(t, move.throwMove); return; }
                     if (res.parried) return;
                     if (move == null) return;
                 }
             }
+        }
+
+        /// <summary>
+        /// Point-blank hits: the arm and weapon reach from the body out to the tip, so an opponent standing right beside (or inside) the swing is hit too,
+        /// instead of the weapon tip passing beyond them. Only the side the fighter is facing counts.
+        /// </summary>
+        bool SweptHit(Fighter t, Vector3 tip, float r, out Vector3 hit)
+        {
+            hit = tip;
+            Vector3 from = transform.position + new Vector3(0.2f * facing * scale, Height * 0.55f, 0f);
+            for (int k = 1; k <= 6; k++)
+            {
+                Vector3 s = Vector3.Lerp(from, tip, k / 7f);
+                if ((s.x - transform.position.x) * facing < 0f) continue;
+                if (t.Overlaps(s, r * 0.6f)) { hit = s; return true; }
+            }
+            return false;
         }
 
         bool Done(int w, Fighter t) { foreach (var h in hitsDone) if (h.w == w && h.t == t) return true; return false; }

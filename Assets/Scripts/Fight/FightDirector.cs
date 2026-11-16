@@ -642,7 +642,7 @@ namespace BalHanuman.Fight
             Unlock(PowerId.Vayu);
             if (r >= 2) Unlock(PowerId.Flight, PowerId.FireTail, PowerId.Shrink);
             if (r >= 3) Unlock(PowerId.Vajra, PowerId.Growth);
-            if (r == 1) hud.Hint("Move: A/D or stick   GADA: J   TAIL: K   DODGE: L   Jump: W   Hold back to block", 5f);
+            if (r == 1) hud.Hint("Move: A/D or stick   MACE: J   KICK: K   DODGE: L   Jump: W   Hold back to block", 5f);
             if (r == 2)
             {
                 hud.Banner("BOONS AWAKENED", "FLIGHT  -  FIRE TAIL  -  ANIMA (shrink)   ·   boons 2, 3, 4", 2.4f, new Color(1f, 0.8f, 0.35f));

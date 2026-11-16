@@ -437,10 +437,10 @@ namespace BalHanuman.Fight
             var dz = S().Lean(-8, -4).Head(-15).Hip(-0.05f, -0.2f).ArmF(10, 20).Wpn(100).ArmB(5, 15);
             clips["stunned"] = C(true, 1f, K(0, dz), K(0.5f, dz.Copy().Lean(6, 4).Head(12).Hip(0.06f, -0.22f)));
             var laugh = S().Lean(-18, -4).Head(-28).ArmB(110, 90).Hip(0, -0.04f);
-            clips["laugh"] = C(true, 0.36f, K(0, laugh), K(0.18f, laugh.Copy().Lean(-14, -4).Head(-22).Hip(0, -0.08f)));
-            clips["victory"] = clips["laugh"];
+            clips["laugh"] = C(false, 1.6f, K(0, laugh), K(0.8f, laugh.Copy().Lean(-14, -4).Head(-22).Hip(0, -0.08f)));   // one laugh, then back to a calm stance (it used to loop and shake)
+            clips["victory"] = C(true, 0.8f, K(0, laugh), K(0.4f, laugh.Copy().Lean(-14, -4).Head(-22).Hip(0, -0.08f)));   // its own clip, so the painted victory pose can differ from the laugh
             var trans = S().Lean(-20, -6).Head(-30).Hip(0, -0.2f).Feet(0.45f, -0.45f).ArmF(110, -30).Wpn(40).ArmB(120, -30);
-            clips["transform"] = C(true, 0.4f, K(0, trans), K(0.2f, trans.Copy().Hip(0, -0.23f).Head(-33)));
+            clips["transform"] = C(false, 1.8f, K(0, trans), K(0.9f, trans.Copy().Hip(0, -0.23f).Head(-33)));   // one roar, then calm
             clips["roar"] = clips["transform"];
             var kneel = P().Hip(0, 0.76f - D.HipBase).Feet(0.45f, 0f).LegB(-10, -100).Lean(28, 0).Head(18).ArmF(30, 40).Wpn(100).ArmB(50, 30);
             clips["kneel"] = C(true, 1.2f, K(0, kneel), K(0.6f, kneel.Copy().Lean(31, 0).Head(22)));
