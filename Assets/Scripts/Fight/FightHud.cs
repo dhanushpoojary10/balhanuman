@@ -84,7 +84,7 @@ namespace BalHanuman.Fight
                 fill = Painted("Fill", Color.white);
                 if (left) tintL = Color.white; else tintR = Color.white;
                 var bossArt = left ? null : Resources.Load<Sprite>("Level02/Ahiravana/ahi_portrait");
-                var ring2 = UiKit.Portrait(left ? "PortraitL" : "PortraitR", root, anchor, V(0.5f, 0.5f), V(sx * 100, -92), 160, left ? S.heroPortrait : bossArt);
+                var ring2 = UiKit.Portrait(left ? "PortraitL" : "PortraitR", root, anchor, V(0.5f, 0.5f), V(sx * 100, -92), 160, left ? (Resources.Load<Sprite>("Level02/UI/hanuman_portrait") ?? S.heroPortrait) : bossArt);
                 if (!left && bossArt == null)
                 {
                     var mask = ring2.transform.parent;
@@ -104,7 +104,7 @@ namespace BalHanuman.Fight
             var shine = UiKit.Img("Shine", fill.transform, S.white, V(0, 0.55f), V(1, 1), V(0.5f, 1), Vector2.zero, Vector2.zero, new Color(1, 1, 1, 0.22f));
             shine.preserveAspect = false;
             var bossArt1 = left ? null : Resources.Load<Sprite>("Level02/Ahiravana/ahi_portrait");
-            var ring = UiKit.Portrait(left ? "PortraitL" : "PortraitR", root, anchor, V(0.5f, 0.5f), V(sx * 100, -92), 160, left ? S.heroPortrait : bossArt1);
+            var ring = UiKit.Portrait(left ? "PortraitL" : "PortraitR", root, anchor, V(0.5f, 0.5f), V(sx * 100, -92), 160, left ? (Resources.Load<Sprite>("Level02/UI/hanuman_portrait") ?? S.heroPortrait) : bossArt1);
             if (!left && bossArt1 == null)
             {
                 var mask = ring.transform.parent;

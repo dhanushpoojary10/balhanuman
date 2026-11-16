@@ -145,7 +145,7 @@ namespace BalHanuman.Fight
             if (burnT > 0f)
             {
                 burnT -= dt;
-                if (Random.value < dt * 18f) FightFx.Flames(Center + (Vector3)Random.insideUnitCircle * 0.4f * scale, 1, 0.8f * scale);
+                if (Random.value < dt * 6f) FightFx.Flames(Center + (Vector3)Random.insideUnitCircle * 0.4f * scale, 1, 0.6f * scale);
                 if (Alive && !immortal) hp = Mathf.Max(1f, hp - dt * 10f);
             }
             if (Time.time < afterimageUntil)
@@ -303,7 +303,7 @@ namespace BalHanuman.Fight
             vel.y = jumpVel * Mathf.Sqrt(scale); vel.x = inX * walkSpeed * 1.1f * SpeedK;
             grounded = false; SetState(FState.Jump); ForceClip("jump", 0.06f);
             FightSfx.Play("jump", 1f, 0.6f);
-            FightFx.Dust(transform.position, 4, 1.5f, 0, 0.6f * scale);
+            FightFx.Dust(transform.position, 2, 1.5f, 0, 0.6f * scale);     // take-off: a puff only, the cloud is for landing
         }
 
         void Land()
@@ -362,6 +362,7 @@ namespace BalHanuman.Fight
             {
                 whooshed = true;
                 FightSfx.Play(string.IsNullOrEmpty(move.sfx) ? "whoosh" : move.sfx, scale > 1.5f ? 0.7f : 1f, 0.8f);
+                if (move.hits[0].joint == Puppet.J.Weapon) FightFx.SwingArc(this, move, SwingTint);      // painted crescent trailing the weapon
             }
             if (move.endOnLand && grounded && moveT > 0.08f)
             {
@@ -440,6 +441,9 @@ namespace BalHanuman.Fight
 
         /// <summary>World position of the weapon (for impact effects): the skeleton's, or the painted frame's measured tip.</summary>
         public virtual Vector3 WeaponPoint => puppet.WeaponTip;
+
+        /// <summary>Colour of the swing-arc trail (the slash sheet is white and tinted).</summary>
+        public virtual Color SwingTint => new Color(0.82f, 0.5f, 1f, 0.9f);
 
         void CarryHeld()
         {

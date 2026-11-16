@@ -1,0 +1,106 @@
+{
+ "sheets": [
+  {
+   "name": "sun",
+   "n": 1,
+   "cell": 512,
+   "pivot": "c"
+  },
+  {
+   "name": "mandala",
+   "n": 1,
+   "cell": 512,
+   "pivot": "c"
+  },
+  {
+   "name": "mandalaw",
+   "n": 1,
+   "cell": 512,
+   "pivot": "c"
+  },
+  {
+   "name": "rock",
+   "n": 8,
+   "cell": 443,
+   "pivot": "c"
+  },
+  {
+   "name": "crack",
+   "n": 4,
+   "cell": 500,
+   "pivot": "c"
+  },
+  {
+   "name": "dust",
+   "n": 8,
+   "cell": 443,
+   "pivot": "b"
+  },
+  {
+   "name": "vanish",
+   "n": 8,
+   "cell": 443,
+   "pivot": "c"
+  },
+  {
+   "name": "aura",
+   "n": 8,
+   "cell": 443,
+   "pivot": "c"
+  },
+  {
+   "name": "orb",
+   "n": 8,
+   "cell": 443,
+   "pivot": "c"
+  },
+  {
+   "name": "wind",
+   "n": 8,
+   "cell": 443,
+   "pivot": "c"
+  },
+  {
+   "name": "crackle",
+   "n": 8,
+   "cell": 443,
+   "pivot": "c"
+  },
+  {
+   "name": "bolt",
+   "n": 8,
+   "cell": 443,
+   "pivot": "b"
+  },
+  {
+   "name": "fireburst",
+   "n": 8,
+   "cell": 443,
+   "pivot": "c"
+  },
+  {
+   "name": "fire",
+   "n": 8,
+   "cell": 443,
+   "pivot": "b"
+  },
+  {
+   "name": "slash",
+   "n": 8,
+   "cell": 443,
+   "pivot": "c"
+  },
+  {
+   "name": "impact",
+   "n": 8,
+   "cell": 443,
+   "pivot": "c"
+  },
+  {
+   "name": "spark",
+   "n": 8,
+   "cell": 443,
+   "pivot": "c"
+  }
+ ]
+}

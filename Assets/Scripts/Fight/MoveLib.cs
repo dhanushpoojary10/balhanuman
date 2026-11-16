@@ -244,7 +244,7 @@ namespace BalHanuman.Fight
             var fw = S().Lean(15, 6).Hip(0.05f, -0.2f).Feet(0.55f, -0.35f);
             m["firewhip"] = M("firewhip", "Fire Tail Whip", C(false, 0.55f, K(0, fw.Copy().Tail(-110)), K(0.07f, fw.Copy().Tail(-130), Ease.Out), K(0.15f, fw.Copy().Tail(110), Ease.Out), K(0.3f, fw.Copy().Tail(60)), K(0.55f, S())))
                 .Hit(H(0.09f, 0.22f, J.Tail, new Vector2(0, -0.9f), 1.0f, 60, new Vector2(4f, 3f), 0.45f, HitLevel.Mid, FxKind.Fire, true, false, false, 0.08f, 0.08f, true))
-                .At(0.1f, f => { for (int i = 0; i < f.puppet.TailCount; i++) FightFx.Flames(f.puppet.TailSeg(i).position, 2, 0.9f); FightSfx.Play("fire"); });
+                .At(0.1f, f => { for (int i = 1; i < f.puppet.TailCount; i += 2) FightFx.Flames(f.puppet.TailSeg(i).position, 1, 0.6f); FightSfx.Play("fire"); });
             m["firewhip"].sfx = "whoosh";
 
             // ---------------------------------------------------------------- powers

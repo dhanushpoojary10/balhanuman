@@ -31,7 +31,12 @@ namespace BalHanuman.Fight
         bool wasBack, wasFwd, wasUp;
         int airUsed; MoveDef airCounted;
         float jumpAt = -1f, lastUpSeen = -10f, lastAtkT = -10f; string lastAtkId;     // delayed stick-up jump, launcher input memory, combo chain memory
-        float fireFxT;
+        float fireFxT, vajraFxT, boonFxT, stepT;
+        readonly float[] powerStart = new float[7]; readonly bool[] wasOn = new bool[7];
+        static Material glowMat; SpriteRenderer glowSr;                   // boon outline: a soft halo of his sprite in the boon's colour
+        SpriteRenderer floorGlow; float floorGlowA;                      // fire tail: warm light on the floor under him
+        Transform mandalaRoot; SpriteRenderer mandalaSr; float mandalaA;     // glowing yantra on the floor during Panchmukhi
+        public bool panchGlow;                  // set by the director while the Panchmukhi form is shown
         public bool demoBlock;                  // demo reel: hold block
         const float BaseWalk = 2.8f;
 
@@ -43,6 +48,23 @@ namespace BalHanuman.Fight
         }
 
         public bool Active(PowerId p) => Time.time < powerEnd[(int)p];
+
+        public static Color BoonColor(PowerId p)
+        {
+            switch (p)
+            {
+                case PowerId.Vayu: return new Color(0.45f, 0.95f, 1f);
+                case PowerId.Flight: return new Color(0.7f, 0.88f, 1f);
+                case PowerId.FireTail: return new Color(1f, 0.5f, 0.12f);
+                case PowerId.Shrink: return new Color(0.5f, 1f, 0.8f);
+                case PowerId.Vajra: return new Color(0.6f, 0.8f, 1f);
+                case PowerId.Growth: return new Color(1f, 0.8f, 0.3f);
+            }
+            return new Color(1f, 0.85f, 0.4f);
+        }
+
+        public override Color SwingTint => Active(PowerId.Vajra) ? new Color(0.75f, 0.88f, 1f, 0.95f) : Active(PowerId.Growth) ? new Color(1f, 0.85f, 0.4f, 0.95f)
+            : Active(PowerId.Vayu) ? new Color(0.7f, 1f, 1f, 0.9f) : new Color(1f, 0.93f, 0.78f, 0.9f);
         public float Remaining01(PowerId p) => Active(p) ? (powerEnd[(int)p] - Time.time) / Mathf.Max(0.01f, Duration(p)) : 0f;
 
         public void Init(FightDirector d)
@@ -249,6 +271,7 @@ namespace BalHanuman.Fight
             t.localScale = Vector3.one * (c.k * 100f);
             t.localPosition = new Vector3(-(f.px - f.w * 0.5f) * c.k, (f.py - f.h * 0.5f) * c.k, 0f);
             frameSr.color = puppet.VisualColor();
+            UpdateGlow();
         }
 
         protected override void ApplyVisualScale()
@@ -340,7 +363,7 @@ namespace BalHanuman.Fight
             if (!CanUse(p)) { if (unlocked[(int)p]) FightSfx.Play("tick", 0.5f, 0.6f); return false; }
             if (p == PowerId.Panchmukhi) return director.TryUltimate(this);
             if (!infiniteMeter) bhakti -= Cost(p);
-            powerEnd[(int)p] = Time.time + Duration(p);
+            powerEnd[(int)p] = Time.time + Duration(p); powerStart[(int)p] = Time.time;
             director.OnPower(this, p);
             switch (p)
             {
@@ -348,37 +371,46 @@ namespace BalHanuman.Fight
                     StartMove(GetMove("vayudash"));
                     afterimageColor = new Color(0.55f, 0.95f, 1f, 0.55f);
                     FightSfx.Play("wind");
+                    FightFx.Flip("wind", Center, 2.4f * scale, 0.45f, new Color(1f, 1f, 1f, 0.85f), FightFx.Order + 2);
                     break;
                 case PowerId.Flight:
                     flying = true; grounded = false; vel = new Vector2(0, 11f);
                     ToIdle(); PlayClip("fly", 0.1f);
                     FightSfx.Play("wind", 0.8f);
+                    FightFx.Flip("wind", transform.position + Vector3.up * 0.3f, 2.8f * scale, 0.5f, new Color(1f, 1f, 1f, 0.85f), FightFx.Order + 2, 0f, false, false, 14f, 0.5f);
                     FightFx.Dust(transform.position, 10, 3f, 0, 1f);
+                    FightFx.Spawn(FightArt.Ring, new Vector3(transform.position.x, 0.05f, 0f), 0.45f, new Vector2(0.5f, 0.12f), new Vector2(4.5f, 0.8f),
+                        new Color(0.8f, 0.95f, 1f, 0.9f), new Color(0.8f, 0.95f, 1f, 0f), FightFx.Behind);     // the gust slams a ring into the floor
                     for (int i = 0; i < 3; i++) FightFx.Streaks(Center + Vector3.down * i * 0.4f, 0, 2, new Color(0.8f, 0.95f, 1f));
                     break;
                 case PowerId.FireTail:
                     StartMove(GetMove("roar"));
                     FightSfx.Play("fire", 0.9f); FightSfx.Play("power", 0.9f, 0.6f);
+                    var tip = puppet != null ? puppet.TailSeg(puppet.TailCount - 1) : null;           // the tail itself ignites
+                    FightFx.Flip("fireburst", tip != null ? tip.position : Center, 1.8f * scale, 0.4f, Color.white, FightFx.Order + 2);
                     director.BurnClones();
                     break;
                 case PowerId.Shrink:
                     scaleTarget = 0.38f;
                     FightFx.Sparkle(Center, 16, 1.4f, new Color(0.6f, 0.95f, 1f), true);
+                    FightFx.Flip("aura", Center, 2.4f * scale, 0.4f, Color.white, FightFx.Order + 2, 0f, false, false, 14f, 1f, 1f, null, true);   // the ring collapses inward with him
                     FightSfx.Play("shrink");
                     break;
                 case PowerId.Vajra:
                     StartMove(GetMove("roar"));
                     FightSfx.Play("thunder"); FightSfx.Play("power", 1.1f, 0.6f);
-                    FightFx.Pillar(transform.position, 4f, 1.4f, new Color(1f, 0.85f, 0.3f), 0.7f);
+                    FightFx.Flip("bolt", transform.position, 5f, 0.4f, Color.white, FightFx.Order + 3);        // Indra's thunderbolt strikes him
                     break;
                 case PowerId.Growth:
                     StartMove(GetMove("roar"));
                     scaleTarget = 2.2f;
                     FightSfx.Play("grow");
                     FightFx.Pillar(transform.position, 9f, 2.6f, new Color(1f, 0.8f, 0.35f), 1.2f);
+                    FightFx.Still("crack", Random.Range(0, 4), new Vector3(transform.position.x, 0.04f, 0f), 2.0f, 1.6f, Color.white, FightFx.Behind - 1, Random.value < 0.5f, 1f, 1.9f);  // the floor splits as he grows
                     director.Shake(0.25f, 1.0f);
                     break;
             }
+            if (p != PowerId.Shrink) FightFx.Aura(Center, (p == PowerId.Growth ? 3.6f : 2.4f) * scale, Color.white);     // golden bloom: every boon is a gift of devotion
             return true;
         }
 
@@ -394,22 +426,180 @@ namespace BalHanuman.Fight
             walkSpeed = BaseWalk * (scaleTarget < 0.9f ? 1.8f : 1f);
             if (vayu) { afterimageUntil = Time.time + 0.05f; afterimageColor = new Color(0.55f, 0.95f, 1f, 0.45f); }
             if (puppet != null) puppet.SetTint(vajra ? new Color(1f, 0.92f, 0.6f) : Color.white);
-            if (vajra && Random.value < Time.deltaTime * 20f)
+            if (vajra && Random.value < Time.deltaTime * 8f)
             {
                 var a = FightFx.Spawn(FightArt.Soft, transform.position + new Vector3(Random.Range(-0.5f, 0.5f) * scale, Random.Range(0.2f, 2.4f) * scale), 0.5f,
                     Vector2.one * 0.5f * scale, Vector2.one * 0.1f, new Color(1f, 0.85f, 0.3f, 0.8f), new Color(1f, 0.6f, 0.1f, 0f), puppet.SortingOrder + 1);
                 a.vel = Vector2.up * 2.5f;
             }
+            if (puppet != null)
+            {
+                int fxOrder = puppet.SortingOrder + 1;
+                if (vajra) { vajraFxT -= Time.deltaTime; if (vajraFxT <= 0f) { vajraFxT = 1.2f; FightFx.Flip("crackle", Center, 2.4f * scale, 0.5f, new Color(1f, 1f, 1f, 0.6f), fxOrder + 1, 0f, Random.value < 0.5f, true, 14f, 1f, 1f, transform); } }
+            }
+            UpdateMandala(vayu, vajra, growth, fire);
+            UpdateBoonFx(vayu, growth, fire);
             if (fire && puppet != null)
             {
                 fireFxT -= Time.deltaTime;
-                if (fireFxT <= 0f) { fireFxT = 0.035f; var seg = puppet.TailSeg(Random.Range(2, puppet.TailCount)); if (seg != null) FightFx.Flames(seg.position, 1, 0.7f * scale); }
+                if (fireFxT <= 0f) { fireFxT = 0.16f; var seg = puppet.TailSeg(Mathf.Max(0, puppet.TailCount - 1 - Random.Range(0, 2))); if (seg != null) FightFx.Flames(seg.position, 1, 0.5f * scale); }
             }
             // timed powers ending
             if (flying && !Active(PowerId.Flight) && !(Attacking && move.id == "meteor")) { flying = false; if (state == FState.Idle) ToIdle(); }
             if (scaleTarget < 0.9f && !Active(PowerId.Shrink)) { scaleTarget = 1f; FightFx.Sparkle(Center, 10, 1f, new Color(0.6f, 0.95f, 1f), false); FightSfx.Play("grow", 1.8f, 0.5f); }
             if (scaleTarget > 1.5f && !Active(PowerId.Growth)) { scaleTarget = 1f; FightFx.Pillar(transform.position, 4f, 1.2f, new Color(1f, 0.8f, 0.35f), 0.6f); FightSfx.Play("shrink", 0.7f); }
             if (infiniteMeter) bhakti = 3f;
+        }
+
+        /// <summary>The newest boon that is still on (its colour drives the outline).</summary>
+        int LatestBoon()
+        {
+            int best = -1; float t = -1f;
+            foreach (var b in Boons) if (Active(b) && powerStart[(int)b] > t) { t = powerStart[(int)b]; best = (int)b; }
+            return best;
+        }
+
+        /// <summary>Soft coloured halo of the current frame behind him; pulses, and flickers in the last 1.5 s so the player sees it running out.</summary>
+        void UpdateGlow()
+        {
+            if (frameSr == null) return;
+            int b = LatestBoon();
+            if (glowSr == null)
+            {
+                if (b < 0) return;
+                if (glowMat == null)
+                {
+                    var sh = Resources.Load<Shader>("Level02/Shaders/FightGlow");
+                    if (sh == null || !sh.isSupported) return;
+                    glowMat = new Material(sh);
+                    glowMat.SetFloat("_Grow", 1.12f); glowMat.SetFloat("_Spread", 10f);
+                }
+                var g = new GameObject("BoonGlow"); g.transform.SetParent(frameSr.transform, false); g.transform.localScale = Vector3.one * 1.12f;
+                glowSr = g.AddComponent<SpriteRenderer>(); glowSr.sharedMaterial = glowMat; glowSr.sortingOrder = frameSr.sortingOrder - 1;
+            }
+            if (b < 0) { glowSr.enabled = false; return; }
+            var c = BoonColor((PowerId)b);
+            float a = 0.75f + 0.25f * Mathf.Sin(Time.time * 4f);
+            if (powerEnd[b] - Time.time < 1.5f && Mathf.Repeat(Time.time * 8f, 1f) < 0.45f) a *= 0.25f;
+            glowSr.enabled = frameSr.enabled;
+            glowSr.sprite = frameSr.sprite;
+            glowSr.color = new Color(c.r, c.g, c.b, 0.85f * a);
+        }
+
+        /// <summary>Small per-boon touches while a boon lasts, only when something happens (moving, flying, stepping).</summary>
+        void UpdateBoonFx(bool vayu, bool growth, bool fire)
+        {
+            float dt = Time.deltaTime;
+            bool moving = Mathf.Abs(vel.x) > 1f;
+            bool shrink = Active(PowerId.Shrink), flight = Active(PowerId.Flight);
+
+            // a boon running out: a small puff in its colour (shrink and giant already have their own)
+            for (int i = 0; i < Boons.Length; i++)
+            {
+                var b = Boons[i]; bool on = Active(b);
+                if (wasOn[i] && !on && b != PowerId.Shrink && b != PowerId.Growth && Alive) FightFx.Sparkle(Center, 10, 1f * scale, BoonColor(b), false);
+                wasOn[i] = on;
+            }
+
+            boonFxT -= dt;
+            if (boonFxT <= 0f)
+            {
+                boonFxT = 0.1f;
+                if (vayu && grounded && moving && Random.value < 0.4f)             // wind ribbon at the feet while he runs
+                    FightFx.Flip("wind", transform.position + Vector3.up * 0.25f * scale, 1.3f * scale, 0.35f, new Color(1f, 1f, 1f, 0.7f), FightFx.Behind, 0f, vel.x < 0f, false, 14f, 0.4f);
+                if (flight && flying)                                                // soft air pushed down under his feet
+                {
+                    var a = FightFx.Spawn(FightArt.Soft, transform.position + new Vector3(Random.Range(-0.3f, 0.3f), 0.1f, 0f), 0.4f, Vector2.one * 0.5f, Vector2.one * 0.15f,
+                        new Color(0.8f, 0.95f, 1f, 0.45f), new Color(0.8f, 0.95f, 1f, 0f), 19);
+                    a.vel = new Vector2(-vel.x * 0.2f, -2.5f);
+                }
+                if (fire && puppet != null)                                          // embers drifting off the tail tip
+                {
+                    var tip = puppet.TailSeg(puppet.TailCount - 1);
+                    if (tip != null)
+                    {
+                        var e = FightFx.Spawn(FightArt.Soft, tip.position + (Vector3)Random.insideUnitCircle * 0.15f, Random.Range(0.6f, 0.9f), Vector2.one * 0.12f, Vector2.one * 0.04f,
+                            new Color(1f, 0.75f, 0.3f, 1f), new Color(1f, 0.3f, 0.05f, 0f), FightFx.Order);
+                        e.vel = new Vector2(Random.Range(-0.4f, 0.4f), Random.Range(1f, 1.8f));
+                    }
+                }
+                if (shrink && moving)                                                // tiny sparkle trail
+                    FightFx.Spawn(FightArt.Star, Center + (Vector3)Random.insideUnitCircle * 0.2f, 0.35f, Vector2.one * 0.22f, Vector2.one * 0.04f,
+                        Color.white, new Color(0.5f, 1f, 0.8f, 0f), FightFx.Order, Random.Range(0f, 90f));
+            }
+
+            // meteor dive: a short fire streak behind him
+            if (Attacking && move != null && move.id == "meteor" && Random.value < dt * 25f)
+                FightFx.Flames(transform.position + Vector3.up * 0.6f * scale, 1, 0.6f);
+
+            // giant: every step thumps the floor
+            if (growth && grounded && state == FState.Walk)
+            {
+                stepT -= dt;
+                if (stepT <= 0f)
+                {
+                    stepT = 0.45f;
+                    FightFx.Dust(transform.position + Vector3.right * facing * 0.4f * scale, 4, 1.2f, 0f, 0.5f * scale);
+                    director?.Shake(0.05f, 0.12f);
+                    FightSfx.Play("step_giant", 1f, 0.5f);
+                }
+            }
+            else stepT = 0.15f;
+
+            // fire tail: warm light on the floor under him
+            floorGlowA = Mathf.MoveTowards(floorGlowA, fire ? 1f : 0f, dt * 3f);
+            if (floorGlow == null && floorGlowA > 0f)
+            {
+                floorGlow = new GameObject("FireFloorGlow").AddComponent<SpriteRenderer>();
+                floorGlow.sprite = FightArt.Soft; floorGlow.sortingOrder = -2;
+            }
+            if (floorGlow != null)
+            {
+                floorGlow.enabled = floorGlowA > 0.01f;
+                floorGlow.transform.position = new Vector3(transform.position.x, 0.06f, 0f);
+                floorGlow.transform.localScale = new Vector3(3f * scale, 0.55f * scale, 1f);
+                float lift = Mathf.Clamp01(1f - transform.position.y / 3f);
+                floorGlow.color = new Color(1f, 0.45f, 0.1f, 0.3f * floorGlowA * lift * (0.85f + 0.15f * Mathf.Sin(Time.time * 9f)));
+            }
+        }
+
+        /// <summary>Called by the director for each of his hits that connects: the boon adds its own spark at the impact.</summary>
+        public void OnBoonHit(Vector3 point)
+        {
+            if (Active(PowerId.Vajra)) FightFx.Flip("crackle", point, 1.0f, 0.25f, new Color(1f, 1f, 1f, 0.9f), FightFx.Order + 5, Random.Range(0f, 360f));
+            if (Active(PowerId.Vayu)) FightFx.Flip("slash", point, 1.2f, 0.18f, new Color(0.7f, 1f, 1f, 0.85f), FightFx.Order + 3, Random.Range(-20f, 20f), facing < 0, false, 14f, 0.6f);
+        }
+
+        /// <summary>A white yantra glowing on the floor under his feet while any boon is on, tinted by the boon (it turns slowly).</summary>
+        void UpdateMandala(bool vayu, bool vajra, bool growth, bool fire)
+        {
+            var sheet = VfxSheets.Get("mandalaw");
+            if (sheet == null) return;
+            bool on = panchGlow;
+            if (mandalaRoot == null)
+            {
+                if (!on) return;
+                mandalaRoot = new GameObject("BoonMandala").transform;
+                var disc = new GameObject("Disc"); disc.transform.SetParent(mandalaRoot, false);
+                mandalaSr = disc.AddComponent<SpriteRenderer>(); mandalaSr.sprite = sheet.frames[0]; mandalaSr.sortingOrder = -2;
+            }
+            mandalaA = Mathf.MoveTowards(mandalaA, on ? 1f : 0f, Time.unscaledDeltaTime * 2f);
+            if (mandalaA <= 0.01f) { if (mandalaRoot.gameObject.activeSelf) mandalaRoot.gameObject.SetActive(false); return; }
+            if (!mandalaRoot.gameObject.activeSelf) mandalaRoot.gameObject.SetActive(true);
+            var tint = new Color(1f, 0.85f, 0.4f);
+            float w = 4f * Mathf.Max(0.4f, scale);                                           // world width of the disc
+            float k = w / Mathf.Max(0.1f, mandalaSr.sprite.bounds.size.x);
+            mandalaRoot.position = new Vector3(transform.position.x, 0.1f, 0f);               // lies on the floor, squashed flat
+            mandalaRoot.localScale = new Vector3(k, k * 0.3f, 1f);
+            mandalaSr.transform.Rotate(0f, 0f, -15f * Time.deltaTime);
+            float lift = Mathf.Clamp01(1f - transform.position.y / 3.5f);                        // fades out as he leaves the ground
+            mandalaSr.color = new Color(tint.r, tint.g, tint.b, 0.5f * mandalaA * lift);
+        }
+
+        void OnDestroy()
+        {
+            if (mandalaRoot != null) Destroy(mandalaRoot.gameObject);
+            if (floorGlow != null) Destroy(floorGlow.gameObject);
         }
 
         public void EndAllPowers()

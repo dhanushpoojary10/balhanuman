@@ -323,6 +323,7 @@ namespace BalHanuman.Fight
             bool big = w.heavy || attacker.scale > 1.5f;
             bool onHanuman = victim is HanumanFighter;
             FightFx.Hit(point, w.fx, big, attacker.facing, power);
+            if (attacker is HanumanFighter boonHolder) boonHolder.OnBoonHit(point);
             FightSfx.Play(w.heavy ? "hit_heavy" : "hit", attacker.scale > 1.5f ? 0.75f : 1f);
             cam.Shake(w.shake * Mathf.Max(1f, attacker.scale * 0.8f) * (onHanuman ? 1.35f : 1f), w.heavy ? 0.25f : 0.14f);
             if (big) cam.Punch(0.22f, 0.2f);                   // only heavy hits pulse the zoom
@@ -429,6 +430,8 @@ namespace BalHanuman.Fight
             }
             hud.Banner(big, small, 1.3f, new Color(1f, 0.8f, 0.3f));
             hud.Flash(new Color(1f, 0.85f, 0.4f), 0.3f);
+            if (p == PowerId.Vajra) { hud.Flash(Color.white, 0.5f, 4f); cam.Kick(Vector2.down, 0.45f); }     // the thunderbolt lands
+            if (p == PowerId.Growth) cam.Rumble(0.04f, 1.2f);
             cam.Punch(0.4f, 0.4f);
             SlowMo(0.5f, 0.3f);
         }
@@ -468,13 +471,12 @@ namespace BalHanuman.Fight
         public void TeleportBehind(Fighter f)
         {
             var o = f.opponent; if (o == null) return;
-            FightFx.Smoke(f.Center, 8, new Color(0.5f, 0.2f, 0.8f, 0.8f), 1f);
+            FightFx.Poof(f.Center, 1.8f * f.scale);
             FightSfx.Play("teleport");
             float x = o.transform.position.x - o.facing * 1.8f;
             if (Mathf.Abs(x) > arenaHalf - 1f) x = o.transform.position.x + o.facing * 1.8f;
             f.transform.position = new Vector3(x, 0, 0);
             f.FaceOpponent();
-            FightFx.Smoke(f.Center, 8, new Color(0.5f, 0.2f, 0.8f, 0.8f), 1f);
             f.puppet.Flash(new Color(0.8f, 0.5f, 1f, 0.9f), 0.25f);
         }
 
@@ -487,7 +489,7 @@ namespace BalHanuman.Fight
                 c.opponent = hanuman; c.SetRound(2);
                 float x = Mathf.Clamp(real.transform.position.x + (i == 0 ? 2.6f : -2.6f), -arenaHalf + 1f, arenaHalf - 1f);
                 c.transform.position = new Vector3(x, 0, 0); c.FaceOpponent();
-                FightFx.Smoke(c.Center, 8, new Color(0.6f, 0.3f, 0.9f, 0.7f), 1f);
+                FightFx.Poof(c.Center, 1.6f);
                 clones.Add(c);
             }
             FightSfx.Play("laugh", 0.95f); FightSfx.Play("teleport", 0.8f);
@@ -498,8 +500,7 @@ namespace BalHanuman.Fight
         {
             if (c == null || !clones.Contains(c)) return;
             clones.Remove(c);
-            FightFx.Smoke(c.Center, 10, new Color(0.65f, 0.35f, 0.95f, 0.75f), 1.1f);
-            FightFx.Hit(point, FxKind.Dark, false, 0f);
+            FightFx.Poof(c.Center, 2.0f);
             FightSfx.Play("poof");
             CountHit("clone", 0f);
             Destroy(c.gameObject);
@@ -511,7 +512,7 @@ namespace BalHanuman.Fight
             foreach (var c in new List<AhiravanaFighter>(clones))
             {
                 if (c == null) continue;
-                FightFx.Flames(c.Center, 14, 1.4f);
+                FightFx.Flames(c.Center, 6, 1f);
                 PopClone(c, c.Center);
             }
             hud.Banner("ILLUSIONS BURNED!", "Agni reveals the true demon", 1.4f, new Color(1f, 0.6f, 0.2f));
@@ -585,6 +586,9 @@ namespace BalHanuman.Fight
 
             h.puppet.ShowPanchmukhi(true);
             FightFx.Pillar(h.transform.position, 10f, 3f, new Color(1f, 0.8f, 0.35f), 1.5f);
+            FightFx.Sun(h.Center + Vector3.up * 1.2f, 5.5f, 4.2f, new Color(1f, 1f, 1f, 0.8f));       // a sun disc fades up behind the five faces
+            FightFx.Aura(h.Center, 4.5f, Color.white, 0.8f);
+            h.panchGlow = true;
             hud.Flash(new Color(1f, 0.85f, 0.45f), 0.85f, 1.2f);
             hud.Banner("PANCHMUKHI", "Hanuman  -  Narasimha  -  Garuda  -  Varaha  -  Hayagriva", 2.4f, new Color(1f, 0.82f, 0.3f), true);
             cam.Shake(0.18f, 1.4f);
@@ -623,7 +627,7 @@ namespace BalHanuman.Fight
             while (t < 1.6f && boss.state == FState.Stunned) { t += Time.unscaledDeltaTime; yield return null; }
             if (boss.state != FState.Stunned) SlowMo(0.25f, 1.1f);
             yield return new WaitForSecondsRealtime(1.3f);
-            h.puppet.ShowPanchmukhi(false);
+            h.puppet.ShowPanchmukhi(false); h.panchGlow = false;
             hud.Dark(0f); music.Fade(0.42f);
             if (!victory)
             {
