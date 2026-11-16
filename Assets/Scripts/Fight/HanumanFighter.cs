@@ -14,6 +14,7 @@ namespace BalHanuman.Fight
 
         public float bhakti;                    // 0..3 meter (one bar per segment)
         public bool infiniteMeter;
+        public bool star;                       // earned by one long combo; PANCHMUKHI needs it (and a solved puzzle)
         public readonly bool[] unlocked = new bool[7];
         readonly float[] powerEnd = new float[7];
         Dictionary<string, MoveDef> moves;

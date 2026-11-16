@@ -79,6 +79,11 @@ namespace BalHanuman.Fight
 
         // combo + stats
         int comboHits, maxCombo, parries, perfectDodges, lastRank;
+        /// <summary>The STAR appears once Ahiravana is this close to losing (fraction of his health left). It is marked on his health bar.</summary>
+        public const float StarHp = 0.25f;
+        const float StarRetryDrop = 0.08f;       // after a failed puzzle he has to be weakened this much further for the next star
+        public float StarAtHp = StarHp;
+        public float BossHpFrac => boss != null && boss.maxHp > 0f ? Mathf.Clamp01(boss.hp / boss.maxHp) : 1f;
         float comboLast, totalDamage, fightStart;
         readonly List<string> chain = new List<string>();
         readonly HashSet<string> namedThisCombo = new HashSet<string>();
@@ -145,6 +150,7 @@ namespace BalHanuman.Fight
             if (k != null && k.escapeKey.wasPressedThisFrame && !victory) TogglePause();
 
             if (!paused && slowUntil > 0f && Time.unscaledTime >= slowUntil) { Time.timeScale = 1f; slowUntil = 0f; }
+            if (mode == FightSetup.Mode.Story && live && !ultBusy && !victory && !hanuman.star && boss != null && boss.Alive && BossHpFrac <= StarAtHp) AwardStar();
 
             // the combo ends once the boss recovers
             if (comboHits > 0)
@@ -293,6 +299,15 @@ namespace BalHanuman.Fight
             if (rank > lastRank) { lastRank = rank; FightSfx.Play("rank", 0.9f + rank * 0.1f, 0.7f); }
             hud.Combo(comboHits, Rank(comboHits));
             Chain(moveId);
+        }
+
+        void AwardStar()
+        {
+            hanuman.star = true;
+            hud.Banner("STAR EARNED!", "Ahiravana is weakening - tap ULTIMATE and solve the puzzle", 2f, new Color(1f, 0.85f, 0.3f));
+            FightSfx.Play("rank", 1.3f, 1f);
+            Haptics.Heavy();
+            hud.Flash(new Color(1f, 0.85f, 0.4f), 0.35f, 3f);
         }
 
         void EndCombo() { comboHits = 0; lastRank = 0; chain.Clear(); namedThisCombo.Clear(); }
@@ -513,10 +528,43 @@ namespace BalHanuman.Fight
         // =========================================================================================== ultimate
         public bool TryUltimate(HanumanFighter h)
         {
-            bool ready = h.unlocked[(int)PowerId.Panchmukhi] && (h.infiniteMeter || h.bhakti >= 2.999f);
-            if (!ready || ultBusy || !ControlsLive || !(h.CanAct || h.InCancelWindow || h.state == FState.Attack)) { FightSfx.Play("tick", 0.5f, 0.6f); return false; }
-            StartCoroutine(Panchmukhi());
+            bool unlocked = h.unlocked[(int)PowerId.Panchmukhi];
+            bool ready = unlocked && (h.star || h.infiniteMeter);
+            if (!ready)
+            {
+                if (unlocked && ControlsLive) hud.Hint("Weaken Ahiravana to earn the STAR", 2.5f);
+                FightSfx.Play("tick", 0.5f, 0.6f); return false;
+            }
+            if (ultBusy || !ControlsLive || !(h.CanAct || h.InCancelWindow || h.state == FState.Attack)) { FightSfx.Play("tick", 0.5f, 0.6f); return false; }
+            StartCoroutine(UltimateGate(h));
             return true;
+        }
+
+        /// <summary>Spending the star: freeze the fight and solve a puzzle. Solved -> PANCHMUKHI. Failed -> the star is gone, earn another.</summary>
+        IEnumerator UltimateGate(HanumanFighter h)
+        {
+            ultBusy = true;
+            bool pass = true;
+            if (mode != FightSetup.Mode.Demo)
+            {
+                live = false; slowUntil = 0f;
+                hud.ShowControls(false); hud.Hint("", 0.01f);
+                Time.timeScale = 0f;
+                bool done = false;
+                hud.RunPuzzle(UltimatePuzzles.Pick(round), ok => { pass = ok; done = true; });
+                while (!done) yield return null;
+                Time.timeScale = 1f;
+            }
+            h.star = false;
+            if (!pass)
+            {
+                StarAtHp = Mathf.Max(0.02f, BossHpFrac - StarRetryDrop);
+                hud.Banner("THE LAMPS GO DARK", "Puzzle failed - weaken Ahiravana further for a new star", 2.6f, new Color(1f, 0.5f, 0.4f));
+                hud.ShowControls(true);
+                live = true; ultBusy = false;
+                yield break;
+            }
+            yield return StartCoroutine(Panchmukhi());
         }
 
         IEnumerator Panchmukhi()
@@ -639,12 +687,13 @@ namespace BalHanuman.Fight
             hanuman.ResetForRound(-3f, 1); boss.ResetForRound(3f, -1);
             boss.SetRound(r); boss.immortal = r == 3;
             hanuman.bhakti = r == 1 ? 0f : Mathf.Max(hanuman.bhakti, r == 3 ? 2f : 1f);
+            hanuman.star = false; StarAtHp = StarHp;
             arena.Mood(r - 1); arena.RelightAll(); music.SetIntensity(r - 1);
             hud.Round(r == 3 ? 4 : r, roundsWon);
             hud.ShowControls(false);
             boss.Cinematic("idle"); hanuman.Cinematic("idle");
             cam.Snap();
-            Unlock(PowerId.Vayu);
+            Unlock(PowerId.Vayu, PowerId.Panchmukhi);
             if (r >= 2) Unlock(PowerId.Flight, PowerId.FireTail, PowerId.Shrink);
             if (r >= 3) Unlock(PowerId.Vajra, PowerId.Growth);
             if (r == 1) hud.Hint("Move: A/D or stick   MACE: J   KICK: K   DODGE: L   Jump: W   Hold back to block", 5f);
@@ -698,7 +747,7 @@ namespace BalHanuman.Fight
             cam.ClearFocus();
             Unlock(PowerId.Panchmukhi);
             hanuman.bhakti = 3f;
-            hud.Banner("UNLEASH PANCHMUKHI!", "Press PANCHMUKHI (U) to blow out all five lamps at once", 3f, new Color(1f, 0.82f, 0.3f));
+            hud.Banner("UNLEASH PANCHMUKHI!", "Weaken Ahiravana to earn the STAR, then solve the lamp puzzle", 3f, new Color(1f, 0.82f, 0.3f));
             hud.Hint("PANCHMUKHI  -  U", 10f);
             boss.EndCinematic(); hanuman.EndCinematic();
             hud.ShowControls(true);
