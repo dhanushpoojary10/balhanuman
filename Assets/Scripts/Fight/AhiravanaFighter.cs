@@ -166,8 +166,11 @@ namespace BalHanuman.Fight
         public void SetRound(int r)
         {
             round = r; phase = 0; phaseBusy = false; patQueue.Clear(); obs.Reset();
-            aggression = r == 1 ? 0.9f : r == 2 ? 1.1f : 1.25f;
-            blockChance = r == 1 ? 0.3f : r == 2 ? 0.4f : 0.35f;
+            // gentler overall, and it climbs round by round: slower decisions, fewer blocks, lighter hits in round 1
+            aggression = r == 1 ? 0.62f : r == 2 ? 0.85f : 1.05f;
+            blockChance = r == 1 ? 0.12f : r == 2 ? 0.25f : 0.3f;
+            if (!isClone) damageDealtMul = r == 1 ? 0.7f : r == 2 ? 0.85f : 1f;
+            engaged = false;                                    // he walks up to Hanuman before the fight starts
             baseAggression = aggression; baseBlock = blockChance;
             cooldown.Clear();
         }
@@ -212,6 +215,12 @@ namespace BalHanuman.Fight
             thinkT = Random.Range(0.25f, 0.65f) / aggression;
             if (opponent.InHitReaction && opponent.state == FState.Knockdown) { walkT = 0.3f; walkDir = -toward; return; }
 
+            // the opening: walk up to Hanuman first. No orb, no teleport - the fight starts once he is in sword range.
+            if (!engaged && !isClone && scale <= 1.5f && dummy == Dummy.Fight)
+            {
+                if (dist > reach * 1.15f) { walkT = 0.5f; walkDir = toward; inX = toward; thinkT = 0.25f; return; }
+                engaged = true; thinkT = Random.Range(0.5f, 0.9f); return;       // a beat to square up, then the first move
+            }
             string pick = !isClone && scale <= 1.5f && dummy == Dummy.Fight ? BrainChoose(dist, reach, toward) : Choose(dist, reach);
             if (lastPatternStep) thinkT = 0.08f / aggression;          // the rest of a string follows quickly
             if (pick == "walk") { walkT = Random.Range(0.3f, 0.7f); walkDir = toward; inX = toward; return; }
@@ -225,6 +234,7 @@ namespace BalHanuman.Fight
         }
 
         float oppSeenT, reactRoll; bool reactPending;
+        bool engaged = true;                                // false at the start of each round: he walks up first, no powers from across the arena
 
         // ---- the brain (design B7): observer + named patterns + punish rules; the old weighted pick stays for clones and the titan
         readonly BossObserver obs = new BossObserver();
@@ -262,10 +272,10 @@ namespace BalHanuman.Fight
             }
             if (obs.JumpCount >= 2)
             {
-                string ans = dist > 2.2f ? "orb" : "combo";
-                if (Ready(ans)) { LogPick("punish:jumping"); return ans; }
+                string ans = dist > 2.2f ? (round >= 2 ? "orb" : "walk") : "combo";
+                if (ans == "walk" || Ready(ans)) { LogPick("punish:jumping"); return ans; }
             }
-            if (obs.Retreat > 0.8f && dist > 2.6f && Ready("orb")) { LogPick("punish:retreat"); return "orb"; }
+            if (round >= 2 && obs.Retreat > 0.8f && dist > 2.6f && Ready("orb")) { LogPick("punish:retreat"); return "orb"; }
 
             // 3) a pattern that fits the distance, round and phase
             float total = 0f; var fit = new List<BossPatterns.Pattern>();
@@ -274,19 +284,28 @@ namespace BalHanuman.Fight
                 if (round < p.minRound || phase < p.minPhase || dist < p.minDist || dist > p.maxDist) continue;
                 if (!Ready(p.steps[0])) continue;
                 if (p.steps[0] == "summon" && director.CloneCount > 0) continue;
-                fit.Add(p); total += p.weight;
+                fit.Add(p); total += PatternWeight(p);
             }
             if (fit.Count == 0) { LogPick("approach"); return dist > reach ? "walk" : "jab"; }
             float r = Random.value * total;
             foreach (var p in fit)
             {
-                r -= p.weight;
+                r -= PatternWeight(p);
                 if (r > 0f) continue;
                 for (int i = 1; i < p.steps.Length; i++) patQueue.Enqueue(p.steps[i]);
                 LogPick("pattern:" + p.name);
                 return p.steps[0];
             }
             return fit[0].steps[0];
+        }
+
+        /// <summary>Powers (orb, teleport, clones, barrage) are rare in round 1 and grow more common each round.</summary>
+        float PatternWeight(BossPatterns.Pattern p)
+        {
+            string first = p.steps[0];
+            bool power = first == "orb" || first == "vanish" || first == "summon" || first == "barrage";
+            if (!power) return p.weight;
+            return p.weight * (round <= 1 ? 0.3f : round == 2 ? 0.8f : 1f);
         }
 
         // ---- difficulty (design B9): tells hold longer on Easy, recoveries shrink on Hard. Training and demo always play at Normal.
@@ -334,7 +353,7 @@ namespace BalHanuman.Fight
         {
             switch (id)
             {
-                case "orb": return 1.6f;
+                case "orb": return round <= 1 ? 9f : round == 2 ? 6f : 4f;
                 case "barrage": return 9f;
                 case "summon": return 16f;
                 case "vanish": return 5f;
