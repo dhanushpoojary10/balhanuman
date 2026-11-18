@@ -20,7 +20,9 @@ namespace BalHanuman.Fight
         Dictionary<string, MoveDef> moves;
 
         // frame-by-frame art (idle, walk, jump, fall, roll): shown instead of the skeleton while one of those clips is active
-        Transform frameRoot; SpriteRenderer frameSr;
+        Transform frameRoot; SpriteRenderer frameSr, blendSr;
+        /// <summary>Fade each painted picture into the next between frames (off with PlayerPrefs fightBlend = 0).</summary>
+        public static bool BlendFrames = true;
         HanumanFrames.Clip frameClip; float frameT; bool framesVisible;
         HanumanFrames.Clip curVisual; int curIdx; float parryStart = -10f;
 
@@ -78,6 +80,9 @@ namespace BalHanuman.Fight
             frameRoot = new GameObject("FrameArt").transform; frameRoot.SetParent(transform, false);
             var fgo = new GameObject("Sprite"); fgo.transform.SetParent(frameRoot, false);
             frameSr = fgo.AddComponent<SpriteRenderer>(); frameSr.sortingOrder = 20; framesVisible = true;
+            var bgo = new GameObject("SpriteBlend"); bgo.transform.SetParent(frameRoot, false);
+            blendSr = bgo.AddComponent<SpriteRenderer>(); blendSr.sortingOrder = 21; blendSr.enabled = false;
+            try { BlendFrames = PlayerPrefs.GetInt("fightBlend", 1) == 1; } catch { BlendFrames = true; }
             moves = MoveLib.Hanuman(clips);
             chargeMove = new MoveDef { id = "chargehold", name = "Charging", clip = clips["charge"], expr = Expr.Roar };
             chargeMove.frameClip = "charge"; chargeMove.frameFrom = 0; chargeMove.frameTo = 7; chargeMove.frameLoop = true;
@@ -252,7 +257,7 @@ namespace BalHanuman.Fight
         /// <summary>Shows the frame art while a clip that has frames is active (otherwise the skeleton), and advances the frames.</summary>
         protected override void AfterTick(float adt)
         {
-            HanumanFrames.Clip c = null; int idx = 0;
+            HanumanFrames.Clip c = null; int idx = 0; int nextIdx = -1; float frac = 0f; bool allowBlend = true;
             if (state == FState.Attack && move != null && move.frameClip != null)
             {
                 // a frame-art attack: the frame follows the move clock, so the hit windows line up with the art
@@ -265,12 +270,29 @@ namespace BalHanuman.Fight
                     int step = Mathf.FloorToInt(clock * c.fps);
                     if (move.frameStretch) step = Mathf.FloorToInt(Mathf.Clamp01(moveT / Mathf.Max(0.01f, move.Length)) * cnt);
                     idx = move.frameFrom + (move.frameLoop && !move.frameHold && !move.frameStretch ? step % cnt : Mathf.Min(step, cnt - 1));
+                    // blend towards the next picture, except around the hit itself (the contact pose stays crisp)
+                    float pos = move.frameStretch ? Mathf.Clamp01(moveT / Mathf.Max(0.01f, move.Length)) * cnt : clock * c.fps;
+                    frac = pos - Mathf.Floor(pos);
+                    int rel = idx - move.frameFrom;
+                    if (rel < cnt - 1) nextIdx = idx + 1;
+                    else if (move.frameLoop && !move.frameHold && !move.frameStretch) nextIdx = move.frameFrom;
+                    foreach (var w in move.hits)
+                        if (moveT >= w.t0 - 1.2f / c.fps && moveT < w.t1 + 0.5f / c.fps) { allowBlend = false; break; }
                 }
             }
             else if (state == FState.Block && Time.time - parryStart < 0.35f && HanumanFrames.Get("parry") != null)
             {
                 c = HanumanFrames.Get("parry");
                 idx = Mathf.Min(c.frames.Length - 1, Mathf.FloorToInt((Time.time - parryStart) * c.fps));
+            }
+            else if (landVis > 0f && (state == FState.Idle || state == FState.Walk) && HanumanFrames.Get("land") != null)
+            {
+                // touching down: squash and rise back into the ready stance instead of snapping to the idle
+                c = HanumanFrames.Get("land");
+                float lp = Mathf.Clamp01(1f - landVis / LandVisLen) * c.frames.Length;
+                idx = Mathf.Min(c.frames.Length - 1, Mathf.FloorToInt(lp));
+                frac = lp - Mathf.Floor(lp);
+                if (idx < c.frames.Length - 1) nextIdx = idx + 1;
             }
             if (c == null)
             {
@@ -280,11 +302,14 @@ namespace BalHanuman.Fight
                 int cnt = c.frames.Length;
                 idx = Mathf.FloorToInt(frameT * c.fps);
                 idx = c.loop ? idx % cnt : Mathf.Min(idx, cnt - 1);
+                float cpos = frameT * c.fps; frac = cpos - Mathf.Floor(cpos);
+                if (c.loop) nextIdx = (idx + 1) % cnt; else if (idx < cnt - 1) nextIdx = idx + 1;
                 if (c.name == "launched" && cnt >= 4)
                 {
                     // the tumble follows the flight instead of looping on a clock: thrown back, spinning, head-first, feet-first to land
                     float vy = vel.y;
                     idx = vy > 4f ? 0 : vy > -1f ? 1 : vy > -5f ? 2 : 3;
+                    nextIdx = -1;
                 }
             }
             curVisual = c; curIdx = idx;
@@ -295,9 +320,27 @@ namespace BalHanuman.Fight
             var t = frameSr.transform;
             t.localScale = Vector3.one * (c.k * 100f);
             t.localPosition = new Vector3(-(f.px - f.w * 0.5f) * c.k, (f.py - f.h * 0.5f) * c.k, 0f);
-            frameSr.color = puppet.VisualColor();
+            var baseCol = puppet.VisualColor();
+            frameSr.color = baseCol;
+            if (BlendFrames && allowBlend && nextIdx >= 0 && nextIdx < c.frames.Length && nextIdx != idx && frac > 0.4f)
+            {
+                // the next picture fades in over this one while this one thins out: soft in-betweens at screen refresh rate
+                float a = Mathf.SmoothStep(0f, 1f, Mathf.InverseLerp(0.4f, 1f, frac));
+                var f2 = c.frames[nextIdx];
+                blendSr.enabled = true; blendSr.sprite = f2.sprite;
+                var bt = blendSr.transform;
+                bt.localScale = Vector3.one * (c.k * 100f);
+                bt.localPosition = new Vector3(-(f2.px - f2.w * 0.5f) * c.k, (f2.py - f2.h * 0.5f) * c.k, 0f);
+                blendSr.color = new Color(baseCol.r, baseCol.g, baseCol.b, baseCol.a * a);
+                frameSr.color = new Color(baseCol.r, baseCol.g, baseCol.b, baseCol.a * (1f - 0.55f * a));
+            }
+            else blendSr.enabled = false;
             UpdateGlow();
         }
+
+        protected override void SetShake(Vector3 o) { base.SetShake(o); if (frameRoot != null) frameRoot.localPosition = o; }
+
+        public bool DebugBlending => blendSr != null && blendSr.enabled;
 
         protected override void ApplyVisualScale()
         {

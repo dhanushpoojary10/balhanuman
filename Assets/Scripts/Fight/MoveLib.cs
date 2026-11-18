@@ -319,10 +319,10 @@ namespace BalHanuman.Fight
 
         static void ApplyFrameArt(Dictionary<string, MoveDef> m)
         {
-            FrameMove(m["m1"], "gada1", 0, 7, 3, 4);
+            FrameMove(m["m1"], "gada1", 0, 8, 4, 5);
             FrameMove(m["m2"], "gada2", 0, 7, 3, 4);
             FrameMove(m["m3"], "overhead", 0, 15, 9, 11, 0f, 0f, 10);
-            FrameMove(m["thrust"], "thrust", 0, 7, 4, 6);
+            FrameMove(m["thrust"], "thrust", 0, 8, 4, 6);
             FrameMove(m["launcher"], "launcher", 0, 7, 3, 5, 0.45f);
             FrameMove(m["sweep"], "sweep", 0, 7, 3, 4);
             FrameMove(m["k1"], "kick", 0, 7, 3, 4, 0.45f);
@@ -367,6 +367,7 @@ namespace BalHanuman.Fight
             if (tt != null && tc != null && tc.frames.Length >= 8)
             {
                 FrameMove(tt, "tailgrab", 4, 7, 4, 4);
+                tt.cancelFrom = 99f;      // a throw is never cancelled: cancelling it would leave the opponent held forever
                 float len = tt.Length;
                 foreach (var e in tt.events) e.t = len - 0.02f;
                 tt.holdPath = new[] { HP(0f, 1.3f, 1.3f), HP(len * 0.33f, 1.2f, 1.7f), HP(len * 0.66f, 0.8f, 2.5f), HP(len, 0.5f, 3.2f) };
@@ -378,6 +379,7 @@ namespace BalHanuman.Fight
             if (ls != null && lc != null && lc.frames.Length >= 16)
             {
                 FrameMove(ls, "liftslam", 4, 15, 4, 4);
+                ls.cancelFrom = 99f;
                 float f = 1f / lc.fps;
                 foreach (var e in ls.events) e.t = 7 * f;
                 ls.holdPath = new[]

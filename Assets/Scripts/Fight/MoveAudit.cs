@@ -21,7 +21,8 @@ namespace BalHanuman.Fight
         public static void RunCombat() { onlyCombat = true; Run(); }
         static bool onlyCombat;
         public static void RunBrain() { onlyBrain = true; Run(); }
-        static bool onlyBrain, onlyBot, onlyStuck;
+        static bool onlyBrain, onlyBot, onlyStuck, onlyJuggle;
+        public static void RunJuggle() { onlyJuggle = true; Run(); }
         public static void RunStuck() { onlyStuck = true; Run(); }
         public static void RunBot() { onlyBot = true; Run(); }
         static bool skipDirect;
@@ -54,6 +55,15 @@ namespace BalHanuman.Fight
             Time.timeScale = 1f;
             Log("MOVE AUDIT  " + System.DateTime.Now);
             yield return StartCoroutine(Fresh(1.5f));
+            if (onlyJuggle)
+            {
+                yield return StartCoroutine(KickFuzz(60f, true));
+                yield return StartCoroutine(KickFuzz(45f, false));
+                yield return StartCoroutine(JuggleTests());
+                Log(""); Log("AUDIT DONE");
+                FightInput.Reset(); Destroy(gameObject);
+                yield break;
+            }
             if (onlyStuck)
             {
                 yield return StartCoroutine(StuckTests());
@@ -487,6 +497,77 @@ namespace BalHanuman.Fight
                 yield return StartCoroutine(Tap(B.Jump, 0.3f)); yield return new WaitForSecondsRealtime(0.35f);
                 yield return StartCoroutine(Tap(B.Kick)); yield return new WaitForSecondsRealtime(1.2f);
             }
+        }
+
+        // ---------------------------------------------------------------------------------------------------- juggle limit
+        IEnumerator JuggleTests()
+        {
+            Log(""); Log("== J2. juggle: how long can repeated hits keep the boss in the air? (dummy boss, ground player)");
+            foreach (var opener in new[] { "tailtrip", "sweep", "launcher" })
+            {
+                yield return StartCoroutine(Fresh(1.3f));
+                h.maxHp = h.hp = 1000000f; b.maxHp = b.hp = 1000000f;
+                h.Perform(opener);
+                float t0 = Time.time, airRun = 0f, longest = 0f, maxY = 0f; int hits = 0; float lastHp = b.hp;
+                StartCoroutine(TapSeq(B.Kick, 20, 0.18f));
+                while (Time.time - t0 < 6f)
+                {
+                    h.hp = Mathf.Max(h.hp, 999000f);
+                    if (!b.grounded) { airRun += Time.deltaTime; longest = Mathf.Max(longest, airRun); } else airRun = 0f;
+                    maxY = Mathf.Max(maxY, b.transform.position.y);
+                    if (b.hp < lastHp - 0.5f) { hits++; lastHp = b.hp; }
+                    // keep the player under the boss so every kick can connect
+                    var hp = h.transform.position; var bp = b.transform.position;
+                    if (h.CanAct && Mathf.Abs(bp.x - hp.x) > 1.2f) h.transform.position = new Vector3(bp.x - 1.1f, 0f, 0f);
+                    yield return null;
+                }
+                FightInput.Reset();
+                Log((opener + " then kick spam").PadRight(30) + "boss longest time in the air=" + longest.ToString("0.00") + " s, peak=" + maxY.ToString("0.0") + " m, hits landed=" + hits);
+            }
+        }
+
+        // ---------------------------------------------------------------------------------------------------- kick fuzz against the real boss
+        IEnumerator KickFuzzInput(float dur)
+        {
+            float t0 = Time.time; var rnd = new System.Random(7);
+            while (Time.time - t0 < dur)
+            {
+                int k = rnd.Next(0, 6);
+                float x = 0f, y = 0f;
+                if (k == 1) y = -1f; else if (k == 2) x = 1f; else if (k == 3) x = -1f;
+                if (k == 4) { yield return StartCoroutine(Tap(B.Jump, 0.25f)); yield return new WaitForSecondsRealtime(0.3f); }
+                FightInput.Stick = new Vector2(x, y);
+                yield return StartCoroutine(Tap(B.Kick));
+                yield return new WaitForSecondsRealtime(0.1f + (float)rnd.NextDouble() * 0.25f);
+                FightInput.Stick = Vector2.zero;
+                if (k == 5 && h.CanAct) h.transform.position = new Vector3(Mathf.Clamp(b.transform.position.x - 1.2f, -9f, 9f), h.transform.position.y, 0f);
+                var hp = h.transform.position; var bp = b.transform.position;
+                if (h.grounded && Mathf.Abs(bp.x - hp.x) > 2.2f) h.transform.position = new Vector3(bp.x - (bp.x > hp.x ? 1.2f : -1.2f), hp.y, 0f);
+            }
+        }
+
+        IEnumerator KickFuzz(float dur, bool phases)
+        {
+            yield return StartCoroutine(Fresh(1.6f));
+            h.maxHp = h.hp = 1000000f; b.maxHp = b.hp = 1000f; b.dummy = AhiravanaFighter.Dummy.Fight; b.SetRound(2); d.noTrainingHeal = true; d.forcePhases = phases;
+            StartCoroutine(KickFuzzInput(dur));
+            float t0 = Time.time, airRun = 0f, longest = 0f, lastLog = -9f; var sb = new StringBuilder(); int revive = 0;
+            while (Time.time - t0 < dur)
+            {
+                h.hp = Mathf.Max(h.hp, 999000f);
+                if (b.hp <= 5f) { b.hp = 1000f; revive++; }
+                bool air = !b.grounded && !b.flying;
+                airRun = air ? airRun + Time.deltaTime : 0f; longest = Mathf.Max(longest, airRun);
+                if (airRun > 1.6f && Time.time - lastLog > 1f)
+                {
+                    lastLog = Time.time;
+                    string pose = b.puppet.poseSprite != null && b.puppet.poseSprite.sprite != null ? b.puppet.poseSprite.sprite.name : "rig";
+                    sb.Append("[t=" + (Time.time - t0).ToString("0.0") + " y=" + b.transform.position.y.ToString("0.00") + " vy=" + b.vel.y.ToString("0.00") + " " + b.state + " move=" + (b.move != null ? b.move.id : "-") + " flying=" + b.flying + " hitstop=" + b.hitstop.ToString("0.00") + " pose=" + pose + " phase=" + b.phase + "] ");
+                }
+                yield return null;
+            }
+            FightInput.Reset(); d.noTrainingHeal = false; d.forcePhases = false;
+            Log("kick fuzz " + dur + "s phases=" + phases + ": longest time airborne=" + longest.ToString("0.00") + " s, boss defeated " + revive + "x  " + sb);
         }
 
         // ---------------------------------------------------------------------------------------------------- input path

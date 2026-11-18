@@ -127,25 +127,14 @@ namespace BalHanuman.Fight
     /// <summary>Floating virtual joystick: touch anywhere in its zone, drag to steer.</summary>
     public class VirtualJoystick : MonoBehaviour, IPointerDownHandler, IDragHandler, IPointerUpHandler
     {
+        // A fixed stick: the base always sits at its home spot and is always visible. A touch anywhere in the stick zone steers relative
+        // to the base, so the thumb can rest on the stick or just near it. (The base never moves, so it can never end up off-screen.)
         public RectTransform baseRect, knob;
         public float radius = 110f;
-        Vector2 home;
-
-        void Start() { if (baseRect != null) home = baseRect.anchoredPosition; }
 
         public void OnPointerDown(PointerEventData e)
         {
             if (baseRect == null) return;
-            // the touch point comes back relative to the zone's pivot (its centre), but the base is anchored to the zone's corner:
-            // convert, and keep the whole base inside the zone so it can never end up off-screen
-            var zone = (RectTransform)baseRect.parent;
-            RectTransformUtility.ScreenPointToLocalPointInRectangle(zone, e.position, e.pressEventCamera, out var lp);
-            var r = zone.rect;
-            float mx = Mathf.Min(baseRect.rect.width * 0.5f, r.width * 0.5f), my = Mathf.Min(baseRect.rect.height * 0.5f, r.height * 0.5f);
-            lp.x = Mathf.Clamp(lp.x, r.xMin + mx, r.xMax - mx);
-            lp.y = Mathf.Clamp(lp.y, r.yMin + my, r.yMax - my);
-            var anchorPoint = Vector2.Scale(baseRect.anchorMin - zone.pivot, r.size);
-            baseRect.anchoredPosition = lp - anchorPoint;
             OnDrag(e);
         }
 
@@ -176,7 +165,6 @@ namespace BalHanuman.Fight
         {
             if (knob != null) knob.anchoredPosition = Vector2.zero;
             FightInput.Stick = Vector2.zero;
-            if (baseRect != null) baseRect.anchoredPosition = home;
         }
     }
 }

@@ -23,7 +23,14 @@ namespace BalHanuman.Fight
         }
 
         /// <summary>Clips whose frames dissolve into each other (slow, soft motion such as breathing).</summary>
-        public static bool Blends(string key) => key == "idle";
+        public static bool Blends(string key)
+        {
+            switch (key)
+            {
+                case "idle": case "walkf": case "walkb": case "stunned": case "kneel": case "victory": case "getup": case "hit": case "hitlow": case "down": case "block": case "crouch": case "crouchblock": case "jump": case "fall": case "dodgef": case "dodgeb": return true;
+            }
+            return false;
+        }
 
         public static Sprite Sprite(string name) => Resources.Load<Sprite>(Folder + name);
 

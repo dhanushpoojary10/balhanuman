@@ -58,6 +58,8 @@ namespace BalHanuman.Fight
         // jump feel and landing (design B4)
         public const float JumpWindup = 0.05f, ApexHang = 0.6f, FallGravityK = 1.25f, JumpCutK = 0.65f;
         float jumpWind, landLock; bool jumpCutOk;
+        /// <summary>Counts down after touching down from a jump while the landing pictures play (they outlast the input lock).</summary>
+        protected float landVis; protected const float LandVisLen = 0.2f;
         public float pushV;                              // soft separation: a small push velocity applied by the director, fades out
         protected virtual bool JumpHeld => true;         // the player lets go early for a short hop
         public Vector2 hurtSize = new Vector2(0.95f, 2.6f);
@@ -124,15 +126,24 @@ namespace BalHanuman.Fight
             if (dt <= 0f || puppet == null) return;
             if (squashT > 0f) squashT -= dt;
             if (landLock > 0f) landLock -= dt;
+            if (landVis > 0f) landVis -= dt;
+            // safety net: a fighter can only stay Grabbed while the one holding him is still in his throw. If that ever stops
+            // (interrupted, cancelled, hit), he is let go and falls instead of hanging in the air forever.
+            if (state == FState.Grabbed && (heldBy == null || heldBy.holding != this || !heldBy.Attacking))
+            {
+                heldBy = null; vel = Vector2.zero; grounded = transform.position.y <= 0.001f;
+                SetState(FState.Launched); ForceClip("launched", 0.05f);
+            }
             if (hitstop > 0f)
             {
                 hitstop -= dt;
                 ApplyVisualScale();
-                // victims shiver during hit-stop
-                puppet.transform.localPosition = InHitReaction ? (Vector3)(Random.insideUnitCircle * 0.05f * scale) : Vector3.zero;
+                // the freeze is never dead still: the one who was hit shudders hard, the one who hit shudders a little
+                float amp = InHitReaction ? 0.05f : Attacking ? 0.016f : 0f;
+                SetShake((Vector3)(Random.insideUnitCircle * amp * scale));
                 return;
             }
-            puppet.transform.localPosition = Vector3.zero;
+            SetShake(Vector3.zero);
             float adt = dt * speedMul * (Attacking ? move.speedMul : 1f);
             if (Attacking && move.holdLen > 0f && moveT >= move.holdAt && holdT < move.holdLen)
             {
@@ -216,6 +227,9 @@ namespace BalHanuman.Fight
         /// <summary>Hooks for subclasses that draw some clips from frame art instead of the skeleton.</summary>
         protected virtual void OnPlayClip(string name) { }
         protected virtual void AfterTick(float adt) { }
+
+        /// <summary>Offsets the drawn body (hit-stop shudder). Characters drawn from frames override it to move their sprite too.</summary>
+        protected virtual void SetShake(Vector3 o) { puppet.transform.localPosition = o; }
         protected virtual void SpawnAfterimage() { puppet.Afterimage(afterimageColor, 0.22f, puppet.SortingOrder - 1); }
 
         protected void ForceClip(string name, float fade = 0.08f) { curClip = null; PlayClip(name, fade); }
@@ -351,6 +365,7 @@ namespace BalHanuman.Fight
             FightSfx.Play("land", 1f, 0.6f);
             if (scale > 1.5f && director != null) director.Shake(0.12f, 0.2f);
             landLock = scale > 1.5f ? 0.12f : 0.06f;     // a beat of recovery on landing
+            if (landVis <= 0f) landVis = LandVisLen;
             ToIdle();
         }
 
@@ -371,6 +386,7 @@ namespace BalHanuman.Fight
         {
             if (m == null) return false;
             move = m; moveT = 0f; evIndex = 0; whooshed = false; hitsDone.Clear();
+            if (holding != null && !beginningThrow) { var drop = holding; holding = null; if (drop.heldBy == this) drop.heldBy = null; }     // a new move lets go of whoever was held
             jumpWind = 0f; armorLeft = m.armorHits; holdT = 0f; holdFired = false; moveConnected = false;
             SetState(FState.Attack);
             crouching = false;
@@ -530,12 +546,13 @@ namespace BalHanuman.Fight
         }
 
         // ================================================================== grabs
+        bool beginningThrow;
         void BeginThrow(Fighter t, MoveDef throwMove)
         {
             holding = t;
             t.heldBy = this; t.move = null; t.SetState(FState.Grabbed); t.ForceClip("launched", 0.05f); t.vel = Vector2.zero;
             t.SetExpr(Expr.Shocked, 1f);
-            StartMove(throwMove);
+            beginningThrow = true; StartMove(throwMove); beginningThrow = false;
             holding = t;
         }
 
@@ -779,7 +796,7 @@ namespace BalHanuman.Fight
             {
                 p.y = 0f;
                 if (vel.y < 0f) vel.y = 0f;
-                if (!grounded && state == FState.Jump && landLock <= 0f) landLock = scale > 1.5f ? 0.12f : 0.06f;     // recovery starts the frame he touches down
+                if (!grounded && state == FState.Jump && landLock <= 0f) { landLock = scale > 1.5f ? 0.12f : 0.06f; landVis = LandVisLen; }     // recovery starts the frame he touches down
                 grounded = true;
             }
             else grounded = false;
