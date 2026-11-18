@@ -1,4 +1,4 @@
-# Level 2 "Patala Yuddha" — Combat Redesign (audit, design, plan, prompts)
+# Level 2 "Ahiravana's Lair" — Combat Redesign (audit, design, plan, prompts)
 
 Status: **design only. No game code has been changed for this document.**
 Evidence comes from reading the scripts, dumping the live move tables from the running game (`Temp/moves_dump.txt`), and the `MoveAudit` / `PhysicsDiag` runs done earlier. Proposed numbers are design targets to be validated with those tools, not measured results. Nothing has been tested on a phone.

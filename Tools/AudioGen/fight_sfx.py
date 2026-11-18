@@ -1,4 +1,4 @@
-"""Level 2 (Patala Yuddha) fight sound effects.
+"""Level 2 (Ahiravana's Lair) fight sound effects.
 Run:  python Tools/AudioGen/fight_sfx.py
 Writes WAVs to Assets/Resources/Audio/Level02 using the exact names FightSfx.cs loads
 (plus _2 / _3 variants for the sounds you hear most, which FightSfx picks at random).

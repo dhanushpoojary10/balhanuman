@@ -295,6 +295,21 @@ namespace BalHanuman
             StartCoroutine(EndingRoutine(sagePos));
         }
 
+        /// <summary>Remembers the best run for the chapter card on the main menu.
+        /// Stars: 1 for finishing, +1 for at least 80% of the mangoes, +1 for rescuing the baby monkey.</summary>
+        void SaveBest()
+        {
+            int stars = 1 + (TotalMangoes > 0 && Mangoes >= 0.8f * TotalMangoes ? 1 : 0) + (MonkeyRescued ? 1 : 0);
+            try
+            {
+                if (Mangoes > PlayerPrefs.GetInt("l1BestMangoes", -1)) PlayerPrefs.SetInt("l1BestMangoes", Mangoes);
+                if (stars > PlayerPrefs.GetInt("l1BestStars", 0)) PlayerPrefs.SetInt("l1BestStars", stars);
+                PlayerPrefs.SetInt("l1TotalMangoes", TotalMangoes);
+                PlayerPrefs.Save();
+            }
+            catch { }
+        }
+
         IEnumerator EndingRoutine(Vector3 sagePos)
         {
             player.InputLocked = true;
@@ -312,6 +327,7 @@ namespace BalHanuman
             Sfx.Play(Sfx.Id.Complete);
             yield return new WaitForSeconds(2.2f);
             LevelCompleted?.Invoke();
+            SaveBest();
             overlay.ShowComplete(new CompletionStats { mangoes = Mangoes, totalMangoes = TotalMangoes, bonus = Bonus, monkeyRescued = MonkeyRescued, seconds = elapsed });
         }
     }

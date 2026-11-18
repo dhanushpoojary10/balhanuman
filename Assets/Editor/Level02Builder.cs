@@ -7,7 +7,7 @@ using UnityEngine.Rendering.Universal;
 
 namespace BalHanuman.EditorTools
 {
-    /// <summary>Builds the Level 2 fight scene (Patala Yuddha). Everything inside it is created at runtime by FightDirector,
+    /// <summary>Builds the Level 2 fight scene (Ahiravana's Lair). Everything inside it is created at runtime by FightDirector,
     /// so the scene only holds the camera, the global 2D light and the director. Menu: Bal Hanuman > Build Level 2 (Fight).</summary>
     public static class Level02Builder
     {
@@ -38,7 +38,7 @@ namespace BalHanuman.EditorTools
             var list = EditorBuildSettings.scenes.ToList();
             if (!list.Any(s => s.path == ScenePath)) list.Add(new EditorBuildSettingsScene(ScenePath, true));
             EditorBuildSettings.scenes = list.ToArray();
-            Debug.Log("Level 2 (Patala Yuddha) built: " + ScenePath);
+            Debug.Log("Level 2 (Ahiravana's Lair) built: " + ScenePath);
         }
     }
 }

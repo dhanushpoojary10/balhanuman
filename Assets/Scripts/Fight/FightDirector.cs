@@ -68,7 +68,7 @@ namespace BalHanuman.Fight
     }
 
     /// <summary>
-    /// Runs Level 2 "Patala Yuddha": builds the arena, fighters, camera and HUD, owns hit effects (hit-stop, slow-mo, shake),
+    /// Runs Level 2 "Ahiravana's Lair": builds the arena, fighters, camera and HUD, owns hit effects (hit-stop, slow-mo, shake),
     /// the round flow (R1 duel, R2 sorcery, R3 titans, Panchmukhi finale), the training room and the demo reel.
     /// </summary>
     [DefaultExecutionOrder(-50)]
@@ -1032,7 +1032,7 @@ namespace BalHanuman.Fight
             }
             hud.Caption("", "");
             hanuman.Cinematic("victory");
-            hud.Banner("JAI HANUMAN", "Level 2 - Patala Yuddha", 3f, new Color(1f, 0.82f, 0.3f));
+            hud.Banner("JAI HANUMAN", "Level 2 - Ahiravana's Lair", 3f, new Color(1f, 0.82f, 0.3f));
             yield return new WaitForSecondsRealtime(3.5f);
             hud.ShowPause(true); paused = true; Time.timeScale = 0f;
         }

@@ -19,15 +19,15 @@ namespace BalHanuman.Fight
 
     public static class UltimatePuzzles
     {
-        /// <summary>The puzzle for the current round (placeholder: one puzzle for now, tougher in later rounds).</summary>
+        /// <summary>The puzzle for the current round: five lamps, same order, the same in every round.</summary>
         public static UltimatePuzzle Pick(int round)
         {
-            return new LampMemoryPuzzle(length: 4 + Mathf.Clamp(round, 0, 3), reverse: true);
+            return new LampMemoryPuzzle(length: 5, reverse: false);       // five lamps, repeated in the same order
         }
     }
 
     /// <summary>
-    /// "The Five Lamps": the lamps flare in a random order; relight them in the REVERSE order before the flame timer burns out.
+    /// "The Five Lamps": five lamps flare in a random order; relight them in the SAME order before the flame timer burns out.
     /// One wrong lamp and the puzzle fails.
     /// </summary>
     public class LampMemoryPuzzle : UltimatePuzzle

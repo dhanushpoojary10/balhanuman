@@ -1,4 +1,4 @@
-# Level 2 "Patala Yuddha": Production Asset Prompts (v3)
+# Level 2 "Ahiravana's Lair": Production Asset Prompts (v3)
 
 This version follows the **Master System Prompt** (production-ready 2D asset generator).
 It covers one arena and one duel: **adult Hanuman vs Ahiravana**. Characters animate on a **Unity 2D skeletal rig**; the fight code is already built and waiting for this art.
