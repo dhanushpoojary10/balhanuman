@@ -375,14 +375,19 @@ namespace BalHanuman.Fight
 
         System.Collections.IEnumerator PuzzleRoutine(UltimatePuzzle puzzle, System.Action<bool> done)
         {
-            var veil = UiKit.Img("PuzzleVeil", root, UiKit.Skin.white, Vector2.zero, Vector2.one, V(0.5f, 0.5f), Vector2.zero, Vector2.zero, new Color(0.02f, 0.01f, 0.06f, 0f), true);
+            // its own canvas above every other canvas (HUD = 10, touch controls = 80), so no fight HUD text or buttons show through or overlap the puzzle
+            var pgo = new GameObject("PuzzleCanvas", typeof(Canvas), typeof(CanvasScaler), typeof(GraphicRaycaster));
+            var pc = pgo.GetComponent<Canvas>(); pc.renderMode = RenderMode.ScreenSpaceOverlay; pc.sortingOrder = 200;
+            var ps = pgo.GetComponent<CanvasScaler>(); ps.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize; ps.referenceResolution = V(1920, 1080); ps.matchWidthOrHeight = 0.5f;
+            var veil = UiKit.Img("PuzzleVeil", pgo.transform, UiKit.Skin.white, Vector2.zero, Vector2.one, V(0.5f, 0.5f), Vector2.zero, Vector2.zero, new Color(0.02f, 0.01f, 0.06f, 0f), true);
             veil.preserveAspect = false;
-            for (float t = 0; t < 0.35f; t += Time.unscaledDeltaTime) { veil.color = new Color(0.02f, 0.01f, 0.06f, Mathf.Lerp(0f, 0.97f, t / 0.35f)); yield return null; }
-            veil.color = new Color(0.02f, 0.01f, 0.06f, 0.97f);
+            // fully opaque at the end: the project is in Linear colour space, where even a 1.5% leak of the fight shows as a visible ghost
+            for (float t = 0; t < 0.35f; t += Time.unscaledDeltaTime) { veil.color = new Color(0.02f, 0.01f, 0.06f, Mathf.Lerp(0f, 1f, t / 0.35f)); yield return null; }
+            veil.color = new Color(0.02f, 0.01f, 0.06f, 1f);
             var panel = UiKit.Stretch("PuzzlePanel", veil.transform);
             bool ok = false;
             yield return StartCoroutine(puzzle.Run(panel, r => ok = r));
-            Destroy(veil.gameObject);
+            Destroy(pgo);
             done(ok);
         }
 

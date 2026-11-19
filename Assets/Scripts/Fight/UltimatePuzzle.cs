@@ -46,7 +46,7 @@ namespace BalHanuman.Fight
         {
             var S = UiKit.Skin;
             Vector2 mid = new Vector2(0.5f, 0.5f), top = new Vector2(0.5f, 1f);
-            var title = UiKit.Title("PuzzleTitle", panel, Name, 84, TextAnchor.MiddleCenter, top, mid, new Vector2(0, -260), new Vector2(1400, 120), UiKit.Gold);
+            var title = UiKit.Title("PuzzleTitle", panel, Name, 84, TextAnchor.MiddleCenter, top, mid, new Vector2(0, -150), new Vector2(1400, 120), UiKit.Gold);
 
             // ---------------------------------------------------------------- how to play (the player starts when ready)
             var card = UiKit.Stretch("HowToPlay", panel);
@@ -68,8 +68,8 @@ namespace BalHanuman.Fight
             UnityEngine.Object.Destroy(card.gameObject);
 
             // ---------------------------------------------------------------- the board
-            var info = UiKit.Body("PuzzleInfo", panel, "", 46, TextAnchor.MiddleCenter, top, mid, new Vector2(0, -370), new Vector2(1600, 70), UiKit.Cream, FontStyle.Bold);
-            var sub = UiKit.Body("PuzzleSub", panel, "", 32, TextAnchor.MiddleCenter, top, mid, new Vector2(0, -430), new Vector2(1600, 50), new Color(1f, 0.85f, 0.55f));
+            var info = UiKit.Body("PuzzleInfo", panel, "", 46, TextAnchor.MiddleCenter, top, mid, new Vector2(0, -262), new Vector2(1700, 70), UiKit.Cream, FontStyle.Bold);
+            var sub = UiKit.Body("PuzzleSub", panel, "", 32, TextAnchor.MiddleCenter, top, mid, new Vector2(0, -330), new Vector2(1700, 50), new Color(1f, 0.85f, 0.55f));
             var big = UiKit.Title("Count", panel, "", 220, TextAnchor.MiddleCenter, mid, mid, new Vector2(0, -90), new Vector2(600, 300), new Color(1f, 0.85f, 0.4f, 0.95f));
 
             var lamps = new Image[5]; var glows = new Image[5]; var rings = new Image[5]; int tapped = -1;
